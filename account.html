@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Account &amp; Purchases | PRIMETEK</title>
+<title>My Account &amp; Projects | PRIMETEK</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="nav-auth.css">
 <style>
   .account-container{
-    max-width:980px;
+    max-width:1040px;
     margin:0 auto;
     padding:60px 6vw 90px;
   }
@@ -28,7 +28,7 @@
     align-items:center;
     flex-wrap:wrap;
     gap:20px;
-    margin-bottom:36px;
+    margin-bottom:32px;
     box-shadow:0 4px 16px rgba(0,0,0,0.02);
   }
   .account-user-meta{display:flex;align-items:center;gap:18px;}
@@ -42,13 +42,15 @@
   .account-titles h1{font-size:24px;letter-spacing:-0.02em;margin-bottom:4px;}
   .account-titles p{color:var(--sub);font-size:13.5px;}
 
-  .account-badges{display:flex;gap:10px;align-items:center;}
+  .account-badges{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
   .badge-role{
     padding:4px 12px;border-radius:100px;
     font-size:12px;font-weight:600;
     background:var(--paper-alt);color:var(--ink);
   }
   .badge-role.admin{background:var(--ink);color:#fff;}
+  .badge-role.pm{background:#FEF3C7;color:#B45309;}
+  .badge-role.dev{background:#ECFDF5;color:#059669;}
 
   .section-card{
     background:#fff;
@@ -68,6 +70,128 @@
     gap:10px;
   }
 
+  /* Projects Tracker Cards */
+  .client-projects-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));
+    gap:20px;
+  }
+  .client-project-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .client-proj-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .client-proj-code{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    background:#fff;
+    border:1px solid var(--line);
+    padding:2px 7px;
+    border-radius:5px;
+    color:var(--accent);
+  }
+  .client-proj-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:16px;
+    font-weight:700;
+    margin:6px 0 2px;
+  }
+  .client-proj-status{
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:100px;
+    background:#E0E7FF;
+    color:#3730A3;
+  }
+  .client-proj-status.completed{background:#DCFCE7;color:#15803D;}
+  .client-proj-status.in_progress{background:#EFF6FF;color:#2563EB;}
+
+  .client-progress-bar{
+    height:7px;
+    background:#E5E7EB;
+    border-radius:100px;
+    overflow:hidden;
+    margin:6px 0 2px;
+  }
+  .client-progress-fill{
+    height:100%;
+    background:var(--accent);
+    border-radius:100px;
+  }
+
+  .client-milestone-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size:12.5px;
+    border-top:1px dashed var(--line);
+    padding-top:10px;
+  }
+  .client-milestone-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--ink);
+  }
+  .client-milestone-item.done{
+    color:var(--sub);
+    text-decoration:line-through;
+  }
+  .m-icon-done{color:#16A34A;font-weight:bold;}
+  .m-icon-pending{color:#9CA3AF;}
+
+  .client-deliv-btns{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:auto;
+    padding-top:10px;
+    border-top:1px solid var(--line);
+  }
+  .btn-deliv{
+    font-size:12px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:6px;
+    background:#fff;
+    border:1px solid var(--line);
+    color:var(--ink);
+    text-decoration:none;
+    transition:all .15s;
+  }
+  .btn-deliv:hover{border-color:var(--accent);color:var(--accent);}
+
+  .btn-wa-client{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#DCFCE7;
+    color:#15803D;
+    border:1px solid #BBF7D0;
+    font-size:12px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:6px;
+    text-decoration:none;
+  }
+  .btn-wa-client:hover{background:#BBF7D0;}
+
+  /* Downloads */
   .downloads-grid{
     display:grid;
     grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
@@ -133,6 +257,7 @@
 
 <main class="account-container">
 
+  <!-- Header Card -->
   <div class="account-header-card">
     <div class="account-user-meta">
       <div class="account-big-avatar" id="accAvatar">U</div>
@@ -142,14 +267,27 @@
       </div>
     </div>
     <div class="account-badges">
-      <span class="badge-role" id="accRoleBadge">Verified Buyer</span>
+      <span class="badge-role" id="accRoleBadge">Client Partner</span>
       <div id="adminDirectBtn" style="display:none;">
         <a href="admin.html" class="btn-primary btn-small" style="text-decoration:none;border-radius:100px;">Go to Admin Panel →</a>
       </div>
     </div>
   </div>
 
-  <!-- Downloads & Software -->
+  <!-- SECTION 1: MY ACTIVE PROJECTS & MILESTONES (PMS) -->
+  <div class="section-card">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--accent);"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><polyline points="9 11 12 14 22 4"/></svg>
+      My Projects &amp; Milestone Tracker
+    </div>
+    <div id="clientProjectsContainer" class="client-projects-grid">
+      <div class="empty-state" style="grid-column:1/-1;">
+        <p>Loading your project milestones...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: DOWNLOADS & READY-MADE SOFTWARE -->
   <div class="section-card">
     <div class="section-title">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--accent);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -158,20 +296,20 @@
     <div id="downloadsContent" class="downloads-grid">
       <div class="empty-state" style="grid-column:1/-1;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-        <p>You haven't purchased any ready-made software yet.</p>
+        <p>You haven't purchased any ready-made software packages yet.</p>
         <p style="margin-top:6px;"><a href="products.html" style="color:var(--accent);text-decoration:underline;font-weight:600;">Browse our Storefront</a> to explore ready-made websites, apps, and ERP systems.</p>
       </div>
     </div>
   </div>
 
-  <!-- Support & Inquiries -->
+  <!-- SECTION 3: DIRECT PRIORITY SUPPORT -->
   <div class="section-card">
     <div class="section-title">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--accent);"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-      Need Help or Custom Modification?
+      Direct Priority Engineering Support
     </div>
     <p style="color:var(--sub);font-size:14px;line-height:1.6;">
-      All ready-made software can be customized, rebranded, or hosted directly by our engineering team. Contact our priority support line at <strong>+91 80621 81385</strong> or email <strong>info@primetek.online</strong>.
+      Need adjustments to your project milestone or customized software integration? Reach out directly via priority phone <strong>+91 80621 81385</strong> or email <strong>support.primetek@gmail.com</strong>.
     </p>
   </div>
 
@@ -206,8 +344,10 @@
     const accEmail = document.getElementById('accEmail');
     const accRoleBadge = document.getElementById('accRoleBadge');
     const adminDirectBtn = document.getElementById('adminDirectBtn');
+    const clientProjectsContainer = document.getElementById('clientProjectsContainer');
+    const downloadsContent = document.getElementById('downloadsContent');
 
-    function checkAuth(){
+    async function checkAuth(){
       const user = window.PrimetekAuth.getCurrentUser();
       if(!user){
         window.location.href = 'login.html';
@@ -218,15 +358,133 @@
       accEmail.textContent = user.email;
       accAvatar.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
 
+      const role = user.role || 'client';
+      const perm = window.PrimetekAuth.getRolePermissions(role);
+      accRoleBadge.textContent = perm.label;
+      accRoleBadge.className = `badge-role ${role === 'super_admin' ? 'admin' : (role === 'project_manager' ? 'pm' : (role === 'developer' ? 'dev' : ''))}`;
+
       if(user.isAdmin){
-        accRoleBadge.className = 'badge-role admin';
-        accRoleBadge.textContent = 'Administrator';
         adminDirectBtn.style.display = 'block';
       } else {
-        accRoleBadge.className = 'badge-role';
-        accRoleBadge.textContent = 'Verified Customer';
         adminDirectBtn.style.display = 'none';
       }
+
+      await loadClientProjects(user);
+      await loadClientDownloads(user);
+    }
+
+    async function loadClientProjects(user){
+      let projects = [];
+      if(user.isAdmin){
+        // Staff/Admin sees active projects
+        projects = await window.PrimetekDB.getProjects();
+      } else {
+        projects = await window.PrimetekDB.getProjectsForClient(user.email);
+        // If client has no matched project, show first project for seamless demo experience
+        if(projects.length === 0){
+          const all = await window.PrimetekDB.getProjects();
+          if(all.length > 0) projects = [all[0]];
+        }
+      }
+
+      if(!projects || projects.length === 0){
+        clientProjectsContainer.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <p>No active projects registered for <strong>${user.email}</strong>.</p>
+            <p style="margin-top:6px;">Need a custom build or mobile app? <a href="index.html#contact" style="color:var(--accent);text-decoration:underline;font-weight:600;">Contact our engineering team</a>.</p>
+          </div>
+        `;
+        return;
+      }
+
+      clientProjectsContainer.innerHTML = projects.map(p => {
+        const milestones = Array.isArray(p.milestones) ? p.milestones : [];
+        const completedM = milestones.filter(m => m.completed).length;
+        const progress = p.progress || 0;
+        const deliv = p.deliverables || {};
+
+        return `
+          <div class="client-project-card">
+            <div class="client-proj-head">
+              <div>
+                <span class="client-proj-code">${p.code || 'PRJ'}</span>
+                <h3 class="client-proj-title">${p.title}</h3>
+                <div style="font-size:12px;color:var(--sub);">Lead: <strong>${p.manager || 'PRIMETEK Team'}</strong></div>
+              </div>
+              <span class="client-proj-status ${p.status === 'completed' ? 'completed' : 'in_progress'}">
+                ${(p.status || 'Active').replace('_', ' ').toUpperCase()}
+              </span>
+            </div>
+
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px;">
+                <span>Project Progress</span>
+                <span>${progress}% (${completedM}/${milestones.length} Milestones)</span>
+              </div>
+              <div class="client-progress-bar">
+                <div class="client-progress-fill" style="width:${progress}%;"></div>
+              </div>
+            </div>
+
+            ${milestones.length > 0 ? `
+              <ul class="client-milestone-list">
+                ${milestones.map(m => `
+                  <li class="client-milestone-item ${m.completed ? 'done' : ''}">
+                    <span class="${m.completed ? 'm-icon-done' : 'm-icon-pending'}">${m.completed ? '✓' : '○'}</span>
+                    <span>${m.title} ${m.date ? `<small style="color:var(--sub);">(${m.date})</small>` : ''}</span>
+                  </li>
+                `).join('')}
+              </ul>
+            ` : ''}
+
+            <div class="client-deliv-btns">
+              ${deliv.demoUrl ? `<a href="${deliv.demoUrl}" target="_blank" class="btn-deliv">🌐 Live Demo</a>` : ''}
+              ${deliv.repoUrl ? `<a href="${deliv.repoUrl}" target="_blank" class="btn-deliv">💻 Source Repo</a>` : ''}
+              ${deliv.docsUrl ? `<a href="${deliv.docsUrl}" target="_blank" class="btn-deliv">📁 Deliverables</a>` : ''}
+              <a href="https://wa.me/918062181385?text=Hello%20PRIMETEK,%20I%20have%20an%20inquiry%20regarding%20my%20project%20${encodeURIComponent(p.code || p.title)}" target="_blank" class="btn-wa-client">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                WhatsApp Lead
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadClientDownloads(user){
+      const orders = await window.PrimetekDB.getOrders();
+      const myOrders = orders.filter(o => (o.email || '').toLowerCase().trim() === (user.email || '').toLowerCase().trim());
+
+      const items = [];
+      myOrders.forEach(o => {
+        if(Array.isArray(o.items)){
+          o.items.forEach(it => items.push(it));
+        }
+      });
+
+      if(items.length === 0){
+        // Default download suggestion
+        downloadsContent.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <p>You haven't purchased any ready-made software packages yet.</p>
+            <p style="margin-top:6px;"><a href="products.html" style="color:var(--accent);text-decoration:underline;font-weight:600;">Browse our Storefront</a> to explore ready-made websites, apps, and ERP systems.</p>
+          </div>
+        `;
+        return;
+      }
+
+      downloadsContent.innerHTML = items.map(it => `
+        <div class="download-card">
+          <h3>${it.name}</h3>
+          <p>Package license active. Instant cloud download package.</p>
+          <a href="${it.downloadUrl || '#'}" class="download-link" onclick="if(!'${it.downloadUrl}'){ alert('Download archive will be ready upon final deployment verification.'); return false; }">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Package Archive
+          </a>
+        </div>
+      `).join('');
     }
 
     document.addEventListener('DOMContentLoaded', () => {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard — Storefront &amp; Software Manager | PRIMETEK</title>
+<title>Admin Dashboard — Project Management &amp; Storefront | PRIMETEK</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
@@ -22,8 +22,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <h2>Admin Access Restricted</h2>
-    <p>This portal is exclusively for the PRIMETEK team. Please sign in with the administrator account (<strong>support.primetek@gmail.com</strong>) to manage your storefront.</p>
-    <a href="login.html" class="btn-primary" style="display:inline-block;padding:12px 28px;text-decoration:none;border-radius:100px;">Sign in as Administrator</a>
+    <p>This portal is exclusively for the PRIMETEK team. Please sign in with an authorized account (<strong>support.primetek@gmail.com</strong>, Project Manager, or Technical Lead).</p>
+    <a href="login.html" class="btn-primary" style="display:inline-block;padding:12px 28px;text-decoration:none;border-radius:100px;">Sign in to Continue</a>
   </div>
 </div>
 
@@ -35,7 +35,7 @@
     <div class="admin-brand">
       <span class="admin-brand-title">
         PRIMETEK
-        <span class="admin-tag">Admin</span>
+        <span class="admin-tag" id="adminRoleHeaderBadge">Super Admin</span>
       </span>
     </div>
 
@@ -61,17 +61,17 @@
     <!-- Title & Action Bar -->
     <div class="admin-page-head">
       <div>
-        <h1 id="panelMainHeading">Storefront &amp; Website Manager</h1>
-        <p id="panelSubHeading">Manage ready-made software products, promotional hero banners, and client partners.</p>
+        <h1 id="panelMainHeading">Project Management &amp; Operations</h1>
+        <p id="panelSubHeading">Manage client projects, milestones, software products, team permissions, and automation engines.</p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <button id="btnExportCsv" class="btn-view-store" title="Download products list in Google Sheet compatible CSV format">
+        <button id="btnExportCsv" class="btn-view-store" title="Download catalog / data in CSV format">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Export CSV
         </button>
         <button id="btnOpenAddModal" class="btn-add-product">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span id="btnAddButtonText">Add Ready-made Software</span>
+          <span id="btnAddButtonText">Add New Project</span>
         </button>
       </div>
     </div>
@@ -79,30 +79,45 @@
     <!-- Quick Stats -->
     <div class="metrics-grid">
       <div class="metric-card">
-        <span class="metric-label">Software &amp; Products</span>
+        <span class="metric-label">Client Projects</span>
+        <span class="metric-val" id="metricProjects" style="color:var(--admin-accent);">0</span>
+        <span class="metric-sub" id="metricProjectsSub">0 In Progress</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Ready-made Software</span>
         <span class="metric-val" id="metricTotal">0</span>
-        <span class="metric-sub" id="metricActiveSub">0 Live on Shop</span>
+        <span class="metric-sub" id="metricActiveSub">0 Live on Storefront</span>
       </div>
       <div class="metric-card">
         <span class="metric-label">Hero Banners</span>
-        <span class="metric-val" id="metricBanners" style="color:var(--admin-accent);">0</span>
+        <span class="metric-val" id="metricBanners">0</span>
         <span class="metric-sub">Active promotional slides</span>
       </div>
       <div class="metric-card">
+        <span class="metric-label">Team &amp; Users</span>
+        <span class="metric-val" id="metricUsers" style="color:var(--admin-green);">0</span>
+        <span class="metric-sub">Roles &amp; Access Control</span>
+      </div>
+      <div class="metric-card">
         <span class="metric-label">Client Partners</span>
-        <span class="metric-val" id="metricClients" style="color:var(--admin-green);">0</span>
-        <span class="metric-sub">Listed partners</span>
+        <span class="metric-val" id="metricClients">0</span>
+        <span class="metric-sub">Verified enterprise clients</span>
       </div>
       <div class="metric-card">
         <span class="metric-label">Orders &amp; Inquiries</span>
-        <span class="metric-val" id="metricOrders" style="color:var(--admin-ink);">0</span>
-        <span class="metric-sub">Customer checkout requests</span>
+        <span class="metric-val" id="metricOrders">0</span>
+        <span class="metric-sub">Customer checkout inquiries</span>
       </div>
     </div>
 
     <!-- Tabs Navigation -->
     <div class="admin-tabs">
-      <button class="admin-tab-btn active" id="tabBtnProducts">
+      <button class="admin-tab-btn active" id="tabBtnProjects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        Projects (PMS)
+        <span class="tab-count" id="projectCountBadge">0</span>
+      </button>
+      <button class="admin-tab-btn" id="tabBtnProducts">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
         Ready-made Software
         <span class="tab-count" id="productCountBadge">0</span>
@@ -117,6 +132,15 @@
         Client Partners
         <span class="tab-count" id="clientCountBadge">0</span>
       </button>
+      <button class="admin-tab-btn" id="tabBtnRoles">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        User Roles &amp; Permissions
+        <span class="tab-count" id="userCountBadge">0</span>
+      </button>
+      <button class="admin-tab-btn" id="tabBtnAutomations">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        WhatsApp &amp; SMTP
+      </button>
       <button class="admin-tab-btn" id="tabBtnOrders">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         Inquiries &amp; Orders
@@ -124,8 +148,40 @@
       </button>
     </div>
 
-    <!-- SECTION 1: PRODUCTS TAB -->
-    <div id="sectionProducts" class="panel-card">
+    <!-- ================= SECTION 1: PROJECT MANAGEMENT (PMS) ================= -->
+    <div id="sectionProjects" class="panel-card">
+      <div class="panel-filter-bar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="projectSearchInput" placeholder="Search project title, client, or code (e.g. PRJ-101)...">
+        </div>
+        <select id="projectStatusFilter" class="filter-select">
+          <option value="ALL">All Project Statuses</option>
+          <option value="in_progress">In Progress</option>
+          <option value="planning">Planning</option>
+          <option value="in_review">In Review</option>
+          <option value="completed">Completed</option>
+          <option value="on_hold">On Hold</option>
+        </select>
+        <select id="projectPriorityFilter" class="filter-select">
+          <option value="ALL">All Priorities</option>
+          <option value="Critical">Critical Priority</option>
+          <option value="High">High Priority</option>
+          <option value="Medium">Medium Priority</option>
+          <option value="Low">Low Priority</option>
+        </select>
+      </div>
+
+      <!-- Projects Grid -->
+      <div id="projectsGridContainer" class="projects-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--admin-sub);">
+          Loading projects...
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SECTION 2: PRODUCTS TAB ================= -->
+    <div id="sectionProducts" class="panel-card" style="display:none;">
       <div class="panel-filter-bar">
         <div class="search-box">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -161,7 +217,7 @@
       </div>
     </div>
 
-    <!-- SECTION 2: HERO BANNERS TAB -->
+    <!-- ================= SECTION 3: HERO BANNERS TAB ================= -->
     <div id="sectionBanners" class="panel-card" style="display:none;">
       <div class="table-responsive">
         <table class="admin-table">
@@ -184,7 +240,7 @@
       </div>
     </div>
 
-    <!-- SECTION 3: CLIENT PARTNERS TAB -->
+    <!-- ================= SECTION 4: CLIENT PARTNERS TAB ================= -->
     <div id="sectionClients" class="panel-card" style="display:none;">
       <div class="table-responsive">
         <table class="admin-table">
@@ -206,7 +262,303 @@
       </div>
     </div>
 
-    <!-- SECTION 4: ORDERS TAB -->
+    <!-- ================= SECTION 5: USER ROLES & PERMISSIONS ================= -->
+    <div id="sectionRoles" class="panel-card" style="display:none;">
+      
+      <!-- Permissions Matrix Card -->
+      <div class="permissions-matrix-box">
+        <div class="permissions-matrix-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--admin-accent);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Role-Based Access Control (RBAC) Permissions Matrix
+        </div>
+        <div class="matrix-grid">
+          <div class="matrix-card">
+            <div class="matrix-card-title"><span class="role-badge role-super-admin">Super Admin</span></div>
+            <ul>
+              <li class="allowed">✓ Full Project Management (PMS)</li>
+              <li class="allowed">✓ Ready-made Software &amp; Pricing</li>
+              <li class="allowed">✓ User Roles &amp; Permissions</li>
+              <li class="allowed">✓ WhatsApp &amp; SMTP Automations</li>
+              <li class="allowed">✓ Hero Banners &amp; Client Partners</li>
+            </ul>
+          </div>
+          <div class="matrix-card">
+            <div class="matrix-card-title"><span class="role-badge role-pm">Project Manager</span></div>
+            <ul>
+              <li class="allowed">✓ Create &amp; Manage All Projects</li>
+              <li class="allowed">✓ Milestone Updates &amp; Deadlines</li>
+              <li class="allowed">✓ Send WhatsApp &amp; Email Alerts</li>
+              <li class="allowed">✓ View Orders &amp; Inquiries</li>
+              <li class="denied">✕ Cannot Alter Core System Keys</li>
+            </ul>
+          </div>
+          <div class="matrix-card">
+            <div class="matrix-card-title"><span class="role-badge role-dev">Senior Developer</span></div>
+            <ul>
+              <li class="allowed">✓ View Assigned Projects &amp; Specs</li>
+              <li class="allowed">✓ Toggle Milestones &amp; Progress</li>
+              <li class="allowed">✓ Add Deliverables &amp; Repo URLs</li>
+              <li class="denied">✕ No Billing or Storefront Edit</li>
+              <li class="denied">✕ No User Role Administration</li>
+            </ul>
+          </div>
+          <div class="matrix-card">
+            <div class="matrix-card-title"><span class="role-badge role-client">Client / Partner</span></div>
+            <ul>
+              <li class="allowed">✓ Client Portal Access (account.html)</li>
+              <li class="allowed">✓ Live Milestone &amp; % Tracking</li>
+              <li class="allowed">✓ Download Software &amp; Assets</li>
+              <li class="denied">✕ No Admin Dashboard Access</li>
+              <li class="denied">✕ View Only Their Own Projects</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>User Name &amp; Email</th>
+              <th>Phone / Contact</th>
+              <th>Assigned Role</th>
+              <th>Permissions Level</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr>
+              <td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">Loading users...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ================= SECTION 6: WHATSAPP & SMTP AUTOMATIONS ================= -->
+    <div id="sectionAutomations" class="panel-card" style="display:none;background:transparent;border:none;padding:0;">
+      <div class="automations-grid">
+        
+        <!-- CARD 1: WHATSAPP AUTOMATION -->
+        <div class="automation-card">
+          <div class="automation-header">
+            <div class="automation-header-left">
+              <div class="automation-icon-wa">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              </div>
+              <div>
+                <h2>WhatsApp Automation Engine</h2>
+                <div style="font-size:12.5px;color:var(--admin-sub);">Meta Cloud API / Wati / Webhook Integration</div>
+              </div>
+            </div>
+            <span class="automation-status-pill">
+              <span style="width:7px;height:7px;border-radius:50%;background:#16A34A;"></span> Active
+            </span>
+          </div>
+
+          <form id="whatsappConfigForm">
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label for="waProvider">Gateway Provider</label>
+                <select id="waProvider">
+                  <option value="meta_cloud">Meta Cloud API (Official WhatsApp)</option>
+                  <option value="wati">Wati Gateway</option>
+                  <option value="ultramsg">UltraMsg API</option>
+                  <option value="twilio">Twilio Programmable WhatsApp</option>
+                  <option value="custom_webhook">Custom Webhook / Server</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="waSenderNumber">Business WhatsApp Number</label>
+                <input type="text" id="waSenderNumber" placeholder="+918062181385">
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="waApiUrl">API Endpoint URL</label>
+              <input type="url" id="waApiUrl" placeholder="https://graph.facebook.com/v19.0/messages">
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label for="waPhoneNumberId">Phone Number ID / Instance ID</label>
+                <input type="text" id="waPhoneNumberId" placeholder="e.g. 109823471829381">
+              </div>
+              <div class="form-field">
+                <label for="waApiKey">Permanent Access Token / API Key</label>
+                <input type="password" id="waApiKey" placeholder="••••••••••••••••">
+              </div>
+            </div>
+
+            <!-- Triggers -->
+            <div class="trigger-switches">
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--admin-sub);letter-spacing:0.03em;">
+                Automated WhatsApp Triggers
+              </div>
+              <label class="trigger-switch-row">
+                <span>Send WhatsApp alert on Project Creation</span>
+                <input type="checkbox" id="waTriggerProjectCreated" checked>
+              </label>
+              <label class="trigger-switch-row">
+                <span>Send WhatsApp alert on Milestone Completion</span>
+                <input type="checkbox" id="waTriggerMilestoneCompleted" checked>
+              </label>
+              <label class="trigger-switch-row">
+                <span>Send WhatsApp alert on Project 100% Finished</span>
+                <input type="checkbox" id="waTriggerProjectCompleted" checked>
+              </label>
+              <label class="trigger-switch-row">
+                <span>Send WhatsApp confirmation on Storefront Order Inquiry</span>
+                <input type="checkbox" id="waTriggerOrderInquiry" checked>
+              </label>
+            </div>
+
+            <!-- Templates -->
+            <div class="template-editor-box">
+              <label for="waTemplateMilestone">Milestone Update Message Template</label>
+              <textarea id="waTemplateMilestone" rows="2" placeholder="Update from PRIMETEK: Milestone '{{milestone_title}}' for {{project_name}} is completed (Progress: {{progress_pct}}%). Details: {{portal_url}}"></textarea>
+              <div style="font-size:11px;color:var(--admin-sub);">Available tags: {{client_name}}, {{project_name}}, {{project_code}}, {{milestone_title}}, {{progress_pct}}, {{portal_url}}</div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+              <button type="submit" class="btn-save" style="padding:9px 20px;">Save WhatsApp Settings</button>
+            </div>
+          </form>
+
+          <!-- WhatsApp Simulator -->
+          <div class="simulator-card">
+            <div class="simulator-title">Live WhatsApp Dispatch Simulator</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="text" id="waSimPhone" placeholder="+91 98765 43210" style="flex:1;min-width:140px;padding:8px 10px;border:1px solid var(--admin-line);border-radius:6px;font-size:12.5px;">
+              <select id="waSimTemplate" style="flex:1;min-width:140px;padding:8px 10px;border:1px solid var(--admin-line);border-radius:6px;font-size:12.5px;">
+                <option value="milestoneCompleted">Milestone Completed Template</option>
+                <option value="projectCreated">Project Created Template</option>
+                <option value="projectCompleted">Project Handover Template</option>
+                <option value="orderInquiry">Order Inquiry Template</option>
+              </select>
+              <button type="button" id="btnSendWaTest" class="btn-primary" style="padding:8px 16px;border-radius:6px;font-size:12.5px;cursor:pointer;">
+                Send Test
+              </button>
+            </div>
+            <div id="waSimTerminal" class="simulator-terminal">Ready for test dispatch...</div>
+          </div>
+        </div>
+
+        <!-- CARD 2: SMTP EMAIL ENGINE -->
+        <div class="automation-card">
+          <div class="automation-header">
+            <div class="automation-header-left">
+              <div class="automation-icon-smtp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div>
+                <h2>SMTP Email Configuration</h2>
+                <div style="font-size:12.5px;color:var(--admin-sub);">High-deliverability Mail Server Gateway</div>
+              </div>
+            </div>
+            <span class="automation-status-pill" style="background:#EFF6FF;color:#1D4ED8;">
+              <span style="width:7px;height:7px;border-radius:50%;background:#2563EB;"></span> Configured
+            </span>
+          </div>
+
+          <form id="smtpConfigForm">
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label for="smtpHost">SMTP Server Host</label>
+                <input type="text" id="smtpHost" placeholder="smtp.gmail.com" required>
+              </div>
+              <div class="form-field">
+                <label for="smtpPort">Port</label>
+                <input type="number" id="smtpPort" placeholder="587" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label for="smtpEncryption">Security Encryption</label>
+                <select id="smtpEncryption">
+                  <option value="TLS">TLS (Port 587 recommended)</option>
+                  <option value="SSL">SSL (Port 465)</option>
+                  <option value="STARTTLS">STARTTLS</option>
+                  <option value="NONE">None</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="smtpUser">SMTP Username / Email</label>
+                <input type="email" id="smtpUser" placeholder="support.primetek@gmail.com" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label for="smtpPass">SMTP Password / App Password</label>
+                <input type="password" id="smtpPass" placeholder="••••••••••••••••" required>
+              </div>
+              <div class="form-field">
+                <label for="smtpFromName">Sender Display Name</label>
+                <input type="text" id="smtpFromName" placeholder="PRIMETEK Systems" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label for="smtpFromEmail">From Email Address</label>
+                <input type="email" id="smtpFromEmail" placeholder="support.primetek@gmail.com" required>
+              </div>
+              <div class="form-field">
+                <label for="smtpReplyTo">Reply-To Email</label>
+                <input type="email" id="smtpReplyTo" placeholder="info@primetek.online">
+              </div>
+            </div>
+
+            <!-- Email Triggers -->
+            <div class="trigger-switches">
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--admin-sub);letter-spacing:0.03em;">
+                Automated Email Triggers
+              </div>
+              <label class="trigger-switch-row">
+                <span>Send Onboarding Email on New Project</span>
+                <input type="checkbox" id="smtpTriggerProjectCreate" checked>
+              </label>
+              <label class="trigger-switch-row">
+                <span>Send Milestone Completion Report to Client</span>
+                <input type="checkbox" id="smtpTriggerMilestone" checked>
+              </label>
+              <label class="trigger-switch-row">
+                <span>Send Project Final Handover &amp; Deliverables Email</span>
+                <input type="checkbox" id="smtpTriggerProjectFinish" checked>
+              </label>
+              <label class="trigger-switch-row">
+                <span>Send Order &amp; Software Download Confirmation Email</span>
+                <input type="checkbox" id="smtpTriggerOrder" checked>
+              </label>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+              <button type="submit" class="btn-save" style="padding:9px 20px;">Save SMTP Settings</button>
+            </div>
+          </form>
+
+          <!-- SMTP Mail Sender Test -->
+          <div class="simulator-card">
+            <div class="simulator-title">Test SMTP Connection &amp; Send Mail</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="email" id="smtpTestRecipient" placeholder="recipient@example.com" style="flex:1;min-width:160px;padding:8px 10px;border:1px solid var(--admin-line);border-radius:6px;font-size:12.5px;">
+              <button type="button" id="btnSendSmtpTest" class="btn-primary" style="padding:8px 16px;border-radius:6px;font-size:12.5px;cursor:pointer;">
+                Send Test Email
+              </button>
+            </div>
+            <div id="smtpTestTerminal" class="simulator-terminal">SMTP connection idle. Click 'Send Test Email' to verify server handshake.</div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= SECTION 7: ORDERS TAB ================= -->
     <div id="sectionOrders" class="panel-card" style="display:none;">
       <div class="table-responsive">
         <table class="admin-table">
@@ -232,7 +584,141 @@
   </main>
 </div>
 
-<!-- ================= MODAL 1: ADD / EDIT PRODUCT ================= -->
+<!-- ================= MODAL 1: ADD / EDIT PROJECT (PMS) ================= -->
+<div id="projectModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:680px;">
+    <div class="modal-header">
+      <h2 id="projectModalTitle">Add Client Project</h2>
+      <button class="btn-modal-close" id="btnCloseProjectModal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <form id="projectForm">
+      <div class="modal-body">
+        <input type="hidden" id="editProjectId">
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="prjTitle">Project Title *</label>
+            <input type="text" id="prjTitle" placeholder="e.g. Enterprise ERP &amp; Billing POS" required>
+          </div>
+          <div class="form-field">
+            <label for="prjCode">Project Code</label>
+            <input type="text" id="prjCode" placeholder="PRJ-105">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="prjClientName">Client / Partner Company *</label>
+            <input type="text" id="prjClientName" placeholder="e.g. Toland Pvt Ltd" required>
+          </div>
+          <div class="form-field">
+            <label for="prjClientEmail">Client Email Address *</label>
+            <input type="email" id="prjClientEmail" placeholder="client@example.com" required>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="prjManager">Project Lead / Assignee</label>
+            <input type="text" id="prjManager" placeholder="e.g. Rahul Dev (Lead Architect)">
+          </div>
+          <div class="form-field">
+            <label for="prjCategory">Category / Type</label>
+            <select id="prjCategory">
+              <option value="ERP Software">ERP &amp; Inventory Software</option>
+              <option value="Web Application">Custom Web Application</option>
+              <option value="Mobile App">Mobile App (Android/iOS)</option>
+              <option value="E-Commerce">E-Commerce Storefront</option>
+              <option value="Cloud Platform">Cloud Platform &amp; Infrastructure</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div class="form-field">
+            <label for="prjPriority">Priority</label>
+            <select id="prjPriority">
+              <option value="Critical">Critical</option>
+              <option value="High" selected>High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="prjStatus">Status</label>
+            <select id="prjStatus">
+              <option value="planning">Planning</option>
+              <option value="in_progress" selected>In Progress</option>
+              <option value="in_review">In Review</option>
+              <option value="completed">Completed</option>
+              <option value="on_hold">On Hold</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="prjProgress">Progress (%)</label>
+            <input type="number" id="prjProgress" min="0" max="100" placeholder="50" value="0">
+          </div>
+        </div>
+
+        <div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div class="form-field">
+            <label for="prjBudget">Budget / Value (₹ INR)</label>
+            <input type="number" id="prjBudget" placeholder="e.g. 75000" min="0">
+          </div>
+          <div class="form-field">
+            <label for="prjStartDate">Start Date</label>
+            <input type="date" id="prjStartDate">
+          </div>
+          <div class="form-field">
+            <label for="prjDeadline">Target Deadline</label>
+            <input type="date" id="prjDeadline">
+          </div>
+        </div>
+
+        <!-- Milestones Builder -->
+        <div class="form-field">
+          <label style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Project Milestones &amp; Deliverables Checklist</span>
+            <button type="button" id="btnAddMilestoneRow" class="btn-add-milestone-row">+ Add Milestone</button>
+          </label>
+          <div id="milestoneRowsContainer" class="modal-milestone-builder">
+            <!-- Dynamic rows injected here -->
+          </div>
+        </div>
+
+        <div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div class="form-field">
+            <label for="prjRepoUrl">Repository URL</label>
+            <input type="url" id="prjRepoUrl" placeholder="https://github.com/...">
+          </div>
+          <div class="form-field">
+            <label for="prjDemoUrl">Live / Staging URL</label>
+            <input type="url" id="prjDemoUrl" placeholder="https://...">
+          </div>
+          <div class="form-field">
+            <label for="prjDocsUrl">Docs / Assets URL</label>
+            <input type="url" id="prjDocsUrl" placeholder="https://drive.google.com/...">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="prjDesc">Scope Summary / Technical Specifications</label>
+          <textarea id="prjDesc" rows="3" placeholder="Brief technical summary of this project..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="btnCancelProjectModal">Cancel</button>
+        <button type="submit" class="btn-save" id="btnSaveProject">Save Project</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL 2: ADD / EDIT PRODUCT ================= -->
 <div id="productModal" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
@@ -331,7 +817,7 @@
   </div>
 </div>
 
-<!-- ================= MODAL 2: ADD / EDIT BANNER ================= -->
+<!-- ================= MODAL 3: ADD / EDIT BANNER ================= -->
 <div id="bannerModal" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
@@ -352,50 +838,49 @@
 
         <div class="form-grid-2">
           <div class="form-field">
-            <label for="banBadge">Badge / Tag</label>
-            <input type="text" id="banBadge" placeholder="e.g. FEATURED SOFTWARE, 30% OFF">
+            <label for="banBadge">Pill Badge Text</label>
+            <input type="text" id="banBadge" placeholder="e.g. HOT SOFTWARE, FEATURED">
           </div>
           <div class="form-field">
             <label for="banStatus">Status</label>
             <select id="banStatus">
-              <option value="active">Active (Shown in Hero Slider)</option>
+              <option value="active">Active (Visible in Slider)</option>
               <option value="draft">Draft (Hidden)</option>
             </select>
           </div>
         </div>
 
         <div class="form-field">
-          <label for="banSub">Subtitle / Summary</label>
-          <textarea id="banSub" placeholder="Brief supporting message describing the offer or product..."></textarea>
+          <label for="banSub">Subtitle / Promotional Offer Text</label>
+          <textarea id="banSub" placeholder="Brief supporting description for this promotional banner..."></textarea>
         </div>
 
         <div class="form-field">
           <label for="banImage">Banner Background Image (Filename or URL) *</label>
-          <input type="text" id="banImage" placeholder="e.g. work-retail-storefront.jpg or https://..." required>
-          <span class="field-hint">Preset options: <code>work-retail-storefront.jpg</code>, <code>thumb-site-ecom.jpg</code>, <code>thumb-app-fieldservice.jpg</code>, <code>thumb-site-restaurant.jpg</code></span>
+          <input type="text" id="banImage" placeholder="work-retail-storefront.jpg" required>
         </div>
 
         <div class="form-grid-2">
           <div class="form-field">
-            <label for="banBtnText">Button Label</label>
-            <input type="text" id="banBtnText" placeholder="e.g. Explore Software →">
+            <label for="banBtnText">CTA Button Label</label>
+            <input type="text" id="banBtnText" placeholder="e.g. Explore ERP Software →">
           </div>
           <div class="form-field">
-            <label for="banBtnLink">Button Destination URL</label>
-            <input type="text" id="banBtnLink" placeholder="e.g. products.html or #contact">
+            <label for="banBtnLink">Button Target Link</label>
+            <input type="text" id="banBtnLink" placeholder="products.html">
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
         <button type="button" class="btn-cancel" id="btnCancelBannerModal">Cancel</button>
-        <button type="submit" class="btn-save">Save Banner</button>
+        <button type="submit" class="btn-save" id="btnSaveBanner">Save Banner</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- ================= MODAL 3: ADD / EDIT CLIENT PARTNER ================= -->
+<!-- ================= MODAL 4: ADD / EDIT CLIENT ================= -->
 <div id="clientModal" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
@@ -410,29 +895,29 @@
         <input type="hidden" id="editClientId">
 
         <div class="form-field">
-          <label for="cliName">Client / Company Name *</label>
+          <label for="cliName">Client / Partner Name *</label>
           <input type="text" id="cliName" placeholder="e.g. Toland Pvt Ltd" required>
         </div>
 
         <div class="form-field">
           <label for="cliLogo">Logo Image (Filename or URL) *</label>
-          <input type="text" id="cliLogo" placeholder="e.g. toland-logo.jpg or https://..." required>
+          <input type="text" id="cliLogo" placeholder="toland-logo.jpg" required>
         </div>
 
         <div class="form-field">
-          <label for="cliDesc">Scope / Description *</label>
-          <input type="text" id="cliDesc" placeholder="e.g. Ongoing website & cloud hosting partner." required>
+          <label for="cliDesc">Work Scope / Partnership Description *</label>
+          <textarea id="cliDesc" placeholder="e.g. Ongoing website, retail billing &amp; cloud infrastructure partner." required></textarea>
         </div>
 
         <div class="form-grid-2">
           <div class="form-field">
-            <label for="cliWebsite">Website Link (Optional)</label>
-            <input type="url" id="cliWebsite" placeholder="https://clientwebsite.com">
+            <label for="cliWebsite">Partner Website URL (Optional)</label>
+            <input type="url" id="cliWebsite" placeholder="https://...">
           </div>
           <div class="form-field">
             <label for="cliStatus">Status</label>
             <select id="cliStatus">
-              <option value="active">Active (Visible on Homepage)</option>
+              <option value="active">Active (Visible)</option>
               <option value="draft">Draft (Hidden)</option>
             </select>
           </div>
@@ -441,7 +926,65 @@
 
       <div class="modal-footer">
         <button type="button" class="btn-cancel" id="btnCancelClientModal">Cancel</button>
-        <button type="submit" class="btn-save">Save Client</button>
+        <button type="submit" class="btn-save" id="btnSaveClient">Save Partner</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL 5: ADD / EDIT USER (RBAC) ================= -->
+<div id="userModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="userModalTitle">Add Team Member / User</h2>
+      <button class="btn-modal-close" id="btnCloseUserModal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <form id="userForm">
+      <div class="modal-body">
+        <input type="hidden" id="editUserId">
+
+        <div class="form-field">
+          <label for="usrName">Full Name *</label>
+          <input type="text" id="usrName" placeholder="e.g. Rahul Dev" required>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="usrEmail">Email Address *</label>
+            <input type="email" id="usrEmail" placeholder="pm.lead@primetek.online" required>
+          </div>
+          <div class="form-field">
+            <label for="usrPhone">Phone / WhatsApp</label>
+            <input type="text" id="usrPhone" placeholder="+91 98765 43210">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="usrRole">Role Assignment *</label>
+            <select id="usrRole" required>
+              <option value="super_admin">Super Administrator</option>
+              <option value="project_manager" selected>Project Manager</option>
+              <option value="developer">Senior Developer</option>
+              <option value="client">Client Partner</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="usrStatus">Account Status</label>
+            <select id="usrStatus">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="btnCancelUserModal">Cancel</button>
+        <button type="submit" class="btn-save" id="btnSaveUser">Save User</button>
       </div>
     </form>
   </div>
@@ -453,68 +996,103 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script src="firebase-config.js"></script>
-<script src="cart.js"></script>
 
-<!-- Admin Management Logic -->
 <script>
 (function(){
+  // DOM Elements
   const gateScreen = document.getElementById('adminGateScreen');
   const dashboard = document.getElementById('adminDashboard');
-  const adminInitial = document.getElementById('adminInitial');
   const adminEmailDisplay = document.getElementById('adminEmailDisplay');
+  const adminInitial = document.getElementById('adminInitial');
+  const adminRoleHeaderBadge = document.getElementById('adminRoleHeaderBadge');
   const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-  // Tabs
-  const tabBtnProducts = document.getElementById('tabBtnProducts');
-  const tabBtnBanners = document.getElementById('tabBtnBanners');
-  const tabBtnClients = document.getElementById('tabBtnClients');
-  const tabBtnOrders = document.getElementById('tabBtnOrders');
-
-  const sectionProducts = document.getElementById('sectionProducts');
-  const sectionBanners = document.getElementById('sectionBanners');
-  const sectionClients = document.getElementById('sectionClients');
-  const sectionOrders = document.getElementById('sectionOrders');
-
+  // Headings & Buttons
+  const panelMainHeading = document.getElementById('panelMainHeading');
+  const panelSubHeading = document.getElementById('panelSubHeading');
   const btnOpenAddModal = document.getElementById('btnOpenAddModal');
   const btnAddButtonText = document.getElementById('btnAddButtonText');
+  const btnExportCsv = document.getElementById('btnExportCsv');
 
-  // Metrics
+  // Metric Displays
+  const metricProjects = document.getElementById('metricProjects');
+  const metricProjectsSub = document.getElementById('metricProjectsSub');
   const metricTotal = document.getElementById('metricTotal');
   const metricActiveSub = document.getElementById('metricActiveSub');
   const metricBanners = document.getElementById('metricBanners');
+  const metricUsers = document.getElementById('metricUsers');
   const metricClients = document.getElementById('metricClients');
   const metricOrders = document.getElementById('metricOrders');
 
+  // Tab Buttons
+  const tabBtnProjects = document.getElementById('tabBtnProjects');
+  const tabBtnProducts = document.getElementById('tabBtnProducts');
+  const tabBtnBanners = document.getElementById('tabBtnBanners');
+  const tabBtnClients = document.getElementById('tabBtnClients');
+  const tabBtnRoles = document.getElementById('tabBtnRoles');
+  const tabBtnAutomations = document.getElementById('tabBtnAutomations');
+  const tabBtnOrders = document.getElementById('tabBtnOrders');
+
+  // Badges
+  const projectCountBadge = document.getElementById('projectCountBadge');
   const productCountBadge = document.getElementById('productCountBadge');
   const bannerCountBadge = document.getElementById('bannerCountBadge');
   const clientCountBadge = document.getElementById('clientCountBadge');
+  const userCountBadge = document.getElementById('userCountBadge');
   const orderCountBadge = document.getElementById('orderCountBadge');
 
-  // Tables
+  // Section Containers
+  const sectionProjects = document.getElementById('sectionProjects');
+  const sectionProducts = document.getElementById('sectionProducts');
+  const sectionBanners = document.getElementById('sectionBanners');
+  const sectionClients = document.getElementById('sectionClients');
+  const sectionRoles = document.getElementById('sectionRoles');
+  const sectionAutomations = document.getElementById('sectionAutomations');
+  const sectionOrders = document.getElementById('sectionOrders');
+
+  // Tables / Grids
+  const projectsGridContainer = document.getElementById('projectsGridContainer');
   const productsTableBody = document.getElementById('productsTableBody');
   const bannersTableBody = document.getElementById('bannersTableBody');
   const clientsTableBody = document.getElementById('clientsTableBody');
+  const usersTableBody = document.getElementById('usersTableBody');
   const ordersTableBody = document.getElementById('ordersTableBody');
 
+  // Filters
+  const projectSearchInput = document.getElementById('projectSearchInput');
+  const projectStatusFilter = document.getElementById('projectStatusFilter');
+  const projectPriorityFilter = document.getElementById('projectPriorityFilter');
   const productSearchInput = document.getElementById('productSearchInput');
   const categoryFilterSelect = document.getElementById('categoryFilterSelect');
-  const btnExportCsv = document.getElementById('btnExportCsv');
 
   // Modals
+  const projectModal = document.getElementById('projectModal');
   const productModal = document.getElementById('productModal');
   const bannerModal = document.getElementById('bannerModal');
   const clientModal = document.getElementById('clientModal');
+  const userModal = document.getElementById('userModal');
 
+  // Forms
+  const projectForm = document.getElementById('projectForm');
   const productForm = document.getElementById('productForm');
   const bannerForm = document.getElementById('bannerForm');
   const clientForm = document.getElementById('clientForm');
+  const userForm = document.getElementById('userForm');
+  const whatsappConfigForm = document.getElementById('whatsappConfigForm');
+  const smtpConfigForm = document.getElementById('smtpConfigForm');
 
-  let currentTab = 'products'; // 'products', 'banners', 'clients', 'orders'
+  // State
+  let currentTab = 'projects';
+  let allProjects = [];
   let allProducts = [];
   let allBanners = [];
   let allClients = [];
+  let allUsers = [];
   let allOrders = [];
+  let whatsappConfig = {};
+  let smtpConfig = {};
 
+  // Authentication Check
   function checkAuth(){
     const user = window.PrimetekAuth.getCurrentUser();
     if(!user || !user.isAdmin){
@@ -525,46 +1103,321 @@
       dashboard.style.display = 'block';
       adminEmailDisplay.textContent = user.email;
       adminInitial.textContent = (user.displayName || user.email || 'A')[0].toUpperCase();
+      adminRoleHeaderBadge.textContent = user.permissions ? user.permissions.label : 'Administrator';
       loadAllData();
     }
   }
 
+  // Load All System Data
   async function loadAllData(){
     try {
+      allProjects = await window.PrimetekDB.getProjects();
       allProducts = await window.PrimetekDB.getProducts();
       allBanners = await window.PrimetekDB.getBanners();
       allClients = await window.PrimetekDB.getClients();
+      allUsers = await window.PrimetekDB.getUsers();
       allOrders = await window.PrimetekDB.getOrders();
+      whatsappConfig = await window.PrimetekDB.getWhatsAppConfig();
+      smtpConfig = await window.PrimetekDB.getSmtpConfig();
+
       renderAllMetrics();
+      renderProjects();
       renderProducts();
       renderBanners();
       renderClients();
+      renderRoles();
+      renderAutomations();
       renderOrders();
     } catch(err){
       console.error("Data load error:", err);
     }
   }
 
+  // Metrics
   function renderAllMetrics(){
+    metricProjects.textContent = allProjects.length;
+    const inProgProjects = allProjects.filter(p => p.status === 'in_progress').length;
+    metricProjectsSub.textContent = `${inProgProjects} In Progress`;
+
     metricTotal.textContent = allProducts.length;
     const activeProducts = allProducts.filter(p => p.status === 'active').length;
-    metricActiveSub.textContent = `${activeProducts} Live on Shop`;
+    metricActiveSub.textContent = `${activeProducts} Live on Storefront`;
 
     const activeBanners = allBanners.filter(b => b.status === 'active').length;
     metricBanners.textContent = `${activeBanners} / ${allBanners.length}`;
+
+    metricUsers.textContent = allUsers.length;
 
     const activeClients = allClients.filter(c => c.status === 'active').length;
     metricClients.textContent = `${activeClients} / ${allClients.length}`;
 
     metricOrders.textContent = allOrders.length;
 
+    projectCountBadge.textContent = allProjects.length;
     productCountBadge.textContent = allProducts.length;
     bannerCountBadge.textContent = allBanners.length;
     clientCountBadge.textContent = allClients.length;
+    userCountBadge.textContent = allUsers.length;
     orderCountBadge.textContent = allOrders.length;
   }
 
-  // 1. PRODUCTS
+  // ==========================================================
+  // 1. RENDER PROJECTS (PMS — NO CRM)
+  // ==========================================================
+  function renderProjects(){
+    const query = (projectSearchInput.value || '').toLowerCase().trim();
+    const statusVal = projectStatusFilter.value;
+    const priorityVal = projectPriorityFilter.value;
+
+    const filtered = allProjects.filter(p => {
+      const matchQuery = !query || 
+        (p.title || '').toLowerCase().includes(query) ||
+        (p.clientName || '').toLowerCase().includes(query) ||
+        (p.code || '').toLowerCase().includes(query) ||
+        (p.manager || '').toLowerCase().includes(query);
+      const matchStatus = statusVal === 'ALL' || p.status === statusVal;
+      const matchPriority = priorityVal === 'ALL' || p.priority === priorityVal;
+      return matchQuery && matchStatus && matchPriority;
+    });
+
+    if(filtered.length === 0){
+      projectsGridContainer.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:50px;color:var(--admin-sub);background:#fff;border-radius:16px;border:1px dashed var(--admin-line);">No projects matching current filter. Click <strong>Add New Project</strong> to create one.</div>`;
+      return;
+    }
+
+    projectsGridContainer.innerHTML = filtered.map(p => {
+      const progress = p.progress || 0;
+      const priorityClass = `priority-${(p.priority || 'medium').toLowerCase()}`;
+      const statusClass = `status-${p.status || 'planning'}`;
+      const statusLabel = (p.status || 'planning').replace('_', ' ').toUpperCase();
+      const milestones = Array.isArray(p.milestones) ? p.milestones : [];
+      const completedM = milestones.filter(m => m.completed).length;
+
+      const milestonesHtml = milestones.length > 0 ? `
+        <div class="milestones-box">
+          <div class="milestones-title">
+            <span>Milestones Checklist</span>
+            <span>${completedM} / ${milestones.length} Done</span>
+          </div>
+          ${milestones.map(m => `
+            <div class="milestone-item ${m.completed ? 'done' : ''}">
+              <input type="checkbox" ${m.completed ? 'checked' : ''} onchange="window.adminToggleMilestone('${p.id}', '${m.id}', this.checked)">
+              <span>${m.title} ${m.date ? `<small style="color:var(--admin-sub);">(${m.date})</small>` : ''}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : '';
+
+      const deliverables = p.deliverables || {};
+      const delivLinksHtml = `
+        <div class="project-deliverables">
+          ${deliverables.demoUrl ? `<a href="${deliverables.demoUrl}" target="_blank" class="deliv-link">🌐 Live Demo</a>` : ''}
+          ${deliverables.repoUrl ? `<a href="${deliverables.repoUrl}" target="_blank" class="deliv-link">💻 GitHub Repo</a>` : ''}
+          ${deliverables.docsUrl ? `<a href="${deliverables.docsUrl}" target="_blank" class="deliv-link">📁 Docs / Assets</a>` : ''}
+        </div>
+      `;
+
+      return `
+        <div class="project-card">
+          <div class="project-card-head">
+            <div>
+              <span class="project-code">${p.code || 'PRJ'}</span>
+              <h3 class="project-title">${p.title}</h3>
+              <div class="project-client">Client: <strong>${p.clientName}</strong> (${p.clientEmail || '—'})</div>
+            </div>
+            <div class="project-badges">
+              <span class="badge-priority ${priorityClass}">${p.priority || 'Medium'}</span>
+              <span class="badge-proj-status ${statusClass}">${statusLabel}</span>
+            </div>
+          </div>
+
+          <div style="font-size:12.5px;color:var(--admin-sub);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span>Lead: <strong style="color:var(--admin-ink);">${p.manager || 'Unassigned'}</strong></span>
+            <span>Fee / Budget: <strong style="color:var(--admin-ink);">₹${(p.budget || 0).toLocaleString('en-IN')}</strong></span>
+            ${p.deadline ? `<span>Due: <strong style="color:var(--admin-ink);">${p.deadline}</strong></span>` : ''}
+          </div>
+
+          <div class="project-progress-wrap">
+            <div class="project-progress-head">
+              <span>Overall Completion</span>
+              <span>${progress}%</span>
+            </div>
+            <div class="project-progress-bar">
+              <div class="project-progress-fill" style="width:${progress}%;"></div>
+            </div>
+          </div>
+
+          ${milestonesHtml}
+          ${delivLinksHtml}
+
+          <div class="project-actions-row">
+            <button class="btn-icon" style="color:var(--admin-green);" title="Send WhatsApp Update to Client" onclick="window.adminNotifyWhatsAppProject('${p.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </button>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-icon" title="Edit Project Details &amp; Milestones" onclick="window.adminEditProject('${p.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </button>
+              <button class="btn-icon delete" title="Delete Project" onclick="window.adminDeleteProject('${p.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Toggle milestone directly from card
+  window.adminToggleMilestone = async function(projectId, milestoneId, isChecked){
+    const updated = await window.PrimetekDB.toggleMilestone(projectId, milestoneId, isChecked);
+    if(updated){
+      const idx = allProjects.findIndex(p => p.id === projectId);
+      if(idx !== -1) allProjects[idx] = updated;
+      renderAllMetrics();
+      renderProjects();
+    }
+  };
+
+  // Open Project Edit Modal
+  window.adminEditProject = function(id){
+    const p = allProjects.find(item => item.id === id);
+    if(!p) return;
+    document.getElementById('projectModalTitle').textContent = 'Edit Client Project';
+    document.getElementById('editProjectId').value = p.id;
+    document.getElementById('prjTitle').value = p.title || '';
+    document.getElementById('prjCode').value = p.code || '';
+    document.getElementById('prjClientName').value = p.clientName || '';
+    document.getElementById('prjClientEmail').value = p.clientEmail || '';
+    document.getElementById('prjManager').value = p.manager || '';
+    document.getElementById('prjCategory').value = p.category || 'ERP Software';
+    document.getElementById('prjPriority').value = p.priority || 'Medium';
+    document.getElementById('prjStatus').value = p.status || 'in_progress';
+    document.getElementById('prjProgress').value = p.progress || 0;
+    document.getElementById('prjBudget').value = p.budget || '';
+    document.getElementById('prjStartDate').value = p.startDate || '';
+    document.getElementById('prjDeadline').value = p.deadline || '';
+    document.getElementById('prjDesc').value = p.description || '';
+
+    const deliv = p.deliverables || {};
+    document.getElementById('prjRepoUrl').value = deliv.repoUrl || '';
+    document.getElementById('prjDemoUrl').value = deliv.demoUrl || '';
+    document.getElementById('prjDocsUrl').value = deliv.docsUrl || '';
+
+    // Render milestone rows in modal
+    const container = document.getElementById('milestoneRowsContainer');
+    container.innerHTML = '';
+    const milestones = Array.isArray(p.milestones) ? p.milestones : [];
+    if(milestones.length === 0){
+      addMilestoneRow('', '', false);
+    } else {
+      milestones.forEach(m => addMilestoneRow(m.title, m.date, m.completed));
+    }
+
+    projectModal.classList.add('active');
+  };
+
+  window.adminDeleteProject = async function(id){
+    if(confirm('Are you sure you want to delete this project?')){
+      await window.PrimetekDB.deleteProject(id);
+      allProjects = allProjects.filter(p => p.id !== id);
+      renderAllMetrics();
+      renderProjects();
+    }
+  };
+
+  window.adminNotifyWhatsAppProject = async function(id){
+    const p = allProjects.find(item => item.id === id);
+    if(!p) return;
+    const phone = prompt(`Enter client WhatsApp phone number for ${p.clientName}:`, '+918062181385');
+    if(!phone) return;
+    const res = await window.PrimetekDB.sendWhatsAppMessage(phone, 'milestoneCompleted', {
+      client_name: p.clientName,
+      project_name: p.title,
+      project_code: p.code,
+      milestone_title: p.milestones && p.milestones[0] ? p.milestones[0].title : 'Overall Milestone',
+      progress_pct: p.progress,
+      portal_url: window.location.origin + '/account.html'
+    });
+    alert(`WhatsApp Alert Dispatched to ${phone}!\nStatus: ${res.status || 'delivered'}`);
+  };
+
+  // Helper to add milestone row in modal
+  function addMilestoneRow(title = '', date = '', completed = false){
+    const container = document.getElementById('milestoneRowsContainer');
+    const div = document.createElement('div');
+    div.className = 'modal-milestone-row';
+    div.innerHTML = `
+      <input type="checkbox" class="m-check" ${completed ? 'checked' : ''} title="Mark completed">
+      <input type="text" class="m-title" placeholder="Milestone description..." value="${title.replace(/"/g, '&quot;')}" required>
+      <input type="date" class="m-date" value="${date}">
+      <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()" title="Remove milestone">✕</button>
+    `;
+    container.appendChild(div);
+  }
+
+  document.getElementById('btnAddMilestoneRow').onclick = () => addMilestoneRow();
+
+  // Save Project Form Submit
+  projectForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editProjectId').value;
+    
+    // Extract milestones
+    const rows = document.querySelectorAll('#milestoneRowsContainer .modal-milestone-row');
+    const milestones = [];
+    rows.forEach((row, i) => {
+      const title = row.querySelector('.m-title').value.trim();
+      const date = row.querySelector('.m-date').value;
+      const completed = row.querySelector('.m-check').checked;
+      if(title){
+        milestones.push({ id: 'm_' + (i + 1), title, date, completed });
+      }
+    });
+
+    const payload = {
+      title: document.getElementById('prjTitle').value.trim(),
+      code: document.getElementById('prjCode').value.trim() || undefined,
+      clientName: document.getElementById('prjClientName').value.trim(),
+      clientEmail: document.getElementById('prjClientEmail').value.trim(),
+      manager: document.getElementById('prjManager').value.trim(),
+      category: document.getElementById('prjCategory').value,
+      priority: document.getElementById('prjPriority').value,
+      status: document.getElementById('prjStatus').value,
+      progress: parseInt(document.getElementById('prjProgress').value, 10) || 0,
+      budget: parseFloat(document.getElementById('prjBudget').value) || 0,
+      startDate: document.getElementById('prjStartDate').value,
+      deadline: document.getElementById('prjDeadline').value,
+      description: document.getElementById('prjDesc').value.trim(),
+      milestones: milestones,
+      deliverables: {
+        repoUrl: document.getElementById('prjRepoUrl').value.trim(),
+        demoUrl: document.getElementById('prjDemoUrl').value.trim(),
+        docsUrl: document.getElementById('prjDocsUrl').value.trim()
+      }
+    };
+
+    if(id){
+      await window.PrimetekDB.updateProject(id, payload);
+      const idx = allProjects.findIndex(p => p.id === id);
+      if(idx !== -1) allProjects[idx] = { ...allProjects[idx], ...payload };
+    } else {
+      const created = await window.PrimetekDB.addProject(payload);
+      allProjects.unshift(created);
+    }
+
+    projectModal.classList.remove('active');
+    renderAllMetrics();
+    renderProjects();
+  });
+
+  // Modal Closures for Project
+  document.getElementById('btnCloseProjectModal').onclick = () => projectModal.classList.remove('active');
+  document.getElementById('btnCancelProjectModal').onclick = () => projectModal.classList.remove('active');
+
+  // ==========================================================
+  // 2. RENDER PRODUCTS (READY-MADE SOFTWARE)
+  // ==========================================================
   function renderProducts(){
     const query = (productSearchInput.value || '').toLowerCase().trim();
     const cat = categoryFilterSelect.value;
@@ -575,7 +1428,7 @@
     });
 
     if(filtered.length === 0){
-      productsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No products found.</td></tr>`;
+      productsTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No software products found.</td></tr>`;
       return;
     }
 
@@ -609,98 +1462,6 @@
     }).join('');
   }
 
-  // 2. HERO BANNERS
-  function renderBanners(){
-    if(!allBanners || allBanners.length === 0){
-      bannersTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No banners added yet.</td></tr>`;
-      return;
-    }
-
-    bannersTableBody.innerHTML = allBanners.map(b => {
-      const isLive = b.status === 'active';
-      return `
-        <tr>
-          <td>
-            <div class="product-row-info">
-              <img src="${b.image || 'thumb-site-ecom.jpg'}" alt="${b.title}" class="product-row-thumb" style="width:70px;height:45px;" onerror="this.src='thumb-site-starter.jpg'">
-              <div>
-                <div class="product-row-title">${b.title}</div>
-                <div class="product-row-meta"><span>Image: ${b.image}</span></div>
-              </div>
-            </div>
-          </td>
-          <td><span style="font-size:11px;background:var(--admin-bg);padding:3px 8px;border-radius:6px;font-weight:600;">${b.badge || '—'}</span></td>
-          <td style="max-width:240px;font-size:12.5px;color:var(--admin-sub);">${b.subtitle || '—'}</td>
-          <td style="font-size:12.5px;">${b.buttonText ? `<span style="text-decoration:underline;">${b.buttonText}</span>` : '—'}</td>
-          <td><span class="badge-status ${isLive ? 'active' : 'draft'}">${isLive ? '● Active' : '○ Draft'}</span></td>
-          <td>
-            <div class="table-actions" style="justify-content:flex-end;">
-              <button class="btn-icon" title="Toggle Status" onclick="window.adminToggleBannerStatus('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-              <button class="btn-icon" title="Edit" onclick="window.adminEditBanner('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-              <button class="btn-icon delete" title="Delete" onclick="window.adminDeleteBanner('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  // 3. CLIENTS
-  function renderClients(){
-    if(!allClients || allClients.length === 0){
-      clientsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--admin-sub);">No client partners added yet.</td></tr>`;
-      return;
-    }
-
-    clientsTableBody.innerHTML = allClients.map(c => {
-      const isLive = c.status === 'active';
-      return `
-        <tr>
-          <td>
-            <div class="product-row-info">
-              <img src="${c.logo || 'toland-logo.jpg'}" alt="${c.name}" class="product-row-thumb" style="border-radius:50%;width:42px;height:42px;" onerror="this.src='thumb-site-starter.jpg'">
-              <div class="product-row-title">${c.name}</div>
-            </div>
-          </td>
-          <td style="font-size:13px;color:var(--admin-sub);">${c.desc}</td>
-          <td>${c.website ? `<a href="${c.website}" target="_blank" style="color:var(--admin-accent);text-decoration:underline;font-size:12.5px;">Link ↗</a>` : '—'}</td>
-          <td><span class="badge-status ${isLive ? 'active' : 'draft'}">${isLive ? '● Active' : '○ Draft'}</span></td>
-          <td>
-            <div class="table-actions" style="justify-content:flex-end;">
-              <button class="btn-icon" title="Toggle Status" onclick="window.adminToggleClientStatus('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-              <button class="btn-icon" title="Edit" onclick="window.adminEditClient('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-              <button class="btn-icon delete" title="Delete" onclick="window.adminDeleteClient('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  // 4. ORDERS
-  function renderOrders(){
-    if(!allOrders || allOrders.length === 0){
-      ordersTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No inquiries recorded yet.</td></tr>`;
-      return;
-    }
-
-    ordersTableBody.innerHTML = allOrders.map(order => {
-      const items = (order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ') || 'Direct Service Inquiry';
-      const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Recent';
-      return `
-        <tr>
-          <td><strong>${order.name || 'Customer'}</strong></td>
-          <td><div>${order.email || '—'}</div><div style="font-size:12px;color:var(--admin-sub);">${order.phone || ''}</div></td>
-          <td style="font-size:12.5px;max-width:220px;">${items}</td>
-          <td><strong>₹${(order.total || 0).toLocaleString('en-IN')}</strong></td>
-          <td style="font-size:12px;color:var(--admin-sub);">${dateStr}</td>
-          <td><span class="badge-status ${order.status === 'completed' ? 'active' : 'draft'}">${order.status || 'Pending'}</span></td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  // Product Actions
   window.adminToggleStatus = async function(id){
     const prod = allProducts.find(p => p.id === id);
     if(!prod) return;
@@ -741,110 +1502,6 @@
     }
   };
 
-  // Banner Actions
-  window.adminToggleBannerStatus = async function(id){
-    const b = allBanners.find(item => item.id === id);
-    if(!b) return;
-    const newStatus = b.status === 'active' ? 'draft' : 'active';
-    await window.PrimetekDB.updateBanner(id, { status: newStatus });
-    b.status = newStatus;
-    renderAllMetrics();
-    renderBanners();
-  };
-
-  window.adminEditBanner = function(id){
-    const b = allBanners.find(item => item.id === id);
-    if(!b) return;
-    document.getElementById('bannerModalTitle').textContent = 'Edit Hero Banner';
-    document.getElementById('editBannerId').value = b.id;
-    document.getElementById('banTitle').value = b.title;
-    document.getElementById('banBadge').value = b.badge || '';
-    document.getElementById('banSub').value = b.subtitle || '';
-    document.getElementById('banImage').value = b.image || '';
-    document.getElementById('banBtnText').value = b.buttonText || '';
-    document.getElementById('banBtnLink').value = b.buttonLink || '';
-    document.getElementById('banStatus').value = b.status || 'active';
-    bannerModal.classList.add('active');
-  };
-
-  window.adminDeleteBanner = async function(id){
-    if(confirm('Delete this hero banner?')){
-      await window.PrimetekDB.deleteBanner(id);
-      allBanners = allBanners.filter(b => b.id !== id);
-      renderAllMetrics();
-      renderBanners();
-    }
-  };
-
-  // Client Actions
-  window.adminToggleClientStatus = async function(id){
-    const c = allClients.find(item => item.id === id);
-    if(!c) return;
-    const newStatus = c.status === 'active' ? 'draft' : 'active';
-    await window.PrimetekDB.updateClient(id, { status: newStatus });
-    c.status = newStatus;
-    renderAllMetrics();
-    renderClients();
-  };
-
-  window.adminEditClient = function(id){
-    const c = allClients.find(item => item.id === id);
-    if(!c) return;
-    document.getElementById('clientModalTitle').textContent = 'Edit Client Partner';
-    document.getElementById('editClientId').value = c.id;
-    document.getElementById('cliName').value = c.name;
-    document.getElementById('cliLogo').value = c.logo;
-    document.getElementById('cliDesc').value = c.desc;
-    document.getElementById('cliWebsite').value = c.website || '';
-    document.getElementById('cliStatus').value = c.status || 'active';
-    clientModal.classList.add('active');
-  };
-
-  window.adminDeleteClient = async function(id){
-    if(confirm('Delete this client partner?')){
-      await window.PrimetekDB.deleteClient(id);
-      allClients = allClients.filter(c => c.id !== id);
-      renderAllMetrics();
-      renderClients();
-    }
-  };
-
-  // Add Button Click (Context Aware)
-  btnOpenAddModal.addEventListener('click', () => {
-    if(currentTab === 'products'){
-      document.getElementById('modalTitle').textContent = 'Add Ready-Made Software';
-      document.getElementById('editProductId').value = '';
-      productForm.reset();
-      document.getElementById('prodStatus').value = 'active';
-      document.getElementById('prodImage').value = 'thumb-site-starter.jpg';
-      productModal.classList.add('active');
-    } else if(currentTab === 'banners'){
-      document.getElementById('bannerModalTitle').textContent = 'Add Hero Banner';
-      document.getElementById('editBannerId').value = '';
-      bannerForm.reset();
-      document.getElementById('banStatus').value = 'active';
-      document.getElementById('banImage').value = 'work-retail-storefront.jpg';
-      bannerModal.classList.add('active');
-    } else if(currentTab === 'clients'){
-      document.getElementById('clientModalTitle').textContent = 'Add Client Partner';
-      document.getElementById('editClientId').value = '';
-      clientForm.reset();
-      document.getElementById('cliStatus').value = 'active';
-      document.getElementById('cliLogo').value = 'toland-logo.jpg';
-      clientModal.classList.add('active');
-    }
-  });
-
-  // Modal Closures
-  document.getElementById('btnCloseModal').onclick = () => productModal.classList.remove('active');
-  document.getElementById('btnCancelModal').onclick = () => productModal.classList.remove('active');
-
-  document.getElementById('btnCloseBannerModal').onclick = () => bannerModal.classList.remove('active');
-  document.getElementById('btnCancelBannerModal').onclick = () => bannerModal.classList.remove('active');
-
-  document.getElementById('btnCloseClientModal').onclick = () => clientModal.classList.remove('active');
-  document.getElementById('btnCancelClientModal').onclick = () => clientModal.classList.remove('active');
-
   // Submit Product Form
   productForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -880,7 +1537,81 @@
     renderProducts();
   });
 
-  // Submit Banner Form
+  document.getElementById('btnCloseModal').onclick = () => productModal.classList.remove('active');
+  document.getElementById('btnCancelModal').onclick = () => productModal.classList.remove('active');
+
+  // ==========================================================
+  // 3. RENDER HERO BANNERS
+  // ==========================================================
+  function renderBanners(){
+    if(!allBanners || allBanners.length === 0){
+      bannersTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No banners added yet.</td></tr>`;
+      return;
+    }
+
+    bannersTableBody.innerHTML = allBanners.map(b => {
+      const isLive = b.status === 'active';
+      return `
+        <tr>
+          <td>
+            <div class="product-row-info">
+              <img src="${b.image || 'thumb-site-ecom.jpg'}" alt="${b.title}" class="product-row-thumb" style="width:70px;height:45px;" onerror="this.src='thumb-site-starter.jpg'">
+              <div>
+                <div class="product-row-title">${b.title}</div>
+                <div class="product-row-meta"><span>Image: ${b.image}</span></div>
+              </div>
+            </div>
+          </td>
+          <td><span style="font-size:11px;background:var(--admin-bg);padding:3px 8px;border-radius:6px;font-weight:600;">${b.badge || '—'}</span></td>
+          <td style="max-width:240px;font-size:12.5px;color:var(--admin-sub);">${b.subtitle || '—'}</td>
+          <td style="font-size:12.5px;">${b.buttonText ? `<span style="text-decoration:underline;">${b.buttonText}</span>` : '—'}</td>
+          <td><span class="badge-status ${isLive ? 'active' : 'draft'}">${isLive ? '● Active' : '○ Draft'}</span></td>
+          <td>
+            <div class="table-actions" style="justify-content:flex-end;">
+              <button class="btn-icon" title="Toggle Status" onclick="window.adminToggleBannerStatus('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              <button class="btn-icon" title="Edit" onclick="window.adminEditBanner('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+              <button class="btn-icon delete" title="Delete" onclick="window.adminDeleteBanner('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.adminToggleBannerStatus = async function(id){
+    const b = allBanners.find(item => item.id === id);
+    if(!b) return;
+    const newStatus = b.status === 'active' ? 'draft' : 'active';
+    await window.PrimetekDB.updateBanner(id, { status: newStatus });
+    b.status = newStatus;
+    renderAllMetrics();
+    renderBanners();
+  };
+
+  window.adminEditBanner = function(id){
+    const b = allBanners.find(item => item.id === id);
+    if(!b) return;
+    document.getElementById('bannerModalTitle').textContent = 'Edit Hero Banner';
+    document.getElementById('editBannerId').value = b.id;
+    document.getElementById('banTitle').value = b.title;
+    document.getElementById('banBadge').value = b.badge || '';
+    document.getElementById('banSub').value = b.subtitle || '';
+    document.getElementById('banImage').value = b.image || '';
+    document.getElementById('banBtnText').value = b.buttonText || '';
+    document.getElementById('banBtnLink').value = b.buttonLink || '';
+    document.getElementById('banStatus').value = b.status || 'active';
+    bannerModal.classList.add('active');
+  };
+
+  window.adminDeleteBanner = async function(id){
+    if(confirm('Delete this hero banner?')){
+      await window.PrimetekDB.deleteBanner(id);
+      allBanners = allBanners.filter(b => b.id !== id);
+      renderAllMetrics();
+      renderBanners();
+    }
+  };
+
   bannerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('editBannerId').value;
@@ -907,7 +1638,75 @@
     renderBanners();
   });
 
-  // Submit Client Form
+  document.getElementById('btnCloseBannerModal').onclick = () => bannerModal.classList.remove('active');
+  document.getElementById('btnCancelBannerModal').onclick = () => bannerModal.classList.remove('active');
+
+  // ==========================================================
+  // 4. RENDER CLIENT PARTNERS
+  // ==========================================================
+  function renderClients(){
+    if(!allClients || allClients.length === 0){
+      clientsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--admin-sub);">No client partners added yet.</td></tr>`;
+      return;
+    }
+
+    clientsTableBody.innerHTML = allClients.map(c => {
+      const isLive = c.status === 'active';
+      return `
+        <tr>
+          <td>
+            <div class="product-row-info">
+              <img src="${c.logo || 'toland-logo.jpg'}" alt="${c.name}" class="product-row-thumb" style="border-radius:50%;width:42px;height:42px;" onerror="this.src='thumb-site-starter.jpg'">
+              <div class="product-row-title">${c.name}</div>
+            </div>
+          </td>
+          <td style="font-size:13px;color:var(--admin-sub);">${c.desc}</td>
+          <td>${c.website ? `<a href="${c.website}" target="_blank" style="color:var(--admin-accent);text-decoration:underline;font-size:12.5px;">Link ↗</a>` : '—'}</td>
+          <td><span class="badge-status ${isLive ? 'active' : 'draft'}">${isLive ? '● Active' : '○ Draft'}</span></td>
+          <td>
+            <div class="table-actions" style="justify-content:flex-end;">
+              <button class="btn-icon" title="Toggle Status" onclick="window.adminToggleClientStatus('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+              <button class="btn-icon" title="Edit" onclick="window.adminEditClient('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+              <button class="btn-icon delete" title="Delete" onclick="window.adminDeleteClient('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.adminToggleClientStatus = async function(id){
+    const c = allClients.find(item => item.id === id);
+    if(!c) return;
+    const newStatus = c.status === 'active' ? 'draft' : 'active';
+    await window.PrimetekDB.updateClient(id, { status: newStatus });
+    c.status = newStatus;
+    renderAllMetrics();
+    renderClients();
+  };
+
+  window.adminEditClient = function(id){
+    const c = allClients.find(item => item.id === id);
+    if(!c) return;
+    document.getElementById('clientModalTitle').textContent = 'Edit Client Partner';
+    document.getElementById('editClientId').value = c.id;
+    document.getElementById('cliName').value = c.name;
+    document.getElementById('cliLogo').value = c.logo;
+    document.getElementById('cliDesc').value = c.desc;
+    document.getElementById('cliWebsite').value = c.website || '';
+    document.getElementById('cliStatus').value = c.status || 'active';
+    clientModal.classList.add('active');
+  };
+
+  window.adminDeleteClient = async function(id){
+    if(confirm('Delete this client partner?')){
+      await window.PrimetekDB.deleteClient(id);
+      allClients = allClients.filter(c => c.id !== id);
+      renderAllMetrics();
+      renderClients();
+    }
+  };
+
   clientForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('editClientId').value;
@@ -932,61 +1731,415 @@
     renderClients();
   });
 
-  // Search & Filters
+  document.getElementById('btnCloseClientModal').onclick = () => clientModal.classList.remove('active');
+  document.getElementById('btnCancelClientModal').onclick = () => clientModal.classList.remove('active');
+
+  // ==========================================================
+  // 5. RENDER USER ROLES & PERMISSIONS (RBAC)
+  // ==========================================================
+  function renderRoles(){
+    if(!allUsers || allUsers.length === 0){
+      usersTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No registered users found.</td></tr>`;
+      return;
+    }
+
+    usersTableBody.innerHTML = allUsers.map(u => {
+      const role = u.role || 'client';
+      const roleBadgeClass = `role-${role.replace('_', '-')}`;
+      const perm = window.PrimetekAuth.getRolePermissions(role);
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight:600;">${u.name || 'Member'}</div>
+            <div style="font-size:12px;color:var(--admin-sub);">${u.email}</div>
+          </td>
+          <td>${u.phone || '—'}</td>
+          <td>
+            <select class="role-select" onchange="window.adminChangeUserRole('${u.id}', this.value)">
+              <option value="super_admin" ${role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
+              <option value="project_manager" ${role === 'project_manager' ? 'selected' : ''}>Project Manager</option>
+              <option value="developer" ${role === 'developer' ? 'selected' : ''}>Senior Developer</option>
+              <option value="client" ${role === 'client' ? 'selected' : ''}>Client / Partner</option>
+            </select>
+          </td>
+          <td>
+            <span class="role-badge ${roleBadgeClass}">${perm.label}</span>
+          </td>
+          <td>
+            <span class="badge-status ${u.status === 'active' ? 'active' : 'draft'}">${u.status || 'Active'}</span>
+          </td>
+          <td>
+            <div class="table-actions" style="justify-content:flex-end;">
+              <button class="btn-icon" title="Edit User" onclick="window.adminEditUser('${u.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </button>
+              <button class="btn-icon delete" title="Delete User" onclick="window.adminDeleteUser('${u.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.adminChangeUserRole = async function(userId, newRole){
+    await window.PrimetekDB.updateUser(userId, { role: newRole });
+    const u = allUsers.find(item => item.id === userId);
+    if(u) u.role = newRole;
+    renderRoles();
+  };
+
+  window.adminEditUser = function(id){
+    const u = allUsers.find(item => item.id === id);
+    if(!u) return;
+    document.getElementById('userModalTitle').textContent = 'Edit User / Team Member';
+    document.getElementById('editUserId').value = u.id;
+    document.getElementById('usrName').value = u.name || '';
+    document.getElementById('usrEmail').value = u.email || '';
+    document.getElementById('usrPhone').value = u.phone || '';
+    document.getElementById('usrRole').value = u.role || 'client';
+    document.getElementById('usrStatus').value = u.status || 'active';
+    userModal.classList.add('active');
+  };
+
+  window.adminDeleteUser = async function(id){
+    if(confirm('Delete this user account?')){
+      await window.PrimetekDB.deleteUser(id);
+      allUsers = allUsers.filter(u => u.id !== id);
+      renderAllMetrics();
+      renderRoles();
+    }
+  };
+
+  userForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editUserId').value;
+    const payload = {
+      name: document.getElementById('usrName').value.trim(),
+      email: document.getElementById('usrEmail').value.trim(),
+      phone: document.getElementById('usrPhone').value.trim(),
+      role: document.getElementById('usrRole').value,
+      status: document.getElementById('usrStatus').value
+    };
+
+    if(id){
+      await window.PrimetekDB.updateUser(id, payload);
+      const idx = allUsers.findIndex(u => u.id === id);
+      if(idx !== -1) allUsers[idx] = { ...allUsers[idx], ...payload };
+    } else {
+      const created = await window.PrimetekDB.addUser(payload);
+      allUsers.unshift(created);
+    }
+    userModal.classList.remove('active');
+    renderAllMetrics();
+    renderRoles();
+  });
+
+  document.getElementById('btnCloseUserModal').onclick = () => userModal.classList.remove('active');
+  document.getElementById('btnCancelUserModal').onclick = () => userModal.classList.remove('active');
+
+  // ==========================================================
+  // 6. RENDER AUTOMATIONS (WHATSAPP & SMTP)
+  // ==========================================================
+  function renderAutomations(){
+    // Populate WhatsApp fields
+    if(whatsappConfig){
+      document.getElementById('waProvider').value = whatsappConfig.provider || 'meta_cloud';
+      document.getElementById('waSenderNumber').value = whatsappConfig.senderNumber || '';
+      document.getElementById('waApiUrl').value = whatsappConfig.apiUrl || '';
+      document.getElementById('waPhoneNumberId').value = whatsappConfig.phoneNumberId || '';
+      document.getElementById('waApiKey').value = whatsappConfig.apiKey || '';
+
+      const tr = whatsappConfig.triggers || {};
+      document.getElementById('waTriggerProjectCreated').checked = tr.projectCreated !== false;
+      document.getElementById('waTriggerMilestoneCompleted').checked = tr.milestoneCompleted !== false;
+      document.getElementById('waTriggerProjectCompleted').checked = tr.projectCompleted !== false;
+      document.getElementById('waTriggerOrderInquiry').checked = tr.orderInquiry !== false;
+
+      const tm = whatsappConfig.templates || {};
+      document.getElementById('waTemplateMilestone').value = tm.milestoneCompleted || '';
+    }
+
+    // Populate SMTP fields
+    if(smtpConfig){
+      document.getElementById('smtpHost').value = smtpConfig.host || 'smtp.gmail.com';
+      document.getElementById('smtpPort').value = smtpConfig.port || 587;
+      document.getElementById('smtpEncryption').value = smtpConfig.encryption || 'TLS';
+      document.getElementById('smtpUser').value = smtpConfig.username || 'support.primetek@gmail.com';
+      document.getElementById('smtpPass').value = smtpConfig.password || '••••••••••••••••';
+      document.getElementById('smtpFromName').value = smtpConfig.fromName || 'PRIMETEK Systems';
+      document.getElementById('smtpFromEmail').value = smtpConfig.fromEmail || 'support.primetek@gmail.com';
+      document.getElementById('smtpReplyTo').value = smtpConfig.replyTo || 'info@primetek.online';
+
+      const st = smtpConfig.triggers || {};
+      document.getElementById('smtpTriggerProjectCreate').checked = st.onProjectCreate !== false;
+      document.getElementById('smtpTriggerMilestone').checked = st.onMilestoneComplete !== false;
+      document.getElementById('smtpTriggerProjectFinish').checked = st.onProjectFinish !== false;
+      document.getElementById('smtpTriggerOrder').checked = st.onOrderInquiry !== false;
+    }
+  }
+
+  // Save WhatsApp Form
+  whatsappConfigForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const updated = {
+      ...whatsappConfig,
+      provider: document.getElementById('waProvider').value,
+      senderNumber: document.getElementById('waSenderNumber').value.trim(),
+      apiUrl: document.getElementById('waApiUrl').value.trim(),
+      phoneNumberId: document.getElementById('waPhoneNumberId').value.trim(),
+      apiKey: document.getElementById('waApiKey').value.trim(),
+      triggers: {
+        projectCreated: document.getElementById('waTriggerProjectCreated').checked,
+        milestoneCompleted: document.getElementById('waTriggerMilestoneCompleted').checked,
+        projectCompleted: document.getElementById('waTriggerProjectCompleted').checked,
+        orderInquiry: document.getElementById('waTriggerOrderInquiry').checked
+      },
+      templates: {
+        ...(whatsappConfig.templates || {}),
+        milestoneCompleted: document.getElementById('waTemplateMilestone').value.trim()
+      }
+    };
+    whatsappConfig = await window.PrimetekDB.saveWhatsAppConfig(updated);
+    alert('WhatsApp Automation settings saved successfully!');
+  });
+
+  // Test WhatsApp Simulator Dispatch
+  document.getElementById('btnSendWaTest').onclick = async () => {
+    const phone = document.getElementById('waSimPhone').value.trim() || '+918062181385';
+    const tplKey = document.getElementById('waSimTemplate').value;
+    const term = document.getElementById('waSimTerminal');
+    term.textContent = `[${new Date().toLocaleTimeString()}] Dispatching WhatsApp message to ${phone}...`;
+
+    const res = await window.PrimetekDB.sendWhatsAppMessage(phone, tplKey, {
+      client_name: 'Metro Logistics',
+      project_name: 'Enterprise ERP & Cloud System',
+      project_code: 'PRJ-101',
+      milestone_title: 'Database Schema & Barcode Invoicing',
+      progress_pct: 75,
+      portal_url: window.location.origin + '/account.html',
+      item_name: 'Retail ERP Software'
+    });
+
+    term.textContent += `\n[${new Date().toLocaleTimeString()}] SUCCESS: Status '${res.status}'.\nMessage: "${res.text || res.payload?.body}"`;
+  };
+
+  // Save SMTP Form
+  smtpConfigForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const updated = {
+      ...smtpConfig,
+      host: document.getElementById('smtpHost').value.trim(),
+      port: parseInt(document.getElementById('smtpPort').value, 10) || 587,
+      encryption: document.getElementById('smtpEncryption').value,
+      username: document.getElementById('smtpUser').value.trim(),
+      password: document.getElementById('smtpPass').value.trim(),
+      fromName: document.getElementById('smtpFromName').value.trim(),
+      fromEmail: document.getElementById('smtpFromEmail').value.trim(),
+      replyTo: document.getElementById('smtpReplyTo').value.trim(),
+      triggers: {
+        onProjectCreate: document.getElementById('smtpTriggerProjectCreate').checked,
+        onMilestoneComplete: document.getElementById('smtpTriggerMilestone').checked,
+        onProjectFinish: document.getElementById('smtpTriggerProjectFinish').checked,
+        onOrderInquiry: document.getElementById('smtpTriggerOrder').checked
+      }
+    };
+    smtpConfig = await window.PrimetekDB.saveSmtpConfig(updated);
+    alert('SMTP Mail Server settings saved successfully!');
+  });
+
+  // Test SMTP Mail Send
+  document.getElementById('btnSendSmtpTest').onclick = async () => {
+    const to = document.getElementById('smtpTestRecipient').value.trim();
+    if(!to){ alert('Please enter recipient email address for SMTP test.'); return; }
+    const term = document.getElementById('smtpTestTerminal');
+    term.textContent = `[${new Date().toLocaleTimeString()}] Connecting to SMTP Host: ${smtpConfig.host || 'smtp.gmail.com'}:${smtpConfig.port || 587}...`;
+
+    const res = await window.PrimetekDB.sendTestEmail(to, 'PRIMETEK SMTP Server Handshake Verification', 'This test message confirms that your SMTP mail host and encryption settings are operational.');
+    term.textContent += `\n[${new Date().toLocaleTimeString()}] HANDSHAKE VERIFIED: ${res.response}`;
+  };
+
+  // ==========================================================
+  // 7. RENDER ORDERS
+  // ==========================================================
+  function renderOrders(){
+    if(!allOrders || allOrders.length === 0){
+      ordersTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No inquiries recorded yet.</td></tr>`;
+      return;
+    }
+
+    ordersTableBody.innerHTML = allOrders.map(order => {
+      const items = (order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ') || 'Direct Service Inquiry';
+      const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Recent';
+      return `
+        <tr>
+          <td><strong>${order.name || 'Customer'}</strong></td>
+          <td><div>${order.email || '—'}</div><div style="font-size:12px;color:var(--admin-sub);">${order.phone || ''}</div></td>
+          <td style="font-size:12.5px;max-width:220px;">${items}</td>
+          <td><strong>₹${(order.total || 0).toLocaleString('en-IN')}</strong></td>
+          <td style="font-size:12px;color:var(--admin-sub);">${dateStr}</td>
+          <td><span class="badge-status ${order.status === 'completed' ? 'active' : 'draft'}">${order.status || 'Pending'}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // ==========================================================
+  // ADD BUTTON (CONTEXT AWARE)
+  // ==========================================================
+  btnOpenAddModal.addEventListener('click', () => {
+    if(currentTab === 'projects'){
+      document.getElementById('projectModalTitle').textContent = 'Add Client Project';
+      document.getElementById('editProjectId').value = '';
+      projectForm.reset();
+      document.getElementById('prjCode').value = 'PRJ-' + Math.floor(100 + Math.random() * 900);
+      document.getElementById('prjProgress').value = '0';
+      document.getElementById('prjStatus').value = 'in_progress';
+      document.getElementById('prjPriority').value = 'High';
+      const container = document.getElementById('milestoneRowsContainer');
+      container.innerHTML = '';
+      addMilestoneRow('Scope Definition & Architecture', '', false);
+      addMilestoneRow('Core Development & Implementation', '', false);
+      addMilestoneRow('Final UAT & Cloud Deployment', '', false);
+      projectModal.classList.add('active');
+    } else if(currentTab === 'products'){
+      document.getElementById('modalTitle').textContent = 'Add Ready-Made Software';
+      document.getElementById('editProductId').value = '';
+      productForm.reset();
+      document.getElementById('prodStatus').value = 'active';
+      document.getElementById('prodImage').value = 'thumb-site-starter.jpg';
+      productModal.classList.add('active');
+    } else if(currentTab === 'banners'){
+      document.getElementById('bannerModalTitle').textContent = 'Add Hero Banner';
+      document.getElementById('editBannerId').value = '';
+      bannerForm.reset();
+      document.getElementById('banStatus').value = 'active';
+      document.getElementById('banImage').value = 'work-retail-storefront.jpg';
+      bannerModal.classList.add('active');
+    } else if(currentTab === 'clients'){
+      document.getElementById('clientModalTitle').textContent = 'Add Client Partner';
+      document.getElementById('editClientId').value = '';
+      clientForm.reset();
+      document.getElementById('cliStatus').value = 'active';
+      document.getElementById('cliLogo').value = 'toland-logo.jpg';
+      clientModal.classList.add('active');
+    } else if(currentTab === 'roles'){
+      document.getElementById('userModalTitle').textContent = 'Add Team Member / User';
+      document.getElementById('editUserId').value = '';
+      userForm.reset();
+      document.getElementById('usrRole').value = 'project_manager';
+      document.getElementById('usrStatus').value = 'active';
+      userModal.classList.add('active');
+    }
+  });
+
+  // Search & Filter Listeners
+  projectSearchInput.addEventListener('input', renderProjects);
+  projectStatusFilter.addEventListener('change', renderProjects);
+  projectPriorityFilter.addEventListener('change', renderProjects);
+
   productSearchInput.addEventListener('input', renderProducts);
   categoryFilterSelect.addEventListener('change', renderProducts);
 
-  // Tabs switching
+  // Tabs Switching
   function switchTab(tab){
     currentTab = tab;
-    [tabBtnProducts, tabBtnBanners, tabBtnClients, tabBtnOrders].forEach(b => b.classList.remove('active'));
-    [sectionProducts, sectionBanners, sectionClients, sectionOrders].forEach(s => s.style.display = 'none');
+    [tabBtnProjects, tabBtnProducts, tabBtnBanners, tabBtnClients, tabBtnRoles, tabBtnAutomations, tabBtnOrders].forEach(b => b.classList.remove('active'));
+    [sectionProjects, sectionProducts, sectionBanners, sectionClients, sectionRoles, sectionAutomations, sectionOrders].forEach(s => s.style.display = 'none');
 
-    if(tab === 'products'){
+    if(tab === 'projects'){
+      tabBtnProjects.classList.add('active');
+      sectionProjects.style.display = 'block';
+      btnOpenAddModal.style.display = 'inline-flex';
+      btnAddButtonText.textContent = 'Add New Project';
+      panelMainHeading.textContent = 'Project Management System';
+      panelSubHeading.textContent = 'Track client projects, milestone checklists, deliverables, and lead assignments.';
+    } else if(tab === 'products'){
       tabBtnProducts.classList.add('active');
       sectionProducts.style.display = 'block';
       btnOpenAddModal.style.display = 'inline-flex';
       btnAddButtonText.textContent = 'Add Ready-made Software';
+      panelMainHeading.textContent = 'Ready-Made Software & Storefront';
+      panelSubHeading.textContent = 'Manage turnkey software applications, pricing, tech stack, and storefront demo links.';
     } else if(tab === 'banners'){
       tabBtnBanners.classList.add('active');
       sectionBanners.style.display = 'block';
       btnOpenAddModal.style.display = 'inline-flex';
       btnAddButtonText.textContent = 'Add Hero Banner';
+      panelMainHeading.textContent = 'Hero Promotional Banners';
+      panelSubHeading.textContent = 'Manage promotional banners and CTA slides on the website homepage.';
     } else if(tab === 'clients'){
       tabBtnClients.classList.add('active');
       sectionClients.style.display = 'block';
       btnOpenAddModal.style.display = 'inline-flex';
       btnAddButtonText.textContent = 'Add Client Partner';
+      panelMainHeading.textContent = 'Client Partners Directory';
+      panelSubHeading.textContent = 'Showcase valued enterprise and business partners on the homepage.';
+    } else if(tab === 'roles'){
+      tabBtnRoles.classList.add('active');
+      sectionRoles.style.display = 'block';
+      btnOpenAddModal.style.display = 'inline-flex';
+      btnAddButtonText.textContent = 'Add Team Member';
+      panelMainHeading.textContent = 'User Roles & Access Permissions';
+      panelSubHeading.textContent = 'Configure Role-Based Access Control (RBAC) across Super Admin, Project Managers, and Developers.';
+    } else if(tab === 'automations'){
+      tabBtnAutomations.classList.add('active');
+      sectionAutomations.style.display = 'block';
+      btnOpenAddModal.style.display = 'none';
+      panelMainHeading.textContent = 'WhatsApp & SMTP Automations';
+      panelSubHeading.textContent = 'Set up automated WhatsApp alerts, message templates, and SMTP email server notifications.';
     } else if(tab === 'orders'){
       tabBtnOrders.classList.add('active');
       sectionOrders.style.display = 'block';
       btnOpenAddModal.style.display = 'none';
+      panelMainHeading.textContent = 'Customer Inquiries & Orders';
+      panelSubHeading.textContent = 'Monitor customer checkout requests and ready-made software inquiries.';
     }
   }
 
+  tabBtnProjects.onclick = () => switchTab('projects');
   tabBtnProducts.onclick = () => switchTab('products');
   tabBtnBanners.onclick = () => switchTab('banners');
   tabBtnClients.onclick = () => switchTab('clients');
+  tabBtnRoles.onclick = () => switchTab('roles');
+  tabBtnAutomations.onclick = () => switchTab('automations');
   tabBtnOrders.onclick = () => switchTab('orders');
 
   // Export CSV
   btnExportCsv.addEventListener('click', () => {
-    if(allProducts.length === 0){ alert("No products to export."); return; }
-    const headers = ["ID", "Name", "Category", "Price", "Regular Price", "Tag", "Status", "Features", "Deliverables", "Demo URL", "Image URL"];
-    const rows = allProducts.map(p => [
-      `"${p.id || ''}"`, `"${(p.name || '').replace(/"/g, '""')}"`, `"${p.category || ''}"`,
-      p.price || 0, p.regularPrice || 0, `"${p.tag || ''}"`, `"${p.status || ''}"`,
-      `"${(Array.isArray(p.features) ? p.features.join('; ') : p.features || '').replace(/"/g, '""')}"`,
-      `"${(p.deliverables || '').replace(/"/g, '""')}"`, `"${p.demoUrl || ''}"`, `"${p.image || ''}"`
-    ]);
+    if(currentTab === 'projects'){
+      if(allProjects.length === 0){ alert("No projects to export."); return; }
+      const headers = ["Code", "Title", "Client", "Client Email", "Category", "Priority", "Status", "Progress", "Budget", "Manager", "Deadline"];
+      const rows = allProjects.map(p => [
+        `"${p.code || ''}"`, `"${(p.title || '').replace(/"/g, '""')}"`, `"${p.clientName || ''}"`,
+        `"${p.clientEmail || ''}"`, `"${p.category || ''}"`, `"${p.priority || ''}"`, `"${p.status || ''}"`,
+        p.progress || 0, p.budget || 0, `"${p.manager || ''}"`, `"${p.deadline || ''}"`
+      ]);
+      downloadCsv(headers, rows, `primetek_projects_${new Date().toISOString().slice(0,10)}.csv`);
+    } else {
+      if(allProducts.length === 0){ alert("No products to export."); return; }
+      const headers = ["ID", "Name", "Category", "Price", "Regular Price", "Tag", "Status", "Features", "Deliverables", "Demo URL", "Image URL"];
+      const rows = allProducts.map(p => [
+        `"${p.id || ''}"`, `"${(p.name || '').replace(/"/g, '""')}"`, `"${p.category || ''}"`,
+        p.price || 0, p.regularPrice || 0, `"${p.tag || ''}"`, `"${p.status || ''}"`,
+        `"${(Array.isArray(p.features) ? p.features.join('; ') : p.features || '').replace(/"/g, '""')}"`,
+        `"${(p.deliverables || '').replace(/"/g, '""')}"`, `"${p.demoUrl || ''}"`, `"${p.image || ''}"`
+      ]);
+      downloadCsv(headers, rows, `primetek_catalog_${new Date().toISOString().slice(0,10)}.csv`);
+    }
+  });
+
+  function downloadCsv(headers, rows, filename){
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
     const link = document.createElement('a');
     link.setAttribute('href', encodeURI(csvContent));
-    link.setAttribute('download', `primetek_catalog_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  });
+  }
 
   adminLogoutBtn.onclick = async () => {
     await window.PrimetekAuth.logout();

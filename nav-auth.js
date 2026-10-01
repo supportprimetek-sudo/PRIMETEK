@@ -39,12 +39,12 @@
           <div class="nav-dropdown-menu" id="userDropdown">
             <div class="dropdown-header">
               <span class="dropdown-name">${user.displayName || 'Administrator'}</span>
-              <span class="dropdown-email">${user.email}</span>
+              <span class="dropdown-email">${user.email} • <strong>${(user.permissions && user.permissions.label) || 'Admin'}</strong></span>
             </div>
             <div class="dropdown-divider"></div>
             <a href="admin.html" class="dropdown-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              Admin Dashboard
+              Admin &amp; Projects Dashboard
             </a>
             <a href="products.html" class="dropdown-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
@@ -52,7 +52,7 @@
             </a>
             <a href="account.html" class="dropdown-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              My Account
+              My Account &amp; Milestones
             </a>
             <div class="dropdown-divider"></div>
             <button id="navLogoutBtn" class="dropdown-item dropdown-logout">
@@ -76,12 +76,12 @@
           <div class="nav-dropdown-menu" id="userDropdown">
             <div class="dropdown-header">
               <span class="dropdown-name">${user.displayName || 'Customer'}</span>
-              <span class="dropdown-email">${user.email}</span>
+              <span class="dropdown-email">${user.email} • <strong>${(user.permissions && user.permissions.label) || 'Client Partner'}</strong></span>
             </div>
             <div class="dropdown-divider"></div>
             <a href="account.html" class="dropdown-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              My Downloads & Orders
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><polyline points="9 11 12 14 22 4"/></svg>
+              My Projects &amp; Milestones
             </a>
             <a href="products.html" class="dropdown-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
