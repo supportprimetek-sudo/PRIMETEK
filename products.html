@@ -18,7 +18,6 @@
 <!-- ================= NAV ================= -->
 <header>
   <a href="index.html" class="brand" aria-label="PRIMETEK home">
-    <img src="logo-desktop.jpeg" alt="PRIMETEK logo" class="brand-logo" loading="lazy">
     <span class="brand-name">PRIMETEK</span>
   </a>
   <nav id="siteNav">
@@ -137,7 +136,7 @@
         return `
           <div class="product-card" id="card-${prod.id}">
             <div class="product-thumb">
-              <img src="${thumb}" alt="${prod.name} preview" loading="lazy" onerror="this.src='logo-desktop.jpeg'">
+              <img src="${thumb}" alt="${prod.name} preview" loading="lazy" onerror="this.src='thumb-site-starter.jpg'">
             </div>
             <div class="product-body">
               <span class="product-tag">${tag}</span>

@@ -45,14 +45,12 @@ header{
   backdrop-filter:blur(8px);
   border-bottom:1px solid var(--line);
 }
-.brand{display:flex;align-items:center;gap:12px;position:relative;z-index:51;flex:none;}
-.brand svg,
-.brand img,
-.brand-logo{width:34px;height:34px;display:block;object-fit:contain;flex:none;border-radius:6px;}
+.brand{display:flex;align-items:center;position:relative;z-index:51;flex:none;text-decoration:none;transition:opacity .15s ease;}
+.brand:hover{opacity:0.75;}
 .brand-name{
   font-family:'Space Grotesk',sans-serif;
-  font-weight:700;font-size:19px;letter-spacing:-0.01em;
-  flex:none;
+  font-weight:700;font-size:20px;letter-spacing:-0.02em;
+  flex:none;color:var(--ink);
 }
 nav ul{display:flex;gap:26px;list-style:none;align-items:center;}
 nav a{

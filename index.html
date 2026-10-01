@@ -122,15 +122,12 @@
     border-bottom:1px solid var(--line);
     gap:16px;
   }
-  .brand{display:flex;align-items:center;gap:12px;position:relative;z-index:51;transition:opacity .15s ease;flex:none;}
-  a.brand:hover{opacity:0.72;}
-  .brand svg,
-  .brand img,
-  .brand-logo{width:34px;height:34px;display:block;object-fit:contain;flex:none;border-radius:6px;}
+  .brand{display:flex;align-items:center;position:relative;z-index:51;transition:opacity .15s ease;flex:none;text-decoration:none;}
+  a.brand:hover{opacity:0.75;}
   .brand-name{
     font-family:'Space Grotesk',sans-serif;
-    font-weight:700;font-size:19px;letter-spacing:-0.01em;
-    flex:none;
+    font-weight:700;font-size:20px;letter-spacing:-0.02em;
+    flex:none;color:var(--ink);
   }
   nav ul{display:flex;gap:clamp(12px, 1.8vw, 24px);list-style:none;align-items:center;}
   nav a{
@@ -484,7 +481,6 @@
 <!-- ================= NAV ================= -->
 <header>
   <a href="index.html" class="brand" aria-label="PRIMETEK home">
-    <img src="logo-desktop.jpeg" alt="PRIMETEK logo" class="brand-logo" loading="lazy">
     <span class="brand-name">PRIMETEK</span>
   </a>
   <nav id="siteNav">
