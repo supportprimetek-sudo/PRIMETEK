@@ -457,5 +457,244 @@ window.PrimetekDB = {
     } catch (e) {
       return [];
     }
+  },
+
+  // ----------------------------------------------------
+  // HERO PROMOTIONAL BANNERS
+  // ----------------------------------------------------
+  async getBanners() {
+    if (db) {
+      try {
+        const snap = await db.collection('banners').orderBy('createdAt', 'desc').get();
+        if (!snap.empty) {
+          const list = [];
+          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+          return list;
+        }
+      } catch (e) {
+        console.warn("Firestore banners fetch error:", e);
+      }
+    }
+    try {
+      const raw = localStorage.getItem('primetek_banners_db');
+      if (!raw) {
+        localStorage.setItem('primetek_banners_db', JSON.stringify(DEFAULT_BANNERS));
+        return DEFAULT_BANNERS;
+      }
+      return JSON.parse(raw);
+    } catch (e) {
+      return DEFAULT_BANNERS;
+    }
+  },
+
+  async addBanner(banner) {
+    const data = {
+      ...banner,
+      status: banner.status || 'active',
+      createdAt: Date.now()
+    };
+    if (db) {
+      try {
+        const ref = await db.collection('banners').add(data);
+        return { id: ref.id, ...data };
+      } catch (e) {
+        console.warn("Firestore add banner failed:", e);
+      }
+    }
+    const raw = localStorage.getItem('primetek_banners_db');
+    const list = raw ? JSON.parse(raw) : [...DEFAULT_BANNERS];
+    const newBanner = { id: 'ban_' + Date.now().toString(36), ...data };
+    list.unshift(newBanner);
+    localStorage.setItem('primetek_banners_db', JSON.stringify(list));
+    return newBanner;
+  },
+
+  async updateBanner(id, updates) {
+    const data = { ...updates, updatedAt: Date.now() };
+    if (db) {
+      try {
+        await db.collection('banners').doc(id).set(data, { merge: true });
+        return { id, ...data };
+      } catch (e) {
+        console.warn("Firestore update banner failed:", e);
+      }
+    }
+    const raw = localStorage.getItem('primetek_banners_db');
+    const list = raw ? JSON.parse(raw) : [...DEFAULT_BANNERS];
+    const idx = list.findIndex(b => b.id === id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...data };
+      localStorage.setItem('primetek_banners_db', JSON.stringify(list));
+      return list[idx];
+    }
+    return null;
+  },
+
+  async deleteBanner(id) {
+    if (db) {
+      try {
+        await db.collection('banners').doc(id).delete();
+      } catch (e) {
+        console.warn("Firestore delete banner failed:", e);
+      }
+    }
+    const raw = localStorage.getItem('primetek_banners_db');
+    const list = raw ? JSON.parse(raw) : [...DEFAULT_BANNERS];
+    const filtered = list.filter(b => b.id !== id);
+    localStorage.setItem('primetek_banners_db', JSON.stringify(filtered));
+    return true;
+  },
+
+  // ----------------------------------------------------
+  // CLIENTS & PARTNERS
+  // ----------------------------------------------------
+  async getClients() {
+    if (db) {
+      try {
+        const snap = await db.collection('clients').orderBy('createdAt', 'desc').get();
+        if (!snap.empty) {
+          const list = [];
+          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+          return list;
+        }
+      } catch (e) {
+        console.warn("Firestore clients fetch error:", e);
+      }
+    }
+    try {
+      const raw = localStorage.getItem('primetek_clients_db');
+      if (!raw) {
+        localStorage.setItem('primetek_clients_db', JSON.stringify(DEFAULT_CLIENTS));
+        return DEFAULT_CLIENTS;
+      }
+      return JSON.parse(raw);
+    } catch (e) {
+      return DEFAULT_CLIENTS;
+    }
+  },
+
+  async addClient(client) {
+    const data = {
+      ...client,
+      status: client.status || 'active',
+      createdAt: Date.now()
+    };
+    if (db) {
+      try {
+        const ref = await db.collection('clients').add(data);
+        return { id: ref.id, ...data };
+      } catch (e) {
+        console.warn("Firestore add client failed:", e);
+      }
+    }
+    const raw = localStorage.getItem('primetek_clients_db');
+    const list = raw ? JSON.parse(raw) : [...DEFAULT_CLIENTS];
+    const newClient = { id: 'cli_' + Date.now().toString(36), ...data };
+    list.unshift(newClient);
+    localStorage.setItem('primetek_clients_db', JSON.stringify(list));
+    return newClient;
+  },
+
+  async updateClient(id, updates) {
+    const data = { ...updates, updatedAt: Date.now() };
+    if (db) {
+      try {
+        await db.collection('clients').doc(id).set(data, { merge: true });
+        return { id, ...data };
+      } catch (e) {
+        console.warn("Firestore update client failed:", e);
+      }
+    }
+    const raw = localStorage.getItem('primetek_clients_db');
+    const list = raw ? JSON.parse(raw) : [...DEFAULT_CLIENTS];
+    const idx = list.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...data };
+      localStorage.setItem('primetek_clients_db', JSON.stringify(list));
+      return list[idx];
+    }
+    return null;
+  },
+
+  async deleteClient(id) {
+    if (db) {
+      try {
+        await db.collection('clients').doc(id).delete();
+      } catch (e) {
+        console.warn("Firestore delete client failed:", e);
+      }
+    }
+    const raw = localStorage.getItem('primetek_clients_db');
+    const list = raw ? JSON.parse(raw) : [...DEFAULT_CLIENTS];
+    const filtered = list.filter(c => c.id !== id);
+    localStorage.setItem('primetek_clients_db', JSON.stringify(filtered));
+    return true;
   }
 };
+
+const DEFAULT_BANNERS = [
+  {
+    id: "banner-1",
+    title: "Ready-Made Retail & Billing ERP",
+    subtitle: "Lifetime license • Barcode billing & GST invoicing • Instant 24h deployment",
+    badge: "HOT SOFTWARE",
+    image: "work-retail-storefront.jpg",
+    buttonText: "Explore ERP Software →",
+    buttonLink: "products.html",
+    status: "active",
+    createdAt: Date.now() - 300000
+  },
+  {
+    id: "banner-2",
+    title: "Launch Your E-Commerce Store",
+    subtitle: "Ready-to-launch store with catalog, payment gateway & customer cart",
+    badge: "FEATURED STOREFRONT",
+    image: "thumb-site-ecom.jpg",
+    buttonText: "Shop Ready-made Sites →",
+    buttonLink: "products.html",
+    status: "active",
+    createdAt: Date.now() - 200000
+  },
+  {
+    id: "banner-3",
+    title: "Cross-Platform Mobile Apps",
+    subtitle: "Android & iOS business apps with Google Play and App Store submission included",
+    badge: "MOBILE APPLICATIONS",
+    image: "thumb-app-fieldservice.jpg",
+    buttonText: "Browse Mobile Apps →",
+    buttonLink: "products.html",
+    status: "active",
+    createdAt: Date.now() - 100000
+  }
+];
+
+const DEFAULT_CLIENTS = [
+  {
+    id: "client-1",
+    name: "Toland Pvt Ltd",
+    logo: "toland-logo.jpg",
+    desc: "Ongoing website, billing & cloud hosting partner.",
+    website: "https://primetek.online",
+    status: "active",
+    createdAt: Date.now() - 300000
+  },
+  {
+    id: "client-2",
+    name: "Apex Retail Solutions",
+    logo: "work-retail-storefront.jpg",
+    desc: "Custom inventory management & POS deployment.",
+    website: "",
+    status: "active",
+    createdAt: Date.now() - 200000
+  },
+  {
+    id: "client-3",
+    name: "QuickServe Delivery",
+    logo: "thumb-site-restaurant.jpg",
+    desc: "On-demand food ordering & restaurant web system.",
+    website: "",
+    status: "active",
+    createdAt: Date.now() - 100000
+  }
+];
+
