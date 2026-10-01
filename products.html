@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shop — Ready-made Websites &amp; Apps | PRIMETEK</title>
+<title>Shop — Ready-made Software, Websites &amp; Apps | PRIMETEK</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
@@ -11,15 +11,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shop.css">
+<link rel="stylesheet" href="nav-auth.css">
 </head>
 <body>
 
 <!-- ================= NAV ================= -->
 <header>
-  <div class="brand">
+  <a href="index.html" class="brand" aria-label="PRIMETEK home">
     <img src="logo-desktop.jpeg" alt="PRIMETEK logo" class="brand-logo" loading="lazy">
     <span class="brand-name">PRIMETEK</span>
-  </div>
+  </a>
   <nav id="siteNav">
     <ul>
       <li><a href="index.html#services">Services</a></li>
@@ -47,115 +48,23 @@
 <!-- ================= PRODUCTS ================= -->
 <section id="shop">
   <div class="page-head">
-    <div class="eyebrow"><span class="dot"></span>Shop</div>
-    <h1>Ready-made websites &amp; apps.</h1>
-    <p>Skip the build queue — these are pre-built, launch-ready products you can buy today and have live within days. Need something custom instead? See our <a href="index.html#pricing" style="color:var(--accent);text-decoration:underline;">project pricing</a>.</p>
+    <div class="eyebrow"><span class="dot"></span>Storefront</div>
+    <h1>Ready-made software, websites &amp; apps.</h1>
+    <p>Skip the build queue — pre-built, production-ready software packages you can launch within days. Full source code, complete modules, and priority onboarding support included. Need something custom? See our <a href="index.html#pricing" style="color:var(--accent);text-decoration:underline;">custom project pricing</a>.</p>
   </div>
 
-  <div class="product-grid">
+  <!-- Filter Pills -->
+  <div class="shop-filters" role="tablist">
+    <button class="filter-pill active" data-category="ALL">All Products</button>
+    <button class="filter-pill" data-category="SOFTWARE">Ready-made Software / ERP</button>
+    <button class="filter-pill" data-category="WEBSITE">Websites</button>
+    <button class="filter-pill" data-category="APP">Mobile Apps</button>
+    <button class="filter-pill" data-category="SAAS">SaaS Starters</button>
+  </div>
 
-    <div class="product-card">
-      <div class="product-thumb">
-        <img src="thumb-site-starter.jpg" alt="Business Website — Starter preview" loading="lazy">
-      </div>
-      <div class="product-body">
-        <span class="product-tag">WEBSITE</span>
-        <h2>Business Website — Starter</h2>
-        <p>A 5-page responsive website for a local business — home, about, services, gallery, contact form.</p>
-        <div class="product-meta"><span>5 pages</span><span>Mobile-ready</span><span>1 week delivery</span></div>
-        <div class="product-foot">
-          <div class="product-price">₹9,999<span> one-time</span></div>
-          <button class="btn-primary btn-small add-to-cart"
-            data-id="site-starter" data-name="Business Website — Starter" data-price="9999">Add to cart</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product-card">
-      <div class="product-thumb">
-        <img src="thumb-site-ecom.jpg" alt="E-Commerce Storefront preview" loading="lazy">
-      </div>
-      <div class="product-body">
-        <span class="product-tag">WEBSITE</span>
-        <h2>E-Commerce Storefront</h2>
-        <p>Ready-to-launch online store with product catalog, cart and checkout — just add your products.</p>
-        <div class="product-meta"><span>Unlimited products</span><span>Payment-ready</span><span>2 week delivery</span></div>
-        <div class="product-foot">
-          <div class="product-price">₹24,999<span> one-time</span></div>
-          <button class="btn-primary btn-small add-to-cart"
-            data-id="site-ecom" data-name="E-Commerce Storefront" data-price="24999">Add to cart</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product-card">
-      <div class="product-thumb">
-        <img src="thumb-site-restaurant.jpg" alt="Restaurant Ordering Site preview" loading="lazy">
-      </div>
-      <div class="product-body">
-        <span class="product-tag">WEBSITE</span>
-        <h2>Restaurant Ordering Site</h2>
-        <p>Menu display, online ordering and table booking — built for cafes, restaurants and cloud kitchens.</p>
-        <div class="product-meta"><span>Online ordering</span><span>Menu &amp; booking</span><span>10 day delivery</span></div>
-        <div class="product-foot">
-          <div class="product-price">₹18,999<span> one-time</span></div>
-          <button class="btn-primary btn-small add-to-cart"
-            data-id="site-restaurant" data-name="Restaurant Ordering Site" data-price="18999">Add to cart</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product-card">
-      <div class="product-thumb">
-        <img src="thumb-site-portfolio.jpg" alt="Portfolio / Personal Site preview" loading="lazy">
-      </div>
-      <div class="product-body">
-        <span class="product-tag">WEBSITE</span>
-        <h2>Portfolio / Personal Site</h2>
-        <p>A clean one-page portfolio for freelancers, consultants and creators — resume, work samples, contact.</p>
-        <div class="product-meta"><span>1 page</span><span>Fast load</span><span>3 day delivery</span></div>
-        <div class="product-foot">
-          <div class="product-price">₹4,999<span> one-time</span></div>
-          <button class="btn-primary btn-small add-to-cart"
-            data-id="site-portfolio" data-name="Portfolio / Personal Site" data-price="4999">Add to cart</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product-card">
-      <div class="product-thumb">
-        <img src="thumb-app-fieldservice.jpg" alt="Field Service App preview" loading="lazy">
-      </div>
-      <div class="product-body">
-        <span class="product-tag">APP</span>
-        <h2>Field Service App</h2>
-        <p>Ready-built Android/iOS app for scheduling, job tracking and invoicing — rebrand it as your own.</p>
-        <div class="product-meta"><span>Android + iOS</span><span>White-label</span><span>Store submission included</span></div>
-        <div class="product-foot">
-          <div class="product-price">₹34,999<span> one-time</span></div>
-          <button class="btn-primary btn-small add-to-cart"
-            data-id="app-fieldservice" data-name="Field Service App" data-price="34999">Add to cart</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="product-card">
-      <div class="product-thumb">
-        <img src="thumb-app-booking.jpg" alt="Booking &amp; Appointments App preview" loading="lazy">
-      </div>
-      <div class="product-body">
-        <span class="product-tag">APP</span>
-        <h2>Booking &amp; Appointments App</h2>
-        <p>Let customers book slots, get reminders and pay in-app — ideal for salons, clinics and studios.</p>
-        <div class="product-meta"><span>Android + iOS</span><span>Booking &amp; reminders</span><span>Store submission included</span></div>
-        <div class="product-foot">
-          <div class="product-price">₹29,999<span> one-time</span></div>
-          <button class="btn-primary btn-small add-to-cart"
-            data-id="app-booking" data-name="Booking & Appointments App" data-price="29999">Add to cart</button>
-        </div>
-      </div>
-    </div>
-
+  <div class="product-grid" id="productGridContainer">
+    <!-- Populated dynamically by PrimetekDB -->
+    <div style="grid-column:1/-1;text-align:center;padding:50px;color:var(--sub);">Loading storefront catalog...</div>
   </div>
 </section>
 
@@ -178,30 +87,124 @@
   <div class="footer-bottom">© 2026 PRIMETEK. Sheikhpura, Bihar, India. Udyam Reg. No. UDYAM-BR-32-0000629</div>
 </footer>
 
-<script src="cart.js"></script>
-<script>
-  document.querySelectorAll('.add-to-cart').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      PrimetekCart.addToCart({
-        id: btn.dataset.id,
-        name: btn.dataset.name,
-        price: parseFloat(btn.dataset.price),
-        qty: 1
-      });
-      var original = btn.textContent;
-      btn.textContent = 'Added ✓';
-      btn.disabled = true;
-      setTimeout(function(){
-        btn.textContent = original;
-        btn.disabled = false;
-      }, 1200);
-    });
-  });
-</script>
-
-<a href="https://wa.me/918062181385?text=Hi%20PRIMETEK%2C%20I%20have%20a%20question%20about%20your%20services." class="whatsapp-float" target="_blank" rel="noopener">
+<!-- Floating WhatsApp Action -->
+<a href="https://wa.me/918062181385?text=Hi%20PRIMETEK%2C%20I%20have%20a%20question%20about%20your%20software%20and%20products." class="whatsapp-float" target="_blank" rel="noopener">
   <span class="sr-only">Chat with us on WhatsApp</span>
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 2C6.508 2 2.02 6.487 2.02 12.03c0 1.994.579 3.85 1.579 5.412L2 22l4.671-1.567A9.965 9.965 0 0012.05 22c5.542 0 10.03-4.487 10.03-10.03C22.08 6.487 17.592 2 12.05 2zm0 18.11a8.06 8.06 0 01-4.377-1.28l-.314-.187-3.256 1.083 1.09-3.181-.204-.324a8.056 8.056 0 01-1.24-4.19c0-4.464 3.632-8.096 8.301-8.096 4.464 0 8.096 3.632 8.096 8.096 0 4.464-3.632 8.079-8.096 8.079z"/></svg>
 </a>
+
+<!-- Firebase SDK Compat -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="firebase-config.js"></script>
+<script src="cart.js"></script>
+<script src="nav-auth.js"></script>
+
+<script>
+  (function(){
+    const container = document.getElementById('productGridContainer');
+    const filterButtons = document.querySelectorAll('.filter-pill');
+    let loadedProducts = [];
+    let currentCategory = 'ALL';
+
+    function renderCatalog(){
+      const activeProducts = loadedProducts.filter(p => p.status === 'active' || !p.status);
+      const filtered = activeProducts.filter(p => {
+        if(currentCategory === 'ALL') return true;
+        return p.category === currentCategory;
+      });
+
+      if(filtered.length === 0){
+        container.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--sub);">
+            <p>No products found in this category.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(prod => {
+        const thumb = prod.image || 'thumb-site-starter.jpg';
+        const tag = prod.tag || prod.category || 'SOFTWARE';
+        const metaList = Array.isArray(prod.features) ? prod.features.slice(0, 3) : (prod.features ? prod.features.split(',').slice(0, 3) : []);
+        const techList = Array.isArray(prod.techStack) ? prod.techStack : (prod.techStack ? prod.techStack.split(',') : []);
+
+        const metaHtml = metaList.map(f => `<span>${f.trim()}</span>`).join('');
+        const techHtml = techList.length ? `<div class="product-tags-row">${techList.map(t => `<span class="tag-badge">${t.trim()}</span>`).join('')}</div>` : '';
+
+        return `
+          <div class="product-card" id="card-${prod.id}">
+            <div class="product-thumb">
+              <img src="${thumb}" alt="${prod.name} preview" loading="lazy" onerror="this.src='logo-desktop.jpeg'">
+            </div>
+            <div class="product-body">
+              <span class="product-tag">${tag}</span>
+              <h2>${prod.name}</h2>
+              <p>${prod.description}</p>
+              ${metaHtml ? `<div class="product-meta">${metaHtml}</div>` : ''}
+              ${techHtml}
+              <div class="product-foot">
+                <div class="product-price">
+                  ₹${Math.round(prod.price).toLocaleString('en-IN')}
+                  ${prod.regularPrice > prod.price ? `<span class="product-regular-price">₹${Math.round(prod.regularPrice).toLocaleString('en-IN')}</span>` : ''}
+                  <span> one-time</span>
+                </div>
+                ${prod.demoUrl ? `<a href="${prod.demoUrl}" target="_blank" rel="noopener" class="btn-demo">Live Demo ↗</a>` : ''}
+                <button class="btn-primary btn-small add-to-cart"
+                  data-id="${prod.id}" data-name="${prod.name}" data-price="${prod.price}">Add to cart</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Wire Add to Cart events
+      container.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+          PrimetekCart.addToCart({
+            id: btn.dataset.id,
+            name: btn.dataset.name,
+            price: parseFloat(btn.dataset.price),
+            qty: 1
+          });
+          const original = btn.textContent;
+          btn.textContent = 'Added ✓';
+          btn.disabled = true;
+          setTimeout(() => {
+            btn.textContent = original;
+            btn.disabled = false;
+          }, 1200);
+        });
+      });
+    }
+
+    // Filter Buttons Click
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.dataset.category;
+        renderCatalog();
+      });
+    });
+
+    // Load initial products
+    async function init(){
+      try {
+        if(window.PrimetekDB){
+          loadedProducts = await window.PrimetekDB.getProducts();
+        }
+      } catch(err){
+        console.error("Failed to load products:", err);
+      }
+      renderCatalog();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+</script>
+
 </body>
 </html>
