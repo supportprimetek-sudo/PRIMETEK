@@ -45,12 +45,14 @@ header{
   backdrop-filter:blur(8px);
   border-bottom:1px solid var(--line);
 }
-.brand{display:flex;align-items:center;gap:12px;position:relative;z-index:51;}
+.brand{display:flex;align-items:center;gap:12px;position:relative;z-index:51;flex:none;}
 .brand svg,
-.brand img{width:34px;height:34px;display:block;object-fit:contain;}
+.brand img,
+.brand-logo{width:34px;height:34px;display:block;object-fit:contain;flex:none;border-radius:6px;}
 .brand-name{
   font-family:'Space Grotesk',sans-serif;
   font-weight:700;font-size:19px;letter-spacing:-0.01em;
+  flex:none;
 }
 nav ul{display:flex;gap:26px;list-style:none;align-items:center;}
 nav a{
@@ -252,7 +254,7 @@ footer .brand-name{color:var(--paper);}
 .social-icon svg{width:18px;height:18px;}
 .footer-bottom{margin-top:16px;padding-top:16px;border-top:1px solid #2A2A30;}
 
-@media (max-width: 860px){
+@media (max-width: 960px){
   section, main{padding:50px 6vw;}
   .menu-toggle{display:flex;}
   .nav-cta{display:none;}
