@@ -55,6 +55,7 @@ const LOCAL_PROJECTS_KEY = 'primetek_projects_db';
 const LOCAL_USERS_KEY = 'primetek_users_db';
 const LOCAL_WHATSAPP_KEY = 'primetek_whatsapp_config';
 const LOCAL_SMTP_KEY = 'primetek_smtp_config';
+const LOCAL_LEADS_KEY = 'primetek_leads_db';
 
 // ----------------------------------------------------
 // DEFAULT SEED DATA
@@ -355,6 +356,90 @@ const DEFAULT_PROJECTS = [
   }
 ];
 
+// CRM & Leads Pipeline Seeds
+const DEFAULT_LEADS = [
+  {
+    id: "lead-1",
+    name: "Vikram Sharma",
+    company: "Apex Healthcare Ltd",
+    email: "vikram@apexhealthcare.in",
+    phone: "+91 98234 56789",
+    service: "Custom Hospital & Appointment Web App",
+    value: 120000,
+    stage: "proposal", // 'new', 'contacted', 'proposal', 'negotiation', 'won', 'lost'
+    priority: "hot", // 'hot', 'warm', 'cold'
+    source: "Website Contact Form",
+    assignedTo: "Rahul Dev (Lead PM)",
+    nextFollowUp: "2026-10-05",
+    notes: "Client requires multi-doctor OPD booking, WhatsApp reminders, and Razorpay integration. Sent proposal v1.2.",
+    createdAt: Date.now() - 6000000
+  },
+  {
+    id: "lead-2",
+    name: "Pooja Malhotra",
+    company: "Urban Attire Boutique",
+    email: "pooja@urbanattire.co",
+    phone: "+91 99123 45678",
+    service: "E-Commerce Storefront & Inventory",
+    value: 45000,
+    stage: "negotiation",
+    priority: "hot",
+    source: "WhatsApp Referral",
+    assignedTo: "Sneha Patel",
+    nextFollowUp: "2026-10-03",
+    notes: "Requested 10% discount on turnkey storefront package. Call scheduled tomorrow morning.",
+    createdAt: Date.now() - 4000000
+  },
+  {
+    id: "lead-3",
+    name: "Anand Verma",
+    company: "Kisan Mandi Logistics",
+    email: "anand@kisanmandi.org",
+    phone: "+91 98456 78901",
+    service: "Cross-Platform Delivery Driver App",
+    value: 85000,
+    stage: "contacted",
+    priority: "warm",
+    source: "Google Search",
+    assignedTo: "Aakash Singh",
+    nextFollowUp: "2026-10-08",
+    notes: "Initial demo call done. Waiting for their logistics workflow document to prepare technical estimate.",
+    createdAt: Date.now() - 3000000
+  },
+  {
+    id: "lead-4",
+    name: "Rajesh Kulkarni",
+    company: "Precision Auto Components",
+    email: "rajesh@precisionauto.biz",
+    phone: "+91 97654 32109",
+    service: "Offline-first Barcode Billing & ERP",
+    value: 65000,
+    stage: "won",
+    priority: "hot",
+    source: "Direct Inquiry",
+    assignedTo: "Rahul Dev (Lead PM)",
+    nextFollowUp: "2026-10-02",
+    notes: "Contract signed, 50% advance invoice paid! Converting to project PRJ-105.",
+    createdAt: Date.now() - 2000000
+  },
+  {
+    id: "lead-5",
+    name: "Siddharth Rao",
+    company: "Rao Digital Academy",
+    email: "sid@raodigital.edu",
+    phone: "+91 98112 34567",
+    service: "LMS & Video Course Portal",
+    value: 35000,
+    stage: "new",
+    priority: "warm",
+    source: "Website Contact Form",
+    assignedTo: "Rahul Dev (Lead PM)",
+    nextFollowUp: "2026-10-04",
+    notes: "Inquired about student video hosting, quiz evaluation, and certificate generation.",
+    createdAt: Date.now() - 1000000
+  }
+];
+
 // User Roles & Access Control Seeds
 const DEFAULT_USERS = [
   {
@@ -514,6 +599,19 @@ function getLocalSmtpConfig() {
   }
 }
 
+function getLocalLeads() {
+  try {
+    const raw = localStorage.getItem(LOCAL_LEADS_KEY);
+    if (!raw) {
+      localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(DEFAULT_LEADS));
+      return DEFAULT_LEADS;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return DEFAULT_LEADS;
+  }
+}
+
 // ----------------------------------------------------
 // PRIMETEK AUTH MANAGER & RBAC (Role-Based Access Control)
 // ----------------------------------------------------
@@ -551,6 +649,7 @@ window.PrimetekAuth = {
         canManageBanners: true,
         canManageClients: true,
         canManageProjects: true,
+        canManageCrm: true,
         canManageUsers: true,
         canManageAutomations: true,
         canViewOrders: true
@@ -564,6 +663,7 @@ window.PrimetekAuth = {
         canManageBanners: false,
         canManageClients: true,
         canManageProjects: true,
+        canManageCrm: true,
         canManageUsers: false,
         canManageAutomations: true,
         canViewOrders: true
@@ -1432,5 +1532,120 @@ window.PrimetekDB = {
       recipient: recipientEmail,
       response: `250 2.0.0 OK ${Date.now()} - Message accepted for delivery via ${config.host}:${config.port}`
     };
+  },
+
+  // ----------------------------------------------------
+  // 9. CRM & LEADS MANAGEMENT
+  // ----------------------------------------------------
+  async getLeads() {
+    if (db) {
+      try {
+        const snap = await db.collection('leads').orderBy('createdAt', 'desc').get();
+        if (!snap.empty) {
+          const list = [];
+          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+          return list;
+        }
+      } catch (e) {
+        console.warn("Firestore leads fetch error:", e);
+      }
+    }
+    return getLocalLeads();
+  },
+
+  async addLead(lead) {
+    const data = {
+      ...lead,
+      value: parseFloat(lead.value) || 0,
+      stage: lead.stage || 'new',
+      priority: lead.priority || 'warm',
+      source: lead.source || 'Website Contact Form',
+      createdAt: Date.now()
+    };
+    if (db) {
+      try {
+        const ref = await db.collection('leads').add(data);
+        return { id: ref.id, ...data };
+      } catch (e) {
+        console.warn("Firestore add lead error:", e);
+      }
+    }
+    const list = getLocalLeads();
+    const newLead = { id: 'lead_' + Date.now().toString(36), ...data };
+    list.unshift(newLead);
+    localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(list));
+    return newLead;
+  },
+
+  async updateLead(id, updates) {
+    const data = {
+      ...updates,
+      value: updates.value !== undefined ? (parseFloat(updates.value) || 0) : undefined,
+      updatedAt: Date.now()
+    };
+    Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
+
+    if (db) {
+      try {
+        await db.collection('leads').doc(id).set(data, { merge: true });
+        return { id, ...data };
+      } catch (e) {
+        console.warn("Firestore update lead error:", e);
+      }
+    }
+    const list = getLocalLeads();
+    const idx = list.findIndex(l => l.id === id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...data };
+      localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(list));
+      return list[idx];
+    }
+    return null;
+  },
+
+  async deleteLead(id) {
+    if (db) {
+      try {
+        await db.collection('leads').doc(id).delete();
+      } catch (e) {
+        console.warn("Firestore delete lead error:", e);
+      }
+    }
+    const list = getLocalLeads().filter(l => l.id !== id);
+    localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(list));
+    return true;
+  },
+
+  async convertLeadToProject(leadId) {
+    const leads = await this.getLeads();
+    const lead = leads.find(l => l.id === leadId);
+    if (!lead) return null;
+
+    const projectPayload = {
+      code: 'PRJ-' + Math.floor(100 + Math.random() * 900),
+      title: (lead.company ? `${lead.company} — ` : '') + (lead.service || 'Custom Solution'),
+      clientName: lead.company || lead.name,
+      clientEmail: lead.email,
+      manager: lead.assignedTo || 'Rahul Dev (Lead PM)',
+      category: 'Custom Software',
+      priority: lead.priority === 'hot' ? 'Critical' : 'High',
+      status: 'in_progress',
+      progress: 10,
+      budget: lead.value || 50000,
+      startDate: new Date().toISOString().slice(0, 10),
+      deadline: '',
+      description: `Converted from CRM Lead (${lead.name} • ${lead.phone || ''}). Client requirement: ${lead.service || ''}. Notes: ${lead.notes || ''}`,
+      milestones: [
+        { id: 'm1', title: 'Scope Finalization & Contract Handover', completed: true, date: new Date().toISOString().slice(0, 10) },
+        { id: 'm2', title: 'UI/UX Design & Architecture Blueprint', completed: false, date: '' },
+        { id: 'm3', title: 'Core Feature Development & Testing', completed: false, date: '' },
+        { id: 'm4', title: 'Final Deployment & Training', completed: false, date: '' }
+      ],
+      deliverables: {}
+    };
+
+    const newProject = await this.addProject(projectPayload);
+    await this.updateLead(leadId, { stage: 'won', convertedProjectId: newProject.id, convertedProjectCode: newProject.code });
+    return newProject;
   }
 };

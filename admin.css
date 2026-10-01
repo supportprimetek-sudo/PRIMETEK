@@ -869,3 +869,150 @@ body.admin-body{
   font-weight:600;
 }
 
+/* ====================================================
+   CRM & SALES PIPELINE (KANBAN BOARD & LEADS)
+   ==================================================== */
+.crm-pipeline-board{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(270px, 1fr));
+  gap:16px;
+  overflow-x:auto;
+  padding-bottom:16px;
+}
+.crm-column{
+  background:var(--admin-bg);
+  border:1px solid var(--admin-line);
+  border-radius:14px;
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-height:460px;
+}
+.crm-column-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13.5px;
+  font-weight:700;
+  padding-bottom:8px;
+  border-bottom:2px solid;
+}
+.crm-col-new{border-color:#3B82F6;}
+.crm-col-contacted{border-color:#F59E0B;}
+.crm-col-proposal{border-color:#8B5CF6;}
+.crm-col-negotiation{border-color:#EC4899;}
+.crm-col-won{border-color:#10B981;}
+
+.crm-col-count{
+  font-size:11px;
+  background:#fff;
+  padding:2px 7px;
+  border-radius:100px;
+  border:1px solid var(--admin-line);
+  color:var(--admin-sub);
+}
+.crm-cards-container{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  flex:1;
+}
+.crm-lead-card{
+  background:#fff;
+  border:1px solid var(--admin-line);
+  border-radius:12px;
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.02);
+  transition:all .15s ease;
+}
+.crm-lead-card:hover{
+  box-shadow:0 8px 20px rgba(0,0,0,0.05);
+  transform:translateY(-1px);
+}
+.crm-lead-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+}
+.crm-lead-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;
+  font-size:14.5px;
+  margin-bottom:2px;
+}
+.crm-lead-company{
+  font-size:12px;
+  color:var(--admin-sub);
+  font-weight:500;
+}
+.badge-lead-priority{
+  font-size:10.5px;
+  font-weight:700;
+  padding:2px 7px;
+  border-radius:100px;
+  text-transform:uppercase;
+  letter-spacing:0.03em;
+}
+.priority-hot{background:#FEE2E2;color:#DC2626;}
+.priority-warm{background:#FEF3C7;color:#D97706;}
+.priority-cold{background:#EFF6FF;color:#2563EB;}
+
+.crm-lead-meta{
+  font-size:12px;
+  color:var(--admin-sub);
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  background:var(--admin-bg);
+  padding:8px 10px;
+  border-radius:8px;
+}
+.crm-lead-val{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:15px;
+  font-weight:700;
+  color:var(--admin-ink);
+}
+
+.crm-stage-select{
+  width:100%;
+  font-size:11.5px;
+  padding:5px 8px;
+  border:1px solid var(--admin-line);
+  border-radius:6px;
+  background:#FAFAFA;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.crm-card-footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:6px;
+  margin-top:2px;
+  padding-top:8px;
+  border-top:1px dashed var(--admin-line);
+}
+.btn-convert-pms{
+  font-size:11px;
+  font-weight:700;
+  padding:4px 9px;
+  background:#ECFDF5;
+  color:#059669;
+  border:1px solid #A7F3D0;
+  border-radius:6px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+}
+.btn-convert-pms:hover{background:#A7F3D0;}
+
+
