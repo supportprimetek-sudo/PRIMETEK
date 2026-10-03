@@ -1,5 +1,10 @@
-/* Hide legacy static button if present */
-a.whatsapp-float {
+/* ==========================================================
+   PRIMETEK LIVE ADMIN WHATSAPP INBOX WIDGET STYLES
+   (Strictly shown ONLY for Logged-In Admin / Permitted Staff)
+   ========================================================== */
+
+/* Hide legacy static float button ONLY when Admin Live Inbox is active */
+body.has-admin-wa-widget a.whatsapp-float {
   display: none !important;
 }
 
@@ -12,32 +17,33 @@ a.whatsapp-float {
   color: #111827;
 }
 
-/* Floating Launcher Button */
+/* Floating Launcher Button for Admin */
 .wa-widget-launcher {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #25D366;
+  background: #075E54;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+  box-shadow: 0 8px 24px rgba(7, 94, 84, 0.4);
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: none;
+  border: 2px solid #25D366;
   outline: none;
   position: relative;
 }
 
 .wa-widget-launcher:hover {
   transform: scale(1.08);
-  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.55);
+  box-shadow: 0 12px 28px rgba(7, 94, 84, 0.6);
+  background: #128C7E;
 }
 
 .wa-widget-launcher svg {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   fill: currentColor;
 }
 
@@ -68,22 +74,22 @@ a.whatsapp-float {
   100% { transform: scale(1); }
 }
 
-/* Chat Window Modal */
+/* Admin Inbox Window */
 .wa-widget-box {
   position: absolute;
   bottom: 74px;
   right: 0;
-  width: 375px;
+  width: 380px;
   max-width: calc(100vw - 32px);
-  height: 520px;
+  height: 540px;
   max-height: calc(100vh - 120px);
   background: #ffffff;
   border-radius: 20px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.25);
   display: none;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   transform-origin: bottom right;
   animation: waSlideUp 0.25s ease-out forwards;
 }
@@ -93,7 +99,7 @@ a.whatsapp-float {
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* Widget Header */
+/* Header */
 .wa-box-header {
   background: #075E54;
   color: #ffffff;
@@ -110,8 +116,8 @@ a.whatsapp-float {
 }
 
 .wa-avatar {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: #128C7E;
   display: flex;
@@ -127,15 +133,15 @@ a.whatsapp-float {
 }
 
 .wa-header-title {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 .wa-header-status {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #D1FAE5;
   display: flex;
   align-items: center;
@@ -173,33 +179,16 @@ a.whatsapp-float {
 
 .wa-btn-icon:hover { opacity: 1; background: rgba(255,255,255,0.15); }
 
-/* Tabs: Customer View vs Admin Live Inbox */
-.wa-tabs-bar {
-  display: flex;
+/* Admin Top Bar */
+.wa-inbox-topbar {
   background: #F3F4F6;
+  padding: 8px 14px;
   border-bottom: 1px solid #E5E7EB;
-  font-size: 12.5px;
-}
-
-.wa-tab-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-weight: 600;
-  color: #6B7280;
-  transition: all 0.2s;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.wa-tab-btn.active {
-  color: #075E54;
-  background: #ffffff;
-  border-bottom: 2px solid #25D366;
+  font-size: 12px;
+  color: #4B5563;
 }
 
 /* Chat Body (WhatsApp Wallpaper Texture) */
@@ -252,33 +241,6 @@ a.whatsapp-float {
   gap: 3px;
 }
 
-/* Customer Quick Action Chips */
-.wa-quick-chips {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.wa-chip {
-  background: #ffffff;
-  border: 1px solid #D1D5DB;
-  border-radius: 8px;
-  padding: 7px 12px;
-  font-size: 12.5px;
-  color: #1F2937;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s;
-  font-weight: 500;
-}
-
-.wa-chip:hover {
-  background: #E8F5E9;
-  border-color: #25D366;
-  color: #075E54;
-}
-
 /* Chat Input Bar */
 .wa-input-bar {
   background: #F0F2F5;
@@ -303,9 +265,7 @@ a.whatsapp-float {
   max-height: 80px;
 }
 
-.wa-input-field:focus {
-  border-color: #25D366;
-}
+.wa-input-field:focus { border-color: #25D366; }
 
 .wa-btn-send {
   width: 38px;
@@ -413,13 +373,12 @@ a.whatsapp-float {
   text-align: center;
 }
 
-.wa-typing-indicator {
-  font-size: 11.5px;
+.wa-typing-banner {
+  padding: 6px 14px;
+  background: #E8F5E9;
+  font-size: 12px;
   color: #075E54;
   font-style: italic;
-  padding: 4px 10px;
-  background: rgba(37, 211, 102, 0.12);
-  border-radius: 6px;
-  display: inline-block;
-  margin-bottom: 6px;
+  display: none;
+  border-top: 1px solid #C8E6C9;
 }
