@@ -146,6 +146,7 @@
     isWidgetMounted = true;
     bindEvents();
     initSSE();
+    fetchChatList();
   }
 
   function unmountAdminWidget() {
@@ -171,8 +172,6 @@
       isOpen = !isOpen;
       box.style.display = isOpen ? 'flex' : 'none';
       if (isOpen) {
-        unreadTotal = 0;
-        updateBadgeUI();
         if (!activeChatPhone) fetchChatList();
       }
     });
@@ -207,7 +206,11 @@
   // Format phone number nicely for display (+91 XXXXX XXXXX or +international)
   function formatPhoneDisplay(phone) {
     if (!phone) return '';
-    const clean = String(phone).replace(/[^0-9]/g, '');
+    let clean = String(phone).replace(/[^0-9]/g, '');
+    // Safety filter for internal WhatsApp LID
+    if (clean === '4733104341083') {
+      clean = '918797186001';
+    }
     if (clean.startsWith('91') && clean.length === 12) {
       return `+91 ${clean.slice(2, 7)} ${clean.slice(7)}`;
     }
@@ -236,6 +239,10 @@
       const data = await res.json();
       chatList = data.chats || [];
 
+      // Calculate total unread messages count for red badge
+      unreadTotal = chatList.reduce((acc, c) => acc + (Number(c.unreadCount) || 0), 0);
+      updateBadgeUI();
+
       if (!chatList.length) {
         listEl.innerHTML = `
           <div style="padding:36px 16px;text-align:center;color:#6B7280;font-size:13px;">
@@ -251,9 +258,10 @@
         const displayName = getDisplayName(c.name, c.phone);
         const formattedPhone = formatPhoneDisplay(c.phone);
         const avatarLetter = (displayName !== 'Customer' ? displayName : c.phone)[0].toUpperCase();
+        const unreadCount = Number(c.unreadCount) || 0;
 
         return `
-        <div class="wa-inbox-item ${activeChatPhone === c.phone ? 'active' : ''}" data-phone="${c.phone}" data-name="${escapeHtml(displayName)}">
+        <div class="wa-inbox-item ${activeChatPhone === c.phone ? 'active' : ''} ${unreadCount > 0 ? 'has-unread' : ''}" data-phone="${c.phone}" data-name="${escapeHtml(displayName)}">
           <div class="wa-inbox-avatar">${escapeHtml(avatarLetter)}</div>
           <div class="wa-inbox-details">
             <div class="wa-inbox-top">
@@ -268,7 +276,7 @@
             </div>
             <div class="wa-inbox-bottom">
               <span class="wa-inbox-msg">${escapeHtml(c.lastMessage || '')}</span>
-              ${c.unreadCount ? `<span class="wa-inbox-badge">${c.unreadCount}</span>` : ''}
+              ${unreadCount > 0 ? `<span class="wa-inbox-badge">${unreadCount}</span>` : ''}
             </div>
           </div>
         </div>
@@ -294,6 +302,14 @@
     const base = getGatewayBase();
     const btnBack = document.getElementById('waBtnBack');
     if (btnBack) btnBack.style.display = 'block';
+
+    // Mark as read locally in chatList
+    const targetChat = chatList.find(c => c.phone === phone);
+    if (targetChat && targetChat.unreadCount) {
+      unreadTotal = Math.max(0, unreadTotal - Number(targetChat.unreadCount));
+      targetChat.unreadCount = 0;
+      updateBadgeUI();
+    }
 
     document.getElementById('waAdminInboxView').style.display = 'none';
     document.getElementById('waAdminChatThreadView').style.display = 'flex';
@@ -431,7 +447,13 @@
 
           if (!message.fromMe) {
             playNotificationSound();
-            unreadTotal++;
+            const existingChat = chatList.find(c => c.phone === phone);
+            if (existingChat && activeChatPhone !== phone) {
+              existingChat.unreadCount = (Number(existingChat.unreadCount) || 0) + 1;
+              existingChat.lastMessage = message.text;
+              existingChat.lastTimestamp = message.timestamp;
+            }
+            unreadTotal = chatList.reduce((acc, c) => acc + (Number(c.unreadCount) || 0), 0) || (unreadTotal + 1);
             updateBadgeUI();
           }
 
@@ -443,6 +465,8 @@
             }
             activeChatMessages.push(message);
             renderThreadMessages();
+            // Auto mark read on gateway since admin is actively in this chat
+            fetch(`${base}/api/chats/${phone}`).catch(() => {});
           }
 
           if (isOpen && !activeChatPhone) {

@@ -52,20 +52,21 @@ body.has-admin-wa-widget a.whatsapp-float {
   position: absolute;
   top: -4px;
   right: -4px;
-  background: #EF4444;
-  color: #fff;
+  background: #DC2626;
+  color: #ffffff;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
   border-radius: 10px;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   border: 2px solid #ffffff;
-  display: none;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.55);
   animation: waPulse 1.8s infinite;
+  box-sizing: border-box;
 }
 
 @keyframes waPulse {
@@ -363,14 +364,44 @@ body.has-admin-wa-widget a.whatsapp-float {
 }
 
 .wa-inbox-badge {
-  background: #25D366;
+  background: #DC2626;
   color: #ffffff;
-  font-size: 10.5px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   border-radius: 999px;
-  padding: 1px 6px;
-  min-width: 18px;
+  padding: 1px 7px;
+  min-width: 20px;
+  height: 20px;
+  line-height: 18px;
   text-align: center;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.45);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.wa-inbox-item.has-unread {
+  background: #FFF5F5;
+}
+
+.wa-inbox-item.has-unread:hover {
+  background: #FEE2E2;
+}
+
+.wa-inbox-item.has-unread .wa-inbox-name {
+  color: #991B1B;
+  font-weight: 700;
+}
+
+.wa-inbox-item.has-unread .wa-inbox-msg {
+  font-weight: 700;
+  color: #111827;
+}
+
+.wa-inbox-item.has-unread .wa-inbox-time {
+  color: #DC2626;
+  font-weight: 700;
 }
 
 .wa-inbox-sub {
