@@ -1,21 +1,19 @@
 // ==============================================================================
-// PRIMETEK — WhatsApp Gateway & CRM Integration Configuration
-// Connects the Storefront, Checkout, and Admin Panel to your WhatsApp Cluster
+// PRIMETEK — Dedicated WhatsApp Gateway Configuration
+// Dedicated pipeline for Storefront Checkout and Admin CRM Dashboard
 // ==============================================================================
 
 window.PRIMETEK_WA_CONFIG = {
   // Set to 'true' once your WhatsApp cluster (n8n + Evolution API) is live
   ENABLED: false,
 
-  // Universal Gateway API Endpoint on your self-hosted cluster
-  // Replace with your real domain once deployed (e.g. https://n8n.primetek.online/webhook/api/v1/send-message)
-  GATEWAY_URL: 'https://n8n.yourdomain.com/webhook/api/v1/send-message',
+  // Dedicated PRIMETEK Endpoints on your cluster
+  // (Replace domain with your production URL, e.g. https://n8n.primetek.online)
+  CHECKOUT_URL: 'https://n8n.yourdomain.com/webhook/primetek/v1/checkout-order',
+  ADMIN_URL: 'https://n8n.yourdomain.com/webhook/primetek/v1/admin-message',
 
-  // Master API Key (must match UNIVERSAL_GATEWAY_API_KEY in your cluster .env)
-  API_KEY: 'gateway_sec_replace_with_your_key',
-
-  // Target translation language: 'original' (no translation) or 'tamil' (auto-translation)
-  DEFAULT_LANGUAGE: 'original',
+  // Master Secret Key (matches PRIMETEK_GATEWAY_API_KEY in cluster .env)
+  API_KEY: 'primetek_sec_replace_with_your_key',
 
   /**
    * Dispatches an automated WhatsApp order confirmation to the customer
@@ -32,34 +30,22 @@ window.PRIMETEK_WA_CONFIG = {
       return { success: false, reason: 'missing_phone' };
     }
 
-    // Format clean professional WhatsApp receipt
-    var messageText =
-      'Hi ' + orderData.name + '! 👋\n\n' +
-      'Thank you for ordering with *PRIMETEK*!\n\n' +
-      '📦 *Order Summary:*\n' + orderData.summary + '\n\n' +
-      '💰 *Total Amount:* ₹' + orderData.total + '\n\n' +
-      'Our engineering team has received your order. We are reviewing your customization notes and will share payment/delivery instructions shortly.\n\n' +
-      '_Reply directly to this WhatsApp message anytime if you have any questions!_';
-
     try {
-      var response = await fetch(this.GATEWAY_URL, {
+      var response = await fetch(this.CHECKOUT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': this.API_KEY
+          'x-primetek-key': this.API_KEY
         },
         body: JSON.stringify({
-          to: orderData.phone,
-          message: messageText,
-          target_language: orderData.language || this.DEFAULT_LANGUAGE,
-          source: 'primetek_checkout',
-          metadata: {
-            email: orderData.email,
-            company: orderData.company || '',
-            notes: orderData.notes || '',
-            total: orderData.total,
-            items: orderData.items || []
-          }
+          name: orderData.name,
+          phone: orderData.phone,
+          email: orderData.email,
+          summary: orderData.summary,
+          total: orderData.total,
+          items: orderData.items || [],
+          company: orderData.company || '',
+          notes: orderData.notes || ''
         })
       });
 
@@ -74,29 +60,26 @@ window.PRIMETEK_WA_CONFIG = {
   },
 
   /**
-   * Helper function for Admin Panel to send a direct message (e.g. Payment link or Delivery link)
-   * @param {string} to - Recipient phone number
+   * Dispatches direct admin messages from Admin CRM Kanban Board
+   * @param {string} to - Customer phone number
    * @param {string} message - Message text
-   * @param {string} language - 'original' or 'tamil'
    */
-  sendCustomMessage: async function(to, message, language) {
+  sendCustomMessage: async function(to, message) {
     if (!this.ENABLED) {
       alert('WhatsApp Gateway is currently disabled. Enable it in whatsapp-config.js first.');
       return { success: false, reason: 'disabled' };
     }
 
     try {
-      var response = await fetch(this.GATEWAY_URL, {
+      var response = await fetch(this.ADMIN_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': this.API_KEY
+          'x-primetek-key': this.API_KEY
         },
         body: JSON.stringify({
           to: to,
-          message: message,
-          target_language: language || this.DEFAULT_LANGUAGE,
-          source: 'primetek_admin_panel'
+          message: message
         })
       });
 
