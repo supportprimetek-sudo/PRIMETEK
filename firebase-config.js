@@ -492,10 +492,10 @@ const DEFAULT_USERS = [
 // WhatsApp Automation Configuration Seed
 const DEFAULT_WHATSAPP_CONFIG = {
   enabled: true,
-  provider: "meta_cloud", // meta_cloud, wati, ultramsg, twilio, custom_webhook
-  apiUrl: "https://graph.facebook.com/v19.0/messages",
-  apiKey: "EAAX_PRIMETEK_SECURE_TOKEN_SAMPLE",
-  phoneNumberId: "109823471829381",
+  provider: "cluster_primetek", // cluster_primetek, meta_cloud, wati, ultramsg, twilio, custom_webhook
+  apiUrl: "https://n8n.primetek.online/webhook/primetek/v1/admin-message",
+  apiKey: "primetek_sec_replace_with_strong_token_32_chars",
+  phoneNumberId: "primetek_store",
   senderNumber: "+918062181385",
   webhookVerifyToken: "primetek_live_webhook_token",
   triggers: {
@@ -1447,6 +1447,18 @@ window.PrimetekDB = {
     };
 
     console.log("PRIMETEK WHATSAPP AUTOMATION:", payload);
+
+    // If PRIMETEK Cluster Gateway is active, dispatch directly via cluster
+    if (window.PRIMETEK_WA_CONFIG && window.PRIMETEK_WA_CONFIG.ENABLED) {
+      try {
+        const clusterRes = await window.PRIMETEK_WA_CONFIG.sendCustomMessage(recipientPhone, textBody);
+        if (clusterRes && (clusterRes.success || clusterRes.status === "dispatched")) {
+          return { success: true, payload, serverResponse: clusterRes, status: "delivered" };
+        }
+      } catch (err) {
+        console.warn("Cluster gateway dispatch failed, falling back:", err);
+      }
+    }
 
     // If real API URL and token are configured, perform real HTTP dispatch
     if (config.apiUrl && config.apiKey && config.apiKey !== "EAAX_PRIMETEK_SECURE_TOKEN_SAMPLE") {

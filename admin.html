@@ -439,6 +439,7 @@
               <div class="form-field">
                 <label for="waProvider">Gateway Provider</label>
                 <select id="waProvider">
+                    <option value="cluster_primetek" selected>PRIMETEK Dedicated Cluster (n8n + Evolution API)</option>
                   <option value="meta_cloud">Meta Cloud API (Official WhatsApp)</option>
                   <option value="wati">Wati Gateway</option>
                   <option value="ultramsg">UltraMsg API</option>
@@ -454,17 +455,17 @@
 
             <div class="form-field">
               <label for="waApiUrl">API Endpoint URL</label>
-              <input type="url" id="waApiUrl" placeholder="https://graph.facebook.com/v19.0/messages">
+              <input type="url" id="waApiUrl" placeholder="https://n8n.primetek.online/webhook/primetek/v1/admin-message">
             </div>
 
             <div class="form-grid-2">
               <div class="form-field">
                 <label for="waPhoneNumberId">Phone Number ID / Instance ID</label>
-                <input type="text" id="waPhoneNumberId" placeholder="e.g. 109823471829381">
+                <input type="text" id="waPhoneNumberId" placeholder="primetek_store">
               </div>
               <div class="form-field">
                 <label for="waApiKey">Permanent Access Token / API Key</label>
-                <input type="password" id="waApiKey" placeholder="••••••••••••••••">
+                <input type="password" id="waApiKey" placeholder="primetek_sec_...">
               </div>
             </div>
 
