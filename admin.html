@@ -449,7 +449,7 @@
               </div>
               <div class="form-field">
                 <label for="waSenderNumber">Business WhatsApp Number</label>
-                <input type="text" id="waSenderNumber" placeholder="+918062181385">
+                <input type="text" id="waSenderNumber" placeholder="+917870819862">
               </div>
             </div>
 
@@ -1543,7 +1543,7 @@
   window.adminNotifyWhatsAppProject = async function(id){
     const p = allProjects.find(item => item.id === id);
     if(!p) return;
-    const phone = prompt(`Enter client WhatsApp phone number for ${p.clientName}:`, '+918062181385');
+    const phone = prompt(`Enter client WhatsApp phone number for ${p.clientName}:`, '+917870819862');
     if(!phone) return;
     const res = await window.PrimetekDB.sendWhatsAppMessage(phone, 'milestoneCompleted', {
       client_name: p.clientName,
@@ -2327,7 +2327,7 @@
   });
 
   document.getElementById('btnSendWaTest').onclick = async () => {
-    const phone = document.getElementById('waSimPhone').value.trim() || '+918062181385';
+    const phone = document.getElementById('waSimPhone').value.trim() || '+917870819862';
     const tplKey = document.getElementById('waSimTemplate').value;
     const term = document.getElementById('waSimTerminal');
     term.textContent = `[${new Date().toLocaleTimeString()}] Dispatching WhatsApp message to ${phone}...`;

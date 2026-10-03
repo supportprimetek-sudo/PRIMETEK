@@ -448,7 +448,7 @@ const DEFAULT_USERS = [
     email: "support.primetek@gmail.com",
     role: "super_admin",
     status: "active",
-    phone: "+91 80621 81385",
+    phone: "+91 78708 19862",
     createdAt: Date.now() - 5000000
   },
   {
@@ -496,7 +496,7 @@ const DEFAULT_WHATSAPP_CONFIG = {
   apiUrl: "https://n8n.primetek.online/webhook/primetek/v1/admin-message",
   apiKey: "primetek_sec_replace_with_strong_token_32_chars",
   phoneNumberId: "primetek_store",
-  senderNumber: "+918062181385",
+  senderNumber: "+917870819862",
   webhookVerifyToken: "primetek_live_webhook_token",
   triggers: {
     projectCreated: true,

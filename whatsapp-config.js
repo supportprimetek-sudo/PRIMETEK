@@ -13,7 +13,7 @@
     CHECKOUT_URL: 'https://stake-beings-immediately-wishes.trycloudflare.com/webhook/primetek/v1/checkout-order',
     ADMIN_DISPATCH_URL: 'https://stake-beings-immediately-wishes.trycloudflare.com/webhook/primetek/v1/admin-message',
     API_KEY: 'primetek_sec_replace_with_strong_token_32_chars',
-    SENDER_NUMBER: '+918062181385',
+    SENDER_NUMBER: '+917870819862',
     INSTANCE: 'primetek_store'
   };
 
