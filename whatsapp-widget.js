@@ -19,6 +19,7 @@
   // State
   let isOpen = false;
   let activeChatPhone = null;
+  let activeChatCustomerName = '';
   let activeChatMessages = [];
   let chatList = [];
   let sseSource = null;
@@ -183,11 +184,14 @@
 
     btnBack.addEventListener('click', () => {
       activeChatPhone = null;
+      activeChatCustomerName = '';
       document.getElementById('waAdminChatThreadView').style.display = 'none';
       document.getElementById('waAdminInboxView').style.display = 'flex';
       btnBack.style.display = 'none';
       document.getElementById('waHeaderTitle').textContent = 'WhatsApp Live Inbox';
       document.getElementById('waHeaderStatus').textContent = 'Live Connected (+91 78708 19862)';
+      const headerAvatar = document.querySelector('.wa-box-header .wa-avatar');
+      if (headerAvatar) headerAvatar.textContent = '🔐';
       fetchChatList();
     });
 
@@ -198,6 +202,27 @@
         sendAdminReply();
       }
     });
+  }
+
+  // Format phone number nicely for display (+91 XXXXX XXXXX or +international)
+  function formatPhoneDisplay(phone) {
+    if (!phone) return '';
+    const clean = String(phone).replace(/[^0-9]/g, '');
+    if (clean.startsWith('91') && clean.length === 12) {
+      return `+91 ${clean.slice(2, 7)} ${clean.slice(7)}`;
+    }
+    if (clean.length === 10) {
+      return `+91 ${clean.slice(0, 5)} ${clean.slice(5)}`;
+    }
+    return `+${clean}`;
+  }
+
+  // Resolve user display name
+  function getDisplayName(name, phone) {
+    if (name && !name.startsWith('Customer +') && name !== 'Customer' && name !== 'You' && name !== 'You (PRIMETEK)') {
+      return name;
+    }
+    return 'Customer';
   }
 
   // Fetch list of chats
@@ -222,13 +247,24 @@
         return;
       }
 
-      listEl.innerHTML = chatList.map(c => `
-        <div class="wa-inbox-item ${activeChatPhone === c.phone ? 'active' : ''}" data-phone="${c.phone}">
-          <div class="wa-inbox-avatar">${(c.name || c.phone)[0].toUpperCase()}</div>
+      listEl.innerHTML = chatList.map(c => {
+        const displayName = getDisplayName(c.name, c.phone);
+        const formattedPhone = formatPhoneDisplay(c.phone);
+        const avatarLetter = (displayName !== 'Customer' ? displayName : c.phone)[0].toUpperCase();
+
+        return `
+        <div class="wa-inbox-item ${activeChatPhone === c.phone ? 'active' : ''}" data-phone="${c.phone}" data-name="${escapeHtml(displayName)}">
+          <div class="wa-inbox-avatar">${escapeHtml(avatarLetter)}</div>
           <div class="wa-inbox-details">
             <div class="wa-inbox-top">
-              <span class="wa-inbox-name">${c.name || ('+' + c.phone)}</span>
+              <span class="wa-inbox-name">${escapeHtml(displayName)}</span>
               <span class="wa-inbox-time">${formatTime(c.lastTimestamp)}</span>
+            </div>
+            <div class="wa-inbox-sub">
+              <span class="wa-inbox-phone">
+                <svg viewBox="0 0 24 24" width="10.5" height="10.5" fill="currentColor" style="display:inline-block;vertical-align:-1px;margin-right:2px;"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"/></svg>
+                ${escapeHtml(formattedPhone)}
+              </span>
             </div>
             <div class="wa-inbox-bottom">
               <span class="wa-inbox-msg">${escapeHtml(c.lastMessage || '')}</span>
@@ -236,12 +272,14 @@
             </div>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       listEl.querySelectorAll('.wa-inbox-item').forEach(item => {
         item.addEventListener('click', () => {
           const phone = item.getAttribute('data-phone');
-          openChatThread(phone);
+          const name = item.getAttribute('data-name');
+          openChatThread(phone, name);
         });
       });
     } catch (err) {
@@ -250,8 +288,9 @@
   }
 
   // Open Chat Thread
-  async function openChatThread(phone) {
+  async function openChatThread(phone, preferredName) {
     activeChatPhone = phone;
+    activeChatCustomerName = preferredName || 'Customer';
     const base = getGatewayBase();
     const btnBack = document.getElementById('waBtnBack');
     if (btnBack) btnBack.style.display = 'block';
@@ -266,9 +305,21 @@
       const res = await fetch(`${base}/api/chats/${phone}`);
       const data = await res.json();
       activeChatMessages = data.messages || [];
+      if (data.name && data.name !== 'Customer') {
+        activeChatCustomerName = data.name;
+      }
 
-      document.getElementById('waHeaderTitle').textContent = data.name || ('+' + phone);
-      document.getElementById('waHeaderStatus').textContent = `+${phone}`;
+      const displayName = getDisplayName(activeChatCustomerName, phone);
+      const formattedPhone = formatPhoneDisplay(phone);
+      const avatarLetter = (displayName !== 'Customer' ? displayName : phone)[0].toUpperCase();
+
+      const headerTitle = document.getElementById('waHeaderTitle');
+      const headerStatus = document.getElementById('waHeaderStatus');
+      const headerAvatar = document.querySelector('.wa-box-header .wa-avatar');
+
+      if (headerTitle) headerTitle.textContent = displayName;
+      if (headerStatus) headerStatus.textContent = `${formattedPhone} • Customer`;
+      if (headerAvatar) headerAvatar.textContent = avatarLetter;
 
       renderThreadMessages();
     } catch (e) {
@@ -280,21 +331,45 @@
     const chatBody = document.getElementById('waAdminChatBody');
     if (!chatBody) return;
 
+    const displayName = getDisplayName(activeChatCustomerName, activeChatPhone);
+    const formattedPhone = formatPhoneDisplay(activeChatPhone);
+    const avatarLetter = (displayName !== 'Customer' ? displayName : activeChatPhone)[0].toUpperCase();
+
+    const bannerHtml = `
+      <div class="wa-chat-contact-card">
+        <div class="wa-contact-badge-avatar">${escapeHtml(avatarLetter)}</div>
+        <div class="wa-contact-badge-info">
+          <div class="wa-contact-badge-name">👤 <b>${escapeHtml(displayName)}</b></div>
+          <div class="wa-contact-badge-phone">📞 <span>${escapeHtml(formattedPhone)}</span></div>
+        </div>
+      </div>
+    `;
+
     if (!activeChatMessages.length) {
-      chatBody.innerHTML = `<div style="text-align:center;padding:20px;color:#8C8C8C;font-size:12px;">No messages yet. Send a reply below.</div>`;
+      chatBody.innerHTML = bannerHtml + `<div style="text-align:center;padding:20px;color:#8C8C8C;font-size:12px;">No messages yet. Send a reply below.</div>`;
       return;
     }
 
-    chatBody.innerHTML = activeChatMessages.map(m => `
+    const msgsHtml = activeChatMessages.map(m => {
+      const msgSenderName = !m.fromMe ? (m.pushName || displayName || 'Customer') : 'You (Admin)';
+      return `
       <div class="wa-msg ${m.fromMe ? 'wa-msg-outbound' : 'wa-msg-inbound'}">
-        ${escapeHtml(m.text)}
+        ${!m.fromMe ? `
+          <div class="wa-msg-sender">
+            <span>👤 ${escapeHtml(msgSenderName)}</span>
+            <span class="wa-msg-sender-phone">(${escapeHtml(formattedPhone)})</span>
+          </div>
+        ` : ''}
+        <div class="wa-msg-text">${escapeHtml(m.text)}</div>
         <div class="wa-msg-meta">
           ${formatTime(m.timestamp)}
-          ${m.fromMe ? `<svg viewBox="0 0 16 15" width="14" height="14" fill="#34B7F1"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.365.365 0 0 0-.063-.51z"/></svg>` : ''}
+          ${m.fromMe ? `<svg viewBox="0 0 16 15" width="14" height="14" fill="#34B7F1"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.063-.51z"/></svg>` : ''}
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
 
+    chatBody.innerHTML = bannerHtml + msgsHtml;
     chatBody.scrollTop = chatBody.scrollHeight;
   }
 
@@ -352,7 +427,7 @@
       sseSource.addEventListener('new_message', (e) => {
         try {
           const data = JSON.parse(e.data);
-          const { phone, message } = data;
+          const { phone, message, name } = data;
 
           if (!message.fromMe) {
             playNotificationSound();
@@ -361,6 +436,11 @@
           }
 
           if (activeChatPhone && activeChatPhone === phone) {
+            if (name && name !== 'Customer') {
+              activeChatCustomerName = name;
+              const headerTitle = document.getElementById('waHeaderTitle');
+              if (headerTitle) headerTitle.textContent = name;
+            }
             activeChatMessages.push(message);
             renderThreadMessages();
           }
