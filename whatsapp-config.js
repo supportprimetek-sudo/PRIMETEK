@@ -10,8 +10,8 @@
   // Can be overridden via Admin Panel (admin.html -> Automations) or in window.PRIMETEK_WA_CONFIG
   var DEFAULT_CONFIG = {
     ENABLED: true,
-    CHECKOUT_URL: 'https://n8n.primetek.online/webhook/primetek/v1/checkout-order',
-    ADMIN_DISPATCH_URL: 'https://n8n.primetek.online/webhook/primetek/v1/admin-message',
+    CHECKOUT_URL: 'https://stake-beings-immediately-wishes.trycloudflare.com/webhook/primetek/v1/checkout-order',
+    ADMIN_DISPATCH_URL: 'https://stake-beings-immediately-wishes.trycloudflare.com/webhook/primetek/v1/admin-message',
     API_KEY: 'primetek_sec_replace_with_strong_token_32_chars',
     SENDER_NUMBER: '+918062181385',
     INSTANCE: 'primetek_store'
