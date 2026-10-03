@@ -82,6 +82,7 @@
 <script src="firebase-config.js"></script>
 <script src="cart.js"></script>
 <script src="nav-auth.js"></script>
+<script src="whatsapp-config.js"></script>
 
 <script>
   var WHATSAPP_NUMBER = '918062181385';
@@ -205,6 +206,20 @@
           notes: form.notes.value || '',
           items: cart,
           total: total
+        });
+      }
+
+      // Automated WhatsApp notification via Cluster Gateway
+      if(window.PRIMETEK_WA_CONFIG && typeof window.PRIMETEK_WA_CONFIG.sendOrderNotification === 'function'){
+        window.PRIMETEK_WA_CONFIG.sendOrderNotification({
+          name: form.name.value,
+          email: form.email.value,
+          phone: form.phone.value,
+          company: form.company.value || '',
+          notes: form.notes.value || '',
+          summary: summary,
+          total: total,
+          items: cart
         });
       }
 

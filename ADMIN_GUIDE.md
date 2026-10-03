@@ -76,3 +76,33 @@ const FIREBASE_CONFIG = {
 };
 ```
 Everything else connects automatically!
+
+---
+
+## 📱 5. WhatsApp Cluster & CRM Automation Setup (`whatsapp-config.js`)
+
+Your storefront and admin dashboard are now integrated with your self-hosted **WhatsApp Routing + ERPNext CRM Cluster** ([`devprimetek-svg/whatsapp-erpnext-cluster`](https://github.com/devprimetek-svg/whatsapp-erpnext-cluster)).
+
+### Key Capabilities:
+1. **Automated Order Receipts**: As soon as a buyer submits the checkout form on `checkout.html`, they receive a WhatsApp message summarizing their order total and item list.
+2. **ERPNext Lead Capture**: Order details are captured by the cluster and logged as Leads in ERPNext CRM.
+3. **Bi-directional Tamil ↔ English Translation**: Inbound customer queries in Tamil are automatically translated to English for support agents, and agent replies in English are delivered in Tamil.
+4. **Admin Panel 1-Click WhatsApp**: On the Admin CRM Kanban board (`admin.html`), clicking the WhatsApp icon dispatches messages directly via the cluster gateway without opening personal WhatsApp Web.
+
+### How to Activate in Production:
+Open `whatsapp-config.js` and update:
+```javascript
+window.PRIMETEK_WA_CONFIG = {
+  // 1. Flip toggle to true
+  ENABLED: true,
+
+  // 2. Set your production cluster URL (e.g. n8n.primetek.online)
+  GATEWAY_URL: 'https://n8n.primetek.online/webhook/api/v1/send-message',
+
+  // 3. Set your cluster master API key
+  API_KEY: 'your_universal_gateway_api_key_here',
+
+  DEFAULT_LANGUAGE: 'original'
+};
+```
+*(When `ENABLED: false`, the storefront runs in safe offline mode and standard `wa.me` direct links are used).*

@@ -1176,6 +1176,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
 <script src="firebase-config.js"></script>
+<script src="whatsapp-config.js"></script>
 
 <script>
 (function(){
@@ -1752,8 +1753,21 @@
     const l = allLeads.find(item => item.id === leadId);
     if(!l || !l.phone) return;
     const cleanPhone = l.phone.replace(/[^0-9]/g, '');
-    const text = encodeURIComponent(`Hello ${l.name}, this is PRIMETEK Engineering team regarding your inquiry for ${l.service || 'custom software solution'}. When would be a good time to connect?`);
-    window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+    const message = `Hello ${l.name}, this is PRIMETEK Engineering team regarding your inquiry for ${l.service || 'custom software solution'}. When would be a good time to connect?`;
+
+    // Direct gateway dispatch if cluster is active, otherwise fallback to WhatsApp Web
+    if(window.PRIMETEK_WA_CONFIG && window.PRIMETEK_WA_CONFIG.ENABLED){
+      window.PRIMETEK_WA_CONFIG.sendCustomMessage(cleanPhone, message).then(res => {
+        if(res && res.success){
+          alert('WhatsApp message dispatched successfully via PRIMETEK Cluster Gateway!');
+        } else {
+          // Fallback to wa.me if cluster returns error
+          window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+      });
+    } else {
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    }
   };
 
   window.adminEditLead = function(id){
