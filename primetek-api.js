@@ -776,12 +776,15 @@ const CENTRAL_API_BASE = 'https://wa-gateway-production-473f.up.railway.app/api/
 async function apiFetch(endpoint, options = {}) {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(`${CENTRAL_API_BASE}${endpoint}`, {
+      cache: 'no-store',
       ...options,
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
         ...(options.headers || {})
       }
     });
@@ -800,6 +803,19 @@ window.PrimetekDB = {
     const res = await apiFetch('/all');
     if (res && res.success && res.data) {
       const d = res.data;
+      if (Array.isArray(d.orders)) {
+        d.orders = d.orders.map(o => ({
+          ...o,
+          total: Number(o.total || 0),
+          createdAt: Number(o.createdAt) || (o.createdAt ? new Date(o.createdAt).getTime() : Date.now())
+        }));
+      }
+      if (Array.isArray(d.users)) {
+        d.users = d.users.map(u => ({
+          ...u,
+          createdAt: Number(u.createdAt) || (u.createdAt ? new Date(u.createdAt).getTime() : Date.now())
+        }));
+      }
       if (Array.isArray(d.products)) localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(d.products));
       if (Array.isArray(d.orders)) localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(d.orders));
       if (Array.isArray(d.leads)) localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(d.leads));
@@ -889,8 +905,13 @@ window.PrimetekDB = {
   async getOrders() {
     const res = await apiFetch('/orders');
     if (res && res.success && Array.isArray(res.data)) {
-      localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(res.data));
-      return res.data;
+      const cleaned = res.data.map(o => ({
+        ...o,
+        total: Number(o.total || 0),
+        createdAt: Number(o.createdAt) || (o.createdAt ? new Date(o.createdAt).getTime() : Date.now())
+      }));
+      localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(cleaned));
+      return cleaned;
     }
     try {
       const raw = localStorage.getItem(LOCAL_ORDERS_KEY);
@@ -1110,8 +1131,12 @@ window.PrimetekDB = {
   async getUsers() {
     const res = await apiFetch('/users');
     if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(res.data));
-      return res.data;
+      const cleaned = res.data.map(u => ({
+        ...u,
+        createdAt: Number(u.createdAt) || (u.createdAt ? new Date(u.createdAt).getTime() : Date.now())
+      }));
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(cleaned));
+      return cleaned;
     }
     return getLocalUsers();
   },

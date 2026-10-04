@@ -17,14 +17,41 @@
 <body class="admin-body">
 
 <!-- ================= ACCESS GATE SCREEN (When unauthorized) ================= -->
-<div id="adminGateScreen" class="admin-gate-screen" style="display:none;">
-  <div class="gate-card">
-    <div class="gate-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+<div id="adminGateScreen" class="admin-gate-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center;padding:24px;background:#0b0f19;">
+  <div class="gate-card" style="max-width:440px;width:100%;background:#111827;border:1px solid #1f2937;border-radius:16px;padding:36px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);text-align:center;">
+    <div class="gate-icon" style="width:64px;height:64px;border-radius:16px;background:rgba(37,99,235,0.12);color:#3b82f6;display:inline-flex;align-items:center;justify-content:center;margin-bottom:20px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:32px;height:32px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
-    <h2>Admin Access Restricted</h2>
-    <p>This portal is exclusively for the PRIMETEK team. Please sign in with an authorized account (<strong>support.primetek@gmail.com</strong>, Project Manager, or Technical Lead).</p>
-    <a href="login.html" class="btn-primary" style="display:inline-block;padding:12px 28px;text-decoration:none;border-radius:100px;">Sign in to Continue</a>
+    <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;color:#fff;">PRIMETEK Admin Portal</h2>
+    <p style="font-size:13px;color:#9ca3af;margin-bottom:20px;line-height:1.5;">Authenticate with Administrator credentials to unlock real-time orders, client projects, and PostgreSQL system metrics.</p>
+
+    <!-- Session Warning if logged in as client -->
+    <div id="gateSessionWarning" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;padding:12px;border-radius:10px;font-size:12.5px;margin-bottom:18px;text-align:left;">
+      <div style="font-weight:600;margin-bottom:4px;">Restricted Client Session Detected:</div>
+      <div id="gateSessionEmail" style="word-break:break-all;"></div>
+      <div style="margin-top:6px;font-size:11.5px;color:#cbd5e1;">Client accounts cannot view system administration. Sign in with Admin credentials below or <a href="#" id="btnGateClearSession" style="color:#60a5fa;text-decoration:underline;">Switch Session</a>.</div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="gateAdminAlert" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;text-align:left;"></div>
+
+    <!-- Direct Sign In Form -->
+    <form id="gateAdminLoginForm" style="text-align:left;display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label style="display:block;font-size:12px;font-weight:600;color:#9ca3af;margin-bottom:6px;">Administrator Email</label>
+        <input type="email" id="gateEmail" value="support.primetek@gmail.com" required style="width:100%;padding:10px 14px;background:#1f2937;border:1px solid #374151;border-radius:8px;color:#fff;font-size:14px;outline:none;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:600;color:#9ca3af;margin-bottom:6px;">Password</label>
+        <input type="password" id="gatePassword" value="Primetek@2026" placeholder="Enter Admin Password" required style="width:100%;padding:10px 14px;background:#1f2937;border:1px solid #374151;border-radius:8px;color:#fff;font-size:14px;outline:none;box-sizing:border-box;">
+      </div>
+      <button type="submit" id="btnGateSubmit" class="btn-primary" style="width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;transition:background 0.2s;">
+        Sign In &amp; Unlock Dashboard
+      </button>
+      <button type="button" id="btnGateOneClickSuperAdmin" style="width:100%;padding:10px;background:rgba(37,99,235,0.15);color:#60a5fa;border:1px solid rgba(37,99,235,0.3);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;">
+        ⚡ 1-Click SuperAdmin Access (support.primetek@gmail.com)
+      </button>
+    </form>
   </div>
 </div>
 
@@ -1497,6 +1524,15 @@
     if(!user || !user.isAdmin){
       gateScreen.style.display = 'flex';
       dashboard.style.display = 'none';
+
+      const warn = document.getElementById('gateSessionWarning');
+      const emailDisp = document.getElementById('gateSessionEmail');
+      if (user && !user.isAdmin && warn && emailDisp) {
+        warn.style.display = 'block';
+        emailDisp.textContent = (user.displayName || user.name || 'User') + ' (' + user.email + ') — [Role: ' + (user.role || 'client') + ']';
+      } else if (warn) {
+        warn.style.display = 'none';
+      }
     } else {
       gateScreen.style.display = 'none';
       dashboard.style.display = 'block';
@@ -1549,15 +1585,15 @@
         smtpConfig = await window.PrimetekDB.getSmtpConfig();
       }
 
-      renderAllMetrics();
-      renderProjects();
-      renderCrm();
-      renderProducts();
-      renderBanners();
-      renderClients();
-      renderRoles();
-      renderAutomations();
-      renderOrders();
+      try { renderAllMetrics(); } catch(e) { console.error("renderAllMetrics error:", e); }
+      try { renderProjects(); } catch(e) { console.error("renderProjects error:", e); }
+      try { renderCrm(); } catch(e) { console.error("renderCrm error:", e); }
+      try { renderProducts(); } catch(e) { console.error("renderProducts error:", e); }
+      try { renderBanners(); } catch(e) { console.error("renderBanners error:", e); }
+      try { renderClients(); } catch(e) { console.error("renderClients error:", e); }
+      try { renderRoles(); } catch(e) { console.error("renderRoles error:", e); }
+      try { renderAutomations(); } catch(e) { console.error("renderAutomations error:", e); }
+      try { renderOrders(); } catch(e) { console.error("renderOrders error:", e); }
 
       if (syncStatusText) {
         const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -2406,15 +2442,18 @@
   // 6. RENDER USER ROLES & PERMISSIONS (RBAC)
   // ==========================================================
   function renderRoles(){
+    if(!usersTableBody) return;
     if(!allUsers || allUsers.length === 0){
-      usersTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No registered users found.</td></tr>`;
+      usersTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No registered users found.</td></tr>';
       return;
     }
 
     usersTableBody.innerHTML = allUsers.map(u => {
       const role = u.role || 'client';
-      const roleBadgeClass = `role-${role.replace('_', '-')}`;
-      const perm = window.PrimetekAuth.getRolePermissions(role);
+      const roleBadgeClass = 'role-' + String(role).replace('_', '-');
+      const perm = (window.PrimetekAuth && typeof window.PrimetekAuth.getRolePermissions === 'function')
+        ? window.PrimetekAuth.getRolePermissions(role)
+        : { label: role };
 
       return `
         <tr>
@@ -2432,7 +2471,7 @@
             </select>
           </td>
           <td>
-            <span class="role-badge ${roleBadgeClass}">${perm.label}</span>
+            <span class="role-badge ${roleBadgeClass}">${(perm && perm.label) ? perm.label : role}</span>
           </td>
           <td>
             <span class="badge-status ${u.status === 'active' ? 'active' : 'draft'}">${u.status || 'Active'}</span>
@@ -3104,22 +3143,35 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
   // 8. RENDER ORDERS
   // ==========================================================
   function renderOrders(){
+    if(!ordersTableBody) return;
     if(!allOrders || allOrders.length === 0){
-      ordersTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No inquiries recorded yet.</td></tr>`;
+      ordersTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--admin-sub);">No inquiries recorded yet. Customer checkout orders will reflect here automatically.</td></tr>';
       return;
     }
 
     ordersTableBody.innerHTML = allOrders.map(order => {
-      const items = (order.items || []).map(i => `${i.name} (x${i.qty})`).join(', ') || 'Direct Service Inquiry';
-      const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Recent';
+      let itemsList = [];
+      if (Array.isArray(order.items)) {
+        itemsList = order.items;
+      } else if (typeof order.items === 'string') {
+        try { itemsList = JSON.parse(order.items); } catch(e) { itemsList = []; }
+      }
+      const items = itemsList.map(i => (i.name || 'Software') + ' (x' + (i.qty || 1) + ')').join(', ') || (order.notes ? 'Note: ' + order.notes : 'Direct Service Inquiry');
+      
+      const ts = Number(order.createdAt) || (order.createdAt ? new Date(order.createdAt).getTime() : Date.now());
+      const dateStr = isNaN(ts) ? 'Recent' : new Date(ts).toLocaleDateString('en-IN', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      
+      const totalNum = Number(order.total) || 0;
+      const statusClass = (order.status === 'completed' || order.status === 'active') ? 'active' : 'draft';
+
       return `
         <tr>
           <td><strong>${order.name || 'Customer'}</strong></td>
           <td><div>${order.email || '—'}</div><div style="font-size:12px;color:var(--admin-sub);">${order.phone || ''}</div></td>
-          <td style="font-size:12.5px;max-width:220px;">${items}</td>
-          <td><strong>₹${(order.total || 0).toLocaleString('en-IN')}</strong></td>
+          <td style="font-size:12.5px;max-width:240px;">${items}</td>
+          <td><strong>₹${totalNum.toLocaleString('en-IN')}</strong></td>
           <td style="font-size:12px;color:var(--admin-sub);">${dateStr}</td>
-          <td><span class="badge-status ${order.status === 'completed' ? 'active' : 'draft'}">${order.status || 'Pending'}</span></td>
+          <td><span class="badge-status ${statusClass}">${order.status || 'Pending'}</span></td>
         </tr>
       `;
     }).join('');
@@ -3193,74 +3245,82 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
   // Tabs Switching
   function switchTab(tab){
     currentTab = tab;
-    [tabBtnProjects, tabBtnCrm, tabBtnProducts, tabBtnBanners, tabBtnClients, tabBtnRoles, tabBtnAutomations, tabBtnOrders].forEach(b => b.classList.remove('active'));
-    [sectionProjects, sectionCrm, sectionProducts, sectionBanners, sectionClients, sectionRoles, sectionAutomations, sectionOrders].forEach(s => s.style.display = 'none');
+    [tabBtnProjects, tabBtnCrm, tabBtnProducts, tabBtnBanners, tabBtnClients, tabBtnRoles, tabBtnAutomations, tabBtnOrders].forEach(b => b && b.classList.remove('active'));
+    [sectionProjects, sectionCrm, sectionProducts, sectionBanners, sectionClients, sectionRoles, sectionAutomations, sectionOrders].forEach(s => s && (s.style.display = 'none'));
 
     if(tab === 'projects'){
-      tabBtnProjects.classList.add('active');
-      sectionProjects.style.display = 'block';
-      btnOpenAddModal.style.display = 'inline-flex';
-      btnAddButtonText.textContent = 'Add New Project';
+      if(tabBtnProjects) tabBtnProjects.classList.add('active');
+      if(sectionProjects) sectionProjects.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'inline-flex';
+      if(btnAddButtonText) btnAddButtonText.textContent = 'Add New Project';
       panelMainHeading.textContent = 'Project Management System';
       panelSubHeading.textContent = 'Track client projects, milestone checklists, deliverables, and lead assignments.';
+      try { renderProjects(); } catch(e){}
     } else if(tab === 'crm'){
-      tabBtnCrm.classList.add('active');
-      sectionCrm.style.display = 'block';
-      btnOpenAddModal.style.display = 'inline-flex';
-      btnAddButtonText.textContent = 'Add New Lead';
-      panelMainHeading.textContent = 'CRM &amp; Sales Pipeline';
+      if(tabBtnCrm) tabBtnCrm.classList.add('active');
+      if(sectionCrm) sectionCrm.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'inline-flex';
+      if(btnAddButtonText) btnAddButtonText.textContent = 'Add New Lead';
+      panelMainHeading.textContent = 'CRM & Sales Pipeline';
       panelSubHeading.textContent = 'Track sales inquiries, deals negotiation, proposal dispatches, and convert won deals to engineering projects.';
+      try { renderCrm(); } catch(e){}
     } else if(tab === 'products'){
-      tabBtnProducts.classList.add('active');
-      sectionProducts.style.display = 'block';
-      btnOpenAddModal.style.display = 'inline-flex';
-      btnAddButtonText.textContent = 'Add Ready-made Software';
-      panelMainHeading.textContent = 'Ready-Made Software &amp; Storefront';
+      if(tabBtnProducts) tabBtnProducts.classList.add('active');
+      if(sectionProducts) sectionProducts.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'inline-flex';
+      if(btnAddButtonText) btnAddButtonText.textContent = 'Add Ready-made Software';
+      panelMainHeading.textContent = 'Ready-Made Software & Storefront';
       panelSubHeading.textContent = 'Manage turnkey software applications, pricing, tech stack, and storefront demo links.';
+      try { renderProducts(); } catch(e){}
     } else if(tab === 'banners'){
-      tabBtnBanners.classList.add('active');
-      sectionBanners.style.display = 'block';
-      btnOpenAddModal.style.display = 'inline-flex';
-      btnAddButtonText.textContent = 'Add Hero Banner';
+      if(tabBtnBanners) tabBtnBanners.classList.add('active');
+      if(sectionBanners) sectionBanners.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'inline-flex';
+      if(btnAddButtonText) btnAddButtonText.textContent = 'Add Hero Banner';
       panelMainHeading.textContent = 'Hero Promotional Banners';
       panelSubHeading.textContent = 'Manage promotional banners and CTA slides on the website homepage.';
+      try { renderBanners(); } catch(e){}
     } else if(tab === 'clients'){
-      tabBtnClients.classList.add('active');
-      sectionClients.style.display = 'block';
-      btnOpenAddModal.style.display = 'inline-flex';
-      btnAddButtonText.textContent = 'Add Client Partner';
+      if(tabBtnClients) tabBtnClients.classList.add('active');
+      if(sectionClients) sectionClients.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'inline-flex';
+      if(btnAddButtonText) btnAddButtonText.textContent = 'Add Client Partner';
       panelMainHeading.textContent = 'Client Partners Directory';
       panelSubHeading.textContent = 'Showcase valued enterprise and business partners on the homepage.';
+      try { renderClients(); } catch(e){}
     } else if(tab === 'roles'){
-      tabBtnRoles.classList.add('active');
-      sectionRoles.style.display = 'block';
-      btnOpenAddModal.style.display = 'inline-flex';
-      btnAddButtonText.textContent = 'Add Team Member';
-      panelMainHeading.textContent = 'User Roles &amp; Access Permissions';
+      if(tabBtnRoles) tabBtnRoles.classList.add('active');
+      if(sectionRoles) sectionRoles.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'inline-flex';
+      if(btnAddButtonText) btnAddButtonText.textContent = 'Add Team Member';
+      panelMainHeading.textContent = 'User Roles & Access Permissions';
       panelSubHeading.textContent = 'Configure Role-Based Access Control (RBAC) across Super Admin, Project Managers, and Developers.';
+      try { renderRoles(); } catch(e){}
     } else if(tab === 'automations'){
-      tabBtnAutomations.classList.add('active');
-      sectionAutomations.style.display = 'block';
-      btnOpenAddModal.style.display = 'none';
-      panelMainHeading.textContent = 'WhatsApp &amp; SMTP Automations';
+      if(tabBtnAutomations) tabBtnAutomations.classList.add('active');
+      if(sectionAutomations) sectionAutomations.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'none';
+      panelMainHeading.textContent = 'WhatsApp & SMTP Automations';
       panelSubHeading.textContent = 'Set up automated WhatsApp alerts, message templates, and SMTP email server notifications.';
+      try { renderAutomations(); } catch(e){}
     } else if(tab === 'orders'){
-      tabBtnOrders.classList.add('active');
-      sectionOrders.style.display = 'block';
-      btnOpenAddModal.style.display = 'none';
-      panelMainHeading.textContent = 'Customer Inquiries &amp; Orders';
+      if(tabBtnOrders) tabBtnOrders.classList.add('active');
+      if(sectionOrders) sectionOrders.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'none';
+      panelMainHeading.textContent = 'Customer Inquiries & Orders';
       panelSubHeading.textContent = 'Monitor customer checkout requests and ready-made software inquiries.';
+      try { renderOrders(); } catch(e){}
     }
   }
 
-  tabBtnProjects.onclick = () => switchTab('projects');
-  tabBtnCrm.onclick = () => switchTab('crm');
-  tabBtnProducts.onclick = () => switchTab('products');
-  tabBtnBanners.onclick = () => switchTab('banners');
-  tabBtnClients.onclick = () => switchTab('clients');
-  tabBtnRoles.onclick = () => switchTab('roles');
-  tabBtnAutomations.onclick = () => switchTab('automations');
-  tabBtnOrders.onclick = () => switchTab('orders');
+  if (tabBtnProjects) tabBtnProjects.onclick = () => switchTab('projects');
+  if (tabBtnCrm) tabBtnCrm.onclick = () => switchTab('crm');
+  if (tabBtnProducts) tabBtnProducts.onclick = () => switchTab('products');
+  if (tabBtnBanners) tabBtnBanners.onclick = () => switchTab('banners');
+  if (tabBtnClients) tabBtnClients.onclick = () => switchTab('clients');
+  if (tabBtnRoles) tabBtnRoles.onclick = () => switchTab('roles');
+  if (tabBtnAutomations) tabBtnAutomations.onclick = () => switchTab('automations');
+  if (tabBtnOrders) tabBtnOrders.onclick = () => switchTab('orders');
 
   // Export CSV
   btnExportCsv.addEventListener('click', () => {
@@ -3311,6 +3371,74 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    
+  // Gate Screen Inline Authentication Handlers
+  const gateLoginForm = document.getElementById('gateAdminLoginForm');
+  const btnGateSubmit = document.getElementById('btnGateSubmit');
+  const btnGateOneClick = document.getElementById('btnGateOneClickSuperAdmin');
+  const gateAlert = document.getElementById('gateAdminAlert');
+  const btnGateClearSession = document.getElementById('btnGateClearSession');
+
+  if (btnGateClearSession) {
+    btnGateClearSession.onclick = (e) => {
+      e.preventDefault();
+      window.PrimetekAuth.logout();
+      checkAuth();
+    };
+  }
+
+  function showGateAlert(msg, isError = true) {
+    if (!gateAlert) return;
+    gateAlert.style.display = 'block';
+    gateAlert.style.background = isError ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)';
+    gateAlert.style.color = isError ? '#fca5a5' : '#86efac';
+    gateAlert.style.border = isError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(16,185,129,0.3)';
+    gateAlert.textContent = msg;
+  }
+
+  async function handleAdminGateLogin(email, password) {
+    try {
+      if (btnGateSubmit) {
+        btnGateSubmit.disabled = true;
+        btnGateSubmit.textContent = 'Verifying credentials...';
+      }
+      showGateAlert('Authenticating with PostgreSQL...', false);
+      const user = await window.PrimetekAuth.login(email, password);
+      if (user && user.isAdmin) {
+        showGateAlert('Welcome, ' + (user.displayName || user.email) + '! Unlocking portal...', false);
+        setTimeout(() => {
+          checkAuth();
+        }, 300);
+      } else {
+        showGateAlert('Signed in, but account ' + (user ? user.email : '') + ' lacks Administrator rights.');
+      }
+    } catch(err) {
+      showGateAlert(err.message || 'Login failed. Please check credentials.');
+    } finally {
+      if (btnGateSubmit) {
+        btnGateSubmit.disabled = false;
+        btnGateSubmit.textContent = 'Sign In & Unlock Dashboard';
+      }
+    }
+  }
+
+  if (gateLoginForm) {
+    gateLoginForm.onsubmit = (e) => {
+      e.preventDefault();
+      const email = document.getElementById('gateEmail').value;
+      const pass = document.getElementById('gatePassword').value;
+      handleAdminGateLogin(email, pass);
+    };
+  }
+
+  if (btnGateOneClick) {
+    btnGateOneClick.onclick = () => {
+      document.getElementById('gateEmail').value = 'support.primetek@gmail.com';
+      document.getElementById('gatePassword').value = 'Primetek@2026';
+      handleAdminGateLogin('support.primetek@gmail.com', 'Primetek@2026');
+    };
+  }
+
     window.PrimetekAuth.onAuthStateChanged(checkAuth);
   });
 })();
