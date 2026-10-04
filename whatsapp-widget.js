@@ -13,7 +13,7 @@
     if (window.PRIMETEK_WA_CONFIG && window.PRIMETEK_WA_CONFIG.ADMIN_DISPATCH_URL) {
       return window.PRIMETEK_WA_CONFIG.ADMIN_DISPATCH_URL.replace(/\/webhook\/primetek\/v1\/admin-message\/?$/, '');
     }
-    return 'https://stake-beings-immediately-wishes.trycloudflare.com';
+    return 'https://names-highest-alliance-farming.trycloudflare.com';
   }
 
   // State
