@@ -633,6 +633,103 @@
 
         </div>
 
+        <!-- CARD 3: WHATSAPP SMART KEYWORD AUTO-REPLY BOT & SCHEDULER -->
+        <div class="ar-card-full">
+          <div class="ar-header">
+            <div class="ar-header-left">
+              <div class="ar-bot-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+              </div>
+              <div class="ar-bot-title">
+                <h2>WhatsApp Smart Keyword Auto-Reply Bot <span class="ar-badge ar-badge-translate">🌐 Auto-Translate</span></h2>
+                <div style="font-size:12.5px;color:var(--admin-sub);">Automated keyword triggers, instant multi-lingual replies, working-hour schedule filters, and human takeover protection.</div>
+              </div>
+            </div>
+            <div class="ar-header-right">
+              <div class="ar-master-switch-box">
+                <span id="arMasterStatusText">Auto-Reply Bot Active</span>
+                <label class="ar-toggle-switch">
+                  <input type="checkbox" id="arMasterToggle" checked>
+                  <span class="ar-toggle-slider"></span>
+                </label>
+              </div>
+              <button type="button" class="btn-primary" id="btnOpenAddAutoReplyModal" style="padding:8px 16px;border-radius:8px;font-size:13px;display:inline-flex;align-items:center;gap:6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Auto-Reply Rule
+              </button>
+            </div>
+          </div>
+
+          <!-- Schedule & Working Hours Settings Panel -->
+          <div class="ar-settings-panel">
+            <div class="ar-setting-item">
+              <label for="arBizStart">Working Hours (IST)</label>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="time" id="arBizStart" value="09:00">
+                <span style="font-size:12px;color:var(--admin-sub);">to</span>
+                <input type="time" id="arBizEnd" value="19:00">
+              </div>
+            </div>
+
+            <div class="ar-setting-item">
+              <label>Active Business Days</label>
+              <div class="ar-day-pills" id="arDayPillsContainer">
+                <button type="button" class="ar-day-btn" data-day="0">Sun</button>
+                <button type="button" class="ar-day-btn active" data-day="1">Mon</button>
+                <button type="button" class="ar-day-btn active" data-day="2">Tue</button>
+                <button type="button" class="ar-day-btn active" data-day="3">Wed</button>
+                <button type="button" class="ar-day-btn active" data-day="4">Thu</button>
+                <button type="button" class="ar-day-btn active" data-day="5">Fri</button>
+                <button type="button" class="ar-day-btn active" data-day="6">Sat</button>
+              </div>
+            </div>
+
+            <div class="ar-setting-item">
+              <label for="arTakeoverMinutes">Human Agent Cooldown (Mins)</label>
+              <div style="display:flex;gap:8px;">
+                <input type="number" id="arTakeoverMinutes" min="0" max="720" value="60" title="Pauses bot for X minutes when an admin manually messages a customer">
+                <button type="button" id="btnSaveAutoReplySettings" class="btn-save" style="padding:7px 14px;white-space:nowrap;font-size:12.5px;">Save Settings</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rules List Header & Filter Tabs -->
+          <div class="ar-rules-header">
+            <div style="font-size:14px;font-weight:700;color:var(--admin-ink);display:flex;align-items:center;gap:8px;">
+              Configured Keyword Triggers
+              <span id="arRulesCountBadge" style="background:#E2E8F0;color:#334155;font-size:11.5px;padding:2px 7px;border-radius:100px;font-weight:700;">4</span>
+            </div>
+            <div class="ar-filter-tabs">
+              <button type="button" class="ar-filter-tab active" data-filter="all">All Rules</button>
+              <button type="button" class="ar-filter-tab" data-filter="always">24/7 Always Active</button>
+              <button type="button" class="ar-filter-tab" data-filter="working_hours">Business Hours Only</button>
+              <button type="button" class="ar-filter-tab" data-filter="outside_hours">After-Hours Only</button>
+            </div>
+          </div>
+
+          <!-- Rules Container -->
+          <div id="autoReplyRulesContainer" class="ar-rules-list">
+            <!-- Dynamically populated rules cards -->
+            <div style="text-align:center;padding:24px;color:var(--admin-sub);font-size:13px;">Loading auto-reply rules...</div>
+          </div>
+
+          <!-- Live WhatsApp Keyword & Translation Simulator -->
+          <div class="ar-sim-box">
+            <div class="ar-sim-header">
+              <div class="ar-sim-title">⚡ Live Auto-Reply &amp; Translation Simulator</div>
+              <div style="font-size:11.5px;color:var(--admin-sub);">Test any query in English, Hindi, Arabic, Spanish, etc.</div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <input type="text" id="arSimInput" placeholder="Try: 'bhai pricing batao', 'كم سعر الموقع', 'show catalog', or 'hello'" style="flex:1;min-width:240px;padding:9px 12px;border:1px solid var(--admin-line);border-radius:8px;font-size:13px;">
+              <button type="button" id="btnRunArSim" class="btn-primary" style="padding:9px 20px;border-radius:8px;font-size:13px;white-space:nowrap;">
+                Simulate Auto-Reply
+              </button>
+            </div>
+            <div id="arSimOutput" class="ar-sim-output">Simulator ready. Enter a keyword or customer message above to test live matching and language translation...</div>
+          </div>
+
+        </div>
+
       </div>
     </div>
 
@@ -1167,6 +1264,97 @@
       <div class="modal-footer">
         <button type="button" class="btn-cancel" id="btnCancelUserModal">Cancel</button>
         <button type="submit" class="btn-save" id="btnSaveUser">Save User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL 7: ADD / EDIT AUTO-REPLY RULE ================= -->
+<div id="autoReplyModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:640px;">
+    <div class="modal-header">
+      <h2 id="autoReplyModalTitle">Add Auto-Reply Keyword Rule</h2>
+      <button class="btn-modal-close" id="btnCloseAutoReplyModal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <form id="autoReplyRuleForm">
+      <div class="modal-body">
+        <input type="hidden" id="editRuleId">
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="ruleName">Rule Name *</label>
+            <input type="text" id="ruleName" placeholder="e.g. Pricing &amp; Quote Inquiry" required>
+          </div>
+          <div class="form-field">
+            <label for="ruleMatchType">Keyword Match Mode *</label>
+            <select id="ruleMatchType" required>
+              <option value="contains" selected>Contains Keyword (Recommended)</option>
+              <option value="exact">Exact Message Match</option>
+              <option value="starts_with">Starts With Keyword</option>
+              <option value="default_fallback">Default / Fallback (No keywords required)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field" id="ruleKeywordsFieldGroup">
+          <label for="ruleKeywords">Trigger Keywords (comma-separated) *</label>
+          <input type="text" id="ruleKeywords" placeholder="e.g. price, pricing, cost, rate, quote, daam, kitna, keemat">
+          <div style="font-size:11.5px;color:var(--admin-sub);margin-top:4px;">
+            💡 <strong>Multi-Language Magic:</strong> Customer queries in Hindi, Arabic, Spanish, French, etc. are automatically translated to English, so English keywords match foreign queries automatically!
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="ruleScheduleMode">Schedule / Timing Filter *</label>
+            <select id="ruleScheduleMode" required>
+              <option value="always" selected>24/7 Always Active</option>
+              <option value="working_hours">Business Working Hours Only</option>
+              <option value="outside_hours">Outside Working Hours (Night / Weekend)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="ruleCooldownMinutes">Customer Cooldown (Minutes)</label>
+            <input type="number" id="ruleCooldownMinutes" min="0" max="1440" value="15" required title="Prevents spamming the same customer within X minutes">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <label for="ruleReplyText" style="margin-bottom:0;">Automated Reply Message *</label>
+            <div style="display:flex;gap:4px;">
+              <button type="button" class="btn-ar-action" onclick="window.insertVariableIntoReply('{name}')" style="padding:2px 6px;font-size:11px;">+ {name}</button>
+              <button type="button" class="btn-ar-action" onclick="window.insertVariableIntoReply('{time}')" style="padding:2px 6px;font-size:11px;">+ {time}</button>
+              <button type="button" class="btn-ar-action" onclick="window.insertVariableIntoReply('{catalog_url}')" style="padding:2px 6px;font-size:11px;">+ {catalog_url}</button>
+            </div>
+          </div>
+          <textarea id="ruleReplyText" rows="5" placeholder="Hello {name}! 👋 Thank you for contacting PRIMETEK... Type your automated response here." required style="width:100%;font-family:'Inter',sans-serif;font-size:13px;padding:10px;border:1px solid var(--admin-line);border-radius:8px;line-height:1.45;"></textarea>
+        </div>
+
+        <div style="background:#F8FAFC;border:1px solid var(--admin-line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;">
+          <label class="trigger-switch-row" style="margin-bottom:0;">
+            <div>
+              <div style="font-weight:700;font-size:12.5px;">🌐 Auto-Translate Reply to Customer's Native Language</div>
+              <div style="font-size:11.5px;color:var(--admin-sub);">If customer sends in Arabic, Hindi, Urdu, German, etc., reply is instantly translated to their language.</div>
+            </div>
+            <input type="checkbox" id="ruleAutoTranslate" checked>
+          </label>
+          <label class="trigger-switch-row" style="margin-bottom:0;">
+            <div>
+              <div style="font-weight:700;font-size:12.5px;">Rule Active / Enabled</div>
+              <div style="font-size:11.5px;color:var(--admin-sub);">Turn this rule on or off without deleting it.</div>
+            </div>
+            <input type="checkbox" id="ruleEnabled" checked>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="btnCancelAutoReplyModal">Cancel</button>
+        <button type="submit" class="btn-save" id="btnSaveAutoReplyRule">Save Rule</button>
       </div>
     </form>
   </div>
@@ -2301,6 +2489,8 @@
       document.getElementById('smtpTriggerProjectFinish').checked = st.onProjectFinish !== false;
       document.getElementById('smtpTriggerOrder').checked = st.onOrderInquiry !== false;
     }
+
+    loadAutoReplyConfig();
   }
 
   whatsappConfigForm.addEventListener('submit', async (e) => {
@@ -2378,6 +2568,481 @@
     const res = await window.PrimetekDB.sendTestEmail(to, 'PRIMETEK SMTP Server Handshake Verification', 'This test message confirms that your SMTP mail host and encryption settings are operational.');
     term.textContent += `\n[${new Date().toLocaleTimeString()}] HANDSHAKE VERIFIED: ${res.response}`;
   };
+
+  // ==========================================================
+  // 7.1 SMART WHATSAPP AUTO-REPLY BOT & MULTILINGUAL SCHEDULER
+  // ==========================================================
+  const WA_GATEWAY_URL = 'https://wa-gateway-production-473f.up.railway.app';
+  let arConfig = {
+    enabled: true,
+    agentTakeoverMinutes: 60,
+    businessHours: { start: '09:00', end: '19:00', timezone: 'Asia/Kolkata', days: [1,2,3,4,5,6] },
+    rules: []
+  };
+  let arCurrentFilter = 'all';
+
+  // Helper to escape HTML safely
+  function arEscapeHtml(str){
+    if(!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Load Auto-Reply Config from Gateway
+  async function loadAutoReplyConfig(){
+    try {
+      const res = await fetch(`${WA_GATEWAY_URL}/api/auto-reply/config`);
+      if(res.ok){
+        const data = await res.json();
+        if(data && data.success){
+          arConfig = {
+            enabled: data.enabled !== false,
+            agentTakeoverMinutes: data.agentTakeoverMinutes || 60,
+            businessHours: data.businessHours || { start: '09:00', end: '19:00', timezone: 'Asia/Kolkata', days: [1,2,3,4,5,6] },
+            rules: Array.isArray(data.rules) ? data.rules : []
+          };
+        }
+      }
+    } catch(err){
+      console.warn('[Auto-Reply] Failed to load config from Gateway, using local defaults:', err);
+    }
+    syncAutoReplyUI();
+  }
+
+  // Synchronize UI elements with current config
+  function syncAutoReplyUI(){
+    const masterToggle = document.getElementById('arMasterToggle');
+    const masterText = document.getElementById('arMasterStatusText');
+    if(masterToggle){
+      masterToggle.checked = arConfig.enabled;
+      if(masterText) masterText.textContent = arConfig.enabled ? 'Auto-Reply Bot Active' : 'Auto-Reply Bot Paused';
+    }
+
+    const bizStart = document.getElementById('arBizStart');
+    const bizEnd = document.getElementById('arBizEnd');
+    if(bizStart && arConfig.businessHours?.start) bizStart.value = arConfig.businessHours.start;
+    if(bizEnd && arConfig.businessHours?.end) bizEnd.value = arConfig.businessHours.end;
+
+    const takeover = document.getElementById('arTakeoverMinutes');
+    if(takeover) takeover.value = arConfig.agentTakeoverMinutes || 60;
+
+    // Sync Day Pills
+    const activeDays = new Set(arConfig.businessHours?.days || [1,2,3,4,5,6]);
+    document.querySelectorAll('#arDayPillsContainer .ar-day-btn').forEach(btn => {
+      const d = parseInt(btn.getAttribute('data-day'), 10);
+      if(activeDays.has(d)){
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    renderAutoReplyRules();
+  }
+
+  // Render the list of rules
+  function renderAutoReplyRules(){
+    const container = document.getElementById('autoReplyRulesContainer');
+    const countBadge = document.getElementById('arRulesCountBadge');
+    if(!container) return;
+
+    const rules = arConfig.rules || [];
+    if(countBadge) countBadge.textContent = rules.length;
+
+    // Filter rules
+    const filtered = rules.filter(r => {
+      if(arCurrentFilter === 'all') return true;
+      if(arCurrentFilter === 'always') return !r.schedule || r.schedule.mode === 'always';
+      if(arCurrentFilter === 'working_hours') return r.schedule && r.schedule.mode === 'working_hours';
+      if(arCurrentFilter === 'outside_hours') return r.schedule && r.schedule.mode === 'outside_hours';
+      return true;
+    });
+
+    if(!filtered.length){
+      container.innerHTML = `
+        <div style="text-align:center;padding:36px;border:1px dashed var(--admin-line);border-radius:12px;background:#F8FAFC;color:var(--admin-sub);">
+          <div style="font-size:24px;margin-bottom:8px;">🤖</div>
+          <div style="font-weight:700;font-size:14px;color:var(--admin-ink);">No rules match filter "${arCurrentFilter}"</div>
+          <div style="font-size:12.5px;margin-top:4px;">Click "New Auto-Reply Rule" to add keyword triggers for your customers.</div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(r => {
+      const isEnabled = r.enabled !== false;
+      const schedMode = r.schedule?.mode || 'always';
+      let schedBadge = '';
+      if(schedMode === 'always') schedBadge = `<span class="ar-badge ar-badge-always">🕒 24/7 Always Active</span>`;
+      else if(schedMode === 'working_hours') schedBadge = `<span class="ar-badge ar-badge-business">💼 Business Hours</span>`;
+      else if(schedMode === 'outside_hours') schedBadge = `<span class="ar-badge ar-badge-afterhours">🌙 After-Hours</span>`;
+
+      const matchLabel = r.matchType === 'exact' ? 'Exact Match' : (r.matchType === 'starts_with' ? 'Starts With' : (r.matchType === 'default_fallback' ? 'Default Fallback' : 'Contains Keyword'));
+      
+      const keywordsHtml = (r.keywords && r.keywords.length)
+        ? r.keywords.map(k => `<span class="ar-kw-chip">${arEscapeHtml(k)}</span>`).join(' ')
+        : `<span class="ar-kw-fallback">Runs automatically when no keywords match</span>`;
+
+      return `
+        <div class="ar-rule-card ${isEnabled ? '' : 'disabled'}" id="rule_card_${r.id}">
+          <div class="ar-rule-top">
+            <div class="ar-rule-title-group">
+              <span class="ar-rule-name">${arEscapeHtml(r.name || 'Unnamed Rule')}</span>
+              <span class="ar-badge ${isEnabled ? 'ar-badge-active' : 'ar-badge-paused'}">${isEnabled ? '● Active' : '○ Paused'}</span>
+              <span class="ar-badge" style="background:#F1F5F9;color:#475569;">${matchLabel}</span>
+              ${schedBadge}
+              ${r.autoTranslateReply !== false ? `<span class="ar-badge ar-badge-translate">🌐 Auto-Translate</span>` : ''}
+              <span class="ar-badge" style="background:#F8FAFC;border:1px solid #E2E8F0;color:#64748B;">⏱ ${r.cooldownMinutes || 10}m cooldown</span>
+            </div>
+            <div class="ar-rule-actions">
+              <label class="ar-toggle-switch" title="Toggle active/paused">
+                <input type="checkbox" ${isEnabled ? 'checked' : ''} onchange="window.toggleAutoReplyRule('${r.id}', this.checked)">
+                <span class="ar-toggle-slider"></span>
+              </label>
+              <button type="button" class="btn-ar-action" onclick="window.openEditAutoReplyModal('${r.id}')" title="Edit Rule">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+              <button type="button" class="btn-ar-action delete" onclick="window.deleteAutoReplyRule('${r.id}')" title="Delete Rule">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="ar-rule-keywords-row">
+            <span class="ar-kw-label">Trigger Keywords:</span>
+            ${keywordsHtml}
+          </div>
+
+          <div class="ar-reply-preview" title="Customer response text">
+            ${arEscapeHtml(r.replyText || '')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Filter tabs click handling
+  document.querySelectorAll('.ar-filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ar-filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      arCurrentFilter = btn.getAttribute('data-filter') || 'all';
+      renderAutoReplyRules();
+    });
+  });
+
+  // Active Days toggle buttons
+  document.querySelectorAll('#arDayPillsContainer .ar-day-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+    });
+  });
+
+  // Master Bot Toggle switch
+  const arMasterToggle = document.getElementById('arMasterToggle');
+  if(arMasterToggle){
+    arMasterToggle.addEventListener('change', async () => {
+      arConfig.enabled = arMasterToggle.checked;
+      const text = document.getElementById('arMasterStatusText');
+      if(text) text.textContent = arConfig.enabled ? 'Auto-Reply Bot Active' : 'Auto-Reply Bot Paused';
+      await saveAutoReplySettings(true);
+    });
+  }
+
+  // Save Schedule & General Settings
+  const btnSaveSettings = document.getElementById('btnSaveAutoReplySettings');
+  if(btnSaveSettings){
+    btnSaveSettings.addEventListener('click', async () => {
+      btnSaveSettings.disabled = true;
+      btnSaveSettings.textContent = 'Saving...';
+      try {
+        await saveAutoReplySettings(false);
+        alert('Auto-Reply Bot schedule & settings saved successfully!');
+      } catch(e){
+        alert('Failed to save settings: ' + e.message);
+      } finally {
+        btnSaveSettings.disabled = false;
+        btnSaveSettings.textContent = 'Save Settings';
+      }
+    });
+  }
+
+  async function saveAutoReplySettings(silent = false){
+    const activeDays = [];
+    document.querySelectorAll('#arDayPillsContainer .ar-day-btn.active').forEach(b => {
+      activeDays.push(parseInt(b.getAttribute('data-day'), 10));
+    });
+
+    const payload = {
+      enabled: arConfig.enabled,
+      agentTakeoverMinutes: parseInt(document.getElementById('arTakeoverMinutes')?.value, 10) || 60,
+      businessHours: {
+        start: document.getElementById('arBizStart')?.value || '09:00',
+        end: document.getElementById('arBizEnd')?.value || '19:00',
+        timezone: 'Asia/Kolkata',
+        days: activeDays
+      }
+    };
+
+    arConfig.agentTakeoverMinutes = payload.agentTakeoverMinutes;
+    arConfig.businessHours = payload.businessHours;
+
+    try {
+      const res = await fetch(`${WA_GATEWAY_URL}/api/auto-reply/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(!silent && (!res.ok || !data.success)){
+        throw new Error(data.error || 'Server rejected settings update');
+      }
+    } catch(err){
+      if(!silent) throw err;
+    }
+  }
+
+  // Global helper to insert variables in textarea
+  window.insertVariableIntoReply = function(varName){
+    const ta = document.getElementById('ruleReplyText');
+    if(!ta) return;
+    const start = ta.selectionStart || 0;
+    const end = ta.selectionEnd || 0;
+    const text = ta.value;
+    ta.value = text.substring(0, start) + varName + text.substring(end);
+    ta.selectionStart = ta.selectionEnd = start + varName.length;
+    ta.focus();
+  };
+
+  // Modal: Open Add Rule
+  const autoReplyModal = document.getElementById('autoReplyModal');
+  const btnOpenAddAutoReplyModal = document.getElementById('btnOpenAddAutoReplyModal');
+  const autoReplyRuleForm = document.getElementById('autoReplyRuleForm');
+
+  if(btnOpenAddAutoReplyModal){
+    btnOpenAddAutoReplyModal.addEventListener('click', () => {
+      document.getElementById('autoReplyModalTitle').textContent = 'Add Auto-Reply Keyword Rule';
+      document.getElementById('editRuleId').value = '';
+      autoReplyRuleForm.reset();
+      document.getElementById('ruleMatchType').value = 'contains';
+      document.getElementById('ruleScheduleMode').value = 'always';
+      document.getElementById('ruleCooldownMinutes').value = 15;
+      document.getElementById('ruleAutoTranslate').checked = true;
+      document.getElementById('ruleEnabled').checked = true;
+      document.getElementById('ruleKeywordsFieldGroup').style.display = 'block';
+      autoReplyModal.classList.add('active');
+    });
+  }
+
+  // Modal: Open Edit Rule
+  window.openEditAutoReplyModal = function(ruleId){
+    const rule = (arConfig.rules || []).find(r => r.id === ruleId);
+    if(!rule) return;
+
+    document.getElementById('autoReplyModalTitle').textContent = 'Edit Auto-Reply Rule';
+    document.getElementById('editRuleId').value = rule.id;
+    document.getElementById('ruleName').value = rule.name || '';
+    document.getElementById('ruleMatchType').value = rule.matchType || 'contains';
+    document.getElementById('ruleKeywords').value = (rule.keywords || []).join(', ');
+    document.getElementById('ruleScheduleMode').value = rule.schedule?.mode || 'always';
+    document.getElementById('ruleCooldownMinutes').value = rule.cooldownMinutes ?? 15;
+    document.getElementById('ruleReplyText').value = rule.replyText || '';
+    document.getElementById('ruleAutoTranslate').checked = rule.autoTranslateReply !== false;
+    document.getElementById('ruleEnabled').checked = rule.enabled !== false;
+
+    if(rule.matchType === 'default_fallback'){
+      document.getElementById('ruleKeywordsFieldGroup').style.display = 'none';
+    } else {
+      document.getElementById('ruleKeywordsFieldGroup').style.display = 'block';
+    }
+
+    autoReplyModal.classList.add('active');
+  };
+
+  // Match Mode change listener in Modal
+  const ruleMatchTypeSelect = document.getElementById('ruleMatchType');
+  if(ruleMatchTypeSelect){
+    ruleMatchTypeSelect.addEventListener('change', () => {
+      const isFallback = ruleMatchTypeSelect.value === 'default_fallback';
+      document.getElementById('ruleKeywordsFieldGroup').style.display = isFallback ? 'none' : 'block';
+    });
+  }
+
+  // Modal Close buttons
+  const btnCloseArModal = document.getElementById('btnCloseAutoReplyModal');
+  const btnCancelArModal = document.getElementById('btnCancelAutoReplyModal');
+  if(btnCloseArModal) btnCloseArModal.onclick = () => autoReplyModal.classList.remove('active');
+  if(btnCancelArModal) btnCancelArModal.onclick = () => autoReplyModal.classList.remove('active');
+
+  // Modal Form Submit: Save / Update Rule
+  if(autoReplyRuleForm){
+    autoReplyRuleForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('btnSaveAutoReplyRule');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      const id = document.getElementById('editRuleId').value || ('rule_' + Date.now());
+      const matchType = document.getElementById('ruleMatchType').value;
+      const rawKws = document.getElementById('ruleKeywords').value;
+      const keywords = rawKws.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
+      const rulePayload = {
+        id,
+        name: document.getElementById('ruleName').value.trim(),
+        matchType,
+        keywords: matchType === 'default_fallback' ? [] : keywords,
+        schedule: { mode: document.getElementById('ruleScheduleMode').value },
+        cooldownMinutes: parseInt(document.getElementById('ruleCooldownMinutes').value, 10) || 10,
+        replyText: document.getElementById('ruleReplyText').value.trim(),
+        autoTranslateReply: document.getElementById('ruleAutoTranslate').checked,
+        enabled: document.getElementById('ruleEnabled').checked
+      };
+
+      try {
+        const res = await fetch(`${WA_GATEWAY_URL}/api/auto-reply/rules`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(rulePayload)
+        });
+        const data = await res.json();
+        if(!res.ok || !data.success){
+          throw new Error(data.error || 'Failed to save rule on Gateway');
+        }
+
+        // Update local list
+        const idx = arConfig.rules.findIndex(r => r.id === id);
+        if(idx !== -1){
+          arConfig.rules[idx] = rulePayload;
+        } else {
+          arConfig.rules.push(rulePayload);
+        }
+
+        autoReplyModal.classList.remove('active');
+        renderAutoReplyRules();
+      } catch(err){
+        alert('Error saving auto-reply rule: ' + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Rule';
+      }
+    });
+  }
+
+  // Quick Toggle Active/Paused for Rule
+  window.toggleAutoReplyRule = async function(ruleId, isChecked){
+    const rule = (arConfig.rules || []).find(r => r.id === ruleId);
+    if(!rule) return;
+    rule.enabled = isChecked;
+
+    try {
+      await fetch(`${WA_GATEWAY_URL}/api/auto-reply/rules`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rule)
+      });
+      const card = document.getElementById(`rule_card_${ruleId}`);
+      if(card){
+        if(isChecked) card.classList.remove('disabled');
+        else card.classList.add('disabled');
+      }
+      renderAutoReplyRules();
+    } catch(err){
+      console.error('Failed to toggle rule state:', err);
+    }
+  };
+
+  // Delete Rule
+  window.deleteAutoReplyRule = async function(ruleId){
+    const rule = (arConfig.rules || []).find(r => r.id === ruleId);
+    if(!rule) return;
+    if(!confirm(`Are you sure you want to delete rule "${rule.name}"?`)) return;
+
+    try {
+      const res = await fetch(`${WA_GATEWAY_URL}/api/auto-reply/rules/${ruleId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if(!res.ok || !data.success){
+        throw new Error(data.error || 'Failed to delete rule on Gateway');
+      }
+      arConfig.rules = arConfig.rules.filter(r => r.id !== ruleId);
+      renderAutoReplyRules();
+    } catch(err){
+      alert('Error deleting rule: ' + err.message);
+    }
+  };
+
+  // Live Auto-Reply Simulator
+  const btnRunArSim = document.getElementById('btnRunArSim');
+  const arSimInput = document.getElementById('arSimInput');
+  const arSimOutput = document.getElementById('arSimOutput');
+
+  if(btnRunArSim && arSimInput && arSimOutput){
+    const runSim = async () => {
+      const text = arSimInput.value.trim();
+      if(!text){
+        alert('Please enter a test customer message or keyword.');
+        arSimInput.focus();
+        return;
+      }
+
+      btnRunArSim.disabled = true;
+      btnRunArSim.textContent = 'Testing...';
+      arSimOutput.innerHTML = `[${new Date().toLocaleTimeString()}] Analyzing query "${arEscapeHtml(text)}" across keyword rules and language detectors...`;
+
+      try {
+        const startTime = performance.now();
+        const res = await fetch(`${WA_GATEWAY_URL}/api/auto-reply/test`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const elapsed = Math.round(performance.now() - startTime);
+        const data = await res.json();
+
+        if(!res.ok || !data.success){
+          arSimOutput.innerHTML = `❌ Error from Simulator: ${arEscapeHtml(data?.error || 'Unknown server response')}`;
+          return;
+        }
+
+        if(!data.matched){
+          arSimOutput.innerHTML = `⚠️ <strong>NO RULE MATCHED</strong> (${elapsed}ms)
+──────────────────────────────────────────────────────────
+• Input Message:     "${arEscapeHtml(text)}"
+• Detected Language: ${data.detectedLang ? data.detectedLang.toUpperCase() : 'EN'}
+• English Context:   "${arEscapeHtml(data.englishText || text)}"
+• Gateway Note:      ${arEscapeHtml(data.message || 'No keyword matched or outside schedule')}`;
+          return;
+        }
+
+        arSimOutput.innerHTML = `✅ <strong>RULE TRIGGERED: ${arEscapeHtml(data.ruleName)}</strong> (${elapsed}ms)
+──────────────────────────────────────────────────────────
+• Incoming Message:    "${arEscapeHtml(text)}"
+• Detected Language:   ${data.detectedLang ? data.detectedLang.toUpperCase() : 'EN'}
+• English Translation: "${arEscapeHtml(data.englishText || text)}"
+• Rule ID:             <code>${arEscapeHtml(data.ruleId)}</code>
+
+🤖 <strong>AUTOMATED WHATSAPP REPLY DISPATCHED:</strong>
+${arEscapeHtml(data.translatedReply || data.replyText)}`;
+      } catch(err){
+        arSimOutput.innerHTML = `❌ Connection Error: ${arEscapeHtml(err.message)}`;
+      } finally {
+        btnRunArSim.disabled = false;
+        btnRunArSim.textContent = 'Simulate Auto-Reply';
+      }
+    };
+
+    btnRunArSim.addEventListener('click', runSim);
+    arSimInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter') runSim();
+    });
+  }
 
   // ==========================================================
   // 8. RENDER ORDERS
