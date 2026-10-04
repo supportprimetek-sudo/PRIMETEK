@@ -13,7 +13,7 @@
     if (window.PRIMETEK_WA_CONFIG && window.PRIMETEK_WA_CONFIG.ADMIN_DISPATCH_URL) {
       return window.PRIMETEK_WA_CONFIG.ADMIN_DISPATCH_URL.replace(/\/webhook\/primetek\/v1\/admin-message\/?$/, '');
     }
-    return 'https://names-highest-alliance-farming.trycloudflare.com';
+    return 'https://wa-gateway-production-473f.up.railway.app';
   }
 
   // State

@@ -10,8 +10,8 @@
   // Can be overridden via Admin Panel (admin.html -> Automations) or in window.PRIMETEK_WA_CONFIG
   var DEFAULT_CONFIG = {
     ENABLED: true,
-    CHECKOUT_URL: 'https://names-highest-alliance-farming.trycloudflare.com/webhook/primetek/v1/checkout-order',
-    ADMIN_DISPATCH_URL: 'https://names-highest-alliance-farming.trycloudflare.com/webhook/primetek/v1/admin-message',
+    CHECKOUT_URL: 'https://wa-gateway-production-473f.up.railway.app/webhook/primetek/v1/checkout-order',
+    ADMIN_DISPATCH_URL: 'https://wa-gateway-production-473f.up.railway.app/webhook/primetek/v1/admin-message',
     API_KEY: 'primetek_sec_replace_with_strong_token_32_chars',
     SENDER_NUMBER: '+917870819862',
     INSTANCE: 'primetek_store'
