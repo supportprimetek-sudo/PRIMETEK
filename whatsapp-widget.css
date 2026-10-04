@@ -508,3 +508,101 @@ body.has-admin-wa-widget a.whatsapp-float {
   border-top: 1px solid #C8E6C9;
 }
 
+/* ==========================================
+   BI-DIRECTIONAL AUTO-TRANSLATION STYLES
+   ========================================== */
+.wa-translate-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: #F3F4F6;
+  border-top: 1px solid #E5E7EB;
+  font-size: 11.5px;
+}
+
+.wa-translate-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  color: #374151;
+  font-weight: 500;
+}
+
+.wa-translate-toggle-label input[type="checkbox"] {
+  accent-color: #128C7E;
+  cursor: pointer;
+}
+
+.wa-target-lang-tag {
+  font-size: 11px;
+  color: #065F46;
+  background: #D1FAE5;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.wa-live-preview-chip {
+  padding: 5px 14px;
+  background: #ECFDF5;
+  border-top: 1px dashed #A7F3D0;
+  font-size: 11.5px;
+  color: #047857;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.wa-live-preview-chip em {
+  font-style: normal;
+  font-weight: 600;
+  color: #064E3B;
+}
+
+.wa-msg-trans-box {
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.1);
+  font-size: 11px;
+}
+
+.wa-trans-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #059669;
+  background: #ECFDF5;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-bottom: 2px;
+}
+
+.wa-msg-trans-box.outbound .wa-trans-pill {
+  color: #047857;
+  background: #D1FAE5;
+}
+
+.wa-msg-orig {
+  color: #4B5563;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.wa-msg-orig em {
+  font-style: italic;
+  color: #1F2937;
+}
+
+.wa-contact-badge-lang {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #2563EB;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+

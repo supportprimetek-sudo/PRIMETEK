@@ -16,10 +16,38 @@
     return 'https://wa-gateway-production-473f.up.railway.app';
   }
 
+  const LANG_MAP = {
+    ar: { name: 'Arabic', flag: '🇸🇦' },
+    hi: { name: 'Hindi', flag: '🇮🇳' },
+    ur: { name: 'Urdu', flag: '🇵🇰' },
+    bn: { name: 'Bengali', flag: '🇧🇩' },
+    es: { name: 'Spanish', flag: '🇪🇸' },
+    fr: { name: 'French', flag: '🇫🇷' },
+    de: { name: 'German', flag: '🇩🇪' },
+    ru: { name: 'Russian', flag: '🇷🇺' },
+    zh: { name: 'Chinese', flag: '🇨🇳' },
+    ja: { name: 'Japanese', flag: '🇯🇵' },
+    pt: { name: 'Portuguese', flag: '🇧🇷' },
+    it: { name: 'Italian', flag: '🇮🇹' },
+    mr: { name: 'Marathi', flag: '🇮🇳' },
+    gu: { name: 'Gujarati', flag: '🇮🇳' },
+    ta: { name: 'Tamil', flag: '🇮🇳' },
+    te: { name: 'Telugu', flag: '🇮🇳' },
+    en: { name: 'English', flag: '🇬🇧' }
+  };
+
+  function getLangLabel(code) {
+    if (!code || code === 'en' || code === 'und') return 'English 🇬🇧';
+    const entry = LANG_MAP[code];
+    if (entry) return `${entry.flag} ${entry.name}`;
+    return code.toUpperCase();
+  }
+
   // State
   let isOpen = false;
   let activeChatPhone = null;
   let activeChatCustomerName = '';
+  let activeChatCustomerLang = 'en';
   let activeChatMessages = [];
   let chatList = [];
   let sseSource = null;
@@ -129,11 +157,19 @@
         <div id="waAdminChatThreadView" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
           <div class="wa-chat-body" id="waAdminChatBody"></div>
           <div class="wa-typing-banner" id="waAdminTypingBanner">
-            ⏳ Simulating human typing on WhatsApp (takes 5-6s)...
+            ⏳ Dispatching reply to WhatsApp...
           </div>
+          <div class="wa-translate-bar" id="waTranslateBar">
+            <label class="wa-translate-toggle-label" title="Automatically translate your reply into the customer's native language">
+              <input type="checkbox" id="waAutoTranslateCheckbox" checked>
+              <span class="wa-toggle-text">🌐 Auto-Translate Reply</span>
+            </label>
+            <span class="wa-target-lang-tag" id="waTargetLangTag">Target: English 🇬🇧</span>
+          </div>
+          <div id="waLivePreviewChip" class="wa-live-preview-chip" style="display:none;"></div>
           <div class="wa-input-bar">
-            <textarea class="wa-input-field" id="waAdminReplyInput" rows="1" placeholder="Type reply directly to customer on WhatsApp..."></textarea>
-            <button class="wa-btn-send" id="waAdminReplySend" title="Send Reply with 5s Human Simulation">
+            <textarea class="wa-input-field" id="waAdminReplyInput" rows="1" placeholder="Type reply in your language (auto-translates for customer)..."></textarea>
+            <button class="wa-btn-send" id="waAdminReplySend" title="Send Reply with Instant Translation">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
           </div>
@@ -200,6 +236,44 @@
         e.preventDefault();
         sendAdminReply();
       }
+    });
+
+    let previewTimer = null;
+    adminInput.addEventListener('input', () => {
+      clearTimeout(previewTimer);
+      const val = adminInput.value.trim();
+      const chip = document.getElementById('waLivePreviewChip');
+      const toggle = document.getElementById('waAutoTranslateCheckbox');
+      if (!chip) return;
+
+      if (!val || !toggle?.checked || !activeChatCustomerLang || activeChatCustomerLang === 'en') {
+        chip.style.display = 'none';
+        return;
+      }
+
+      previewTimer = setTimeout(async () => {
+        try {
+          const base = getGatewayBase();
+          const res = await fetch(`${base}/api/chats/translate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: val,
+              targetLang: activeChatCustomerLang,
+              sourceLang: 'en'
+            })
+          });
+          const data = await res.json();
+          if (data.success && data.text && data.text !== val) {
+            chip.style.display = 'block';
+            chip.innerHTML = `🌐 <b>Will deliver in ${escapeHtml(getLangLabel(activeChatCustomerLang))}:</b> <em>"${escapeHtml(data.text)}"</em>`;
+          } else {
+            chip.style.display = 'none';
+          }
+        } catch (e) {
+          chip.style.display = 'none';
+        }
+      }, 350);
     });
   }
 
@@ -324,6 +398,11 @@
       if (data.name && data.name !== 'Customer') {
         activeChatCustomerName = data.name;
       }
+      activeChatCustomerLang = data.customerLang || 'en';
+      const targetLangTag = document.getElementById('waTargetLangTag');
+      if (targetLangTag) {
+        targetLangTag.textContent = activeChatCustomerLang !== 'en' ? `Target: ${getLangLabel(activeChatCustomerLang)}` : 'Target: English 🇬🇧';
+      }
 
       const displayName = getDisplayName(activeChatCustomerName, phone);
       const formattedPhone = formatPhoneDisplay(phone);
@@ -357,6 +436,9 @@
         <div class="wa-contact-badge-info">
           <div class="wa-contact-badge-name">👤 <b>${escapeHtml(displayName)}</b></div>
           <div class="wa-contact-badge-phone">📞 <span>${escapeHtml(formattedPhone)}</span></div>
+          ${activeChatCustomerLang && activeChatCustomerLang !== 'en' ? `
+            <div class="wa-contact-badge-lang">🌐 Native Language: <b>${escapeHtml(getLangLabel(activeChatCustomerLang))}</b></div>
+          ` : ''}
         </div>
       </div>
     `;
@@ -368,6 +450,9 @@
 
     const msgsHtml = activeChatMessages.map(m => {
       const msgSenderName = !m.fromMe ? (m.pushName || displayName || 'Customer') : 'You (Admin)';
+      const isCustomerTranslated = !m.fromMe && m.translated && m.originalText;
+      const isOutboundTranslated = m.fromMe && m.deliveredText && m.deliveredText !== m.text;
+
       return `
       <div class="wa-msg ${m.fromMe ? 'wa-msg-outbound' : 'wa-msg-inbound'}">
         ${!m.fromMe ? `
@@ -377,6 +462,21 @@
           </div>
         ` : ''}
         <div class="wa-msg-text">${escapeHtml(m.text)}</div>
+
+        ${isCustomerTranslated ? `
+          <div class="wa-msg-trans-box">
+            <span class="wa-trans-pill">🌐 Auto-translated to English</span>
+            <div class="wa-msg-orig">Original (${escapeHtml(m.detectedLang || 'auto')}): "<em>${escapeHtml(m.originalText)}</em>"</div>
+          </div>
+        ` : ''}
+
+        ${isOutboundTranslated ? `
+          <div class="wa-msg-trans-box outbound">
+            <span class="wa-trans-pill">✓ Delivered in ${escapeHtml(getLangLabel(m.targetLang))}</span>
+            <div class="wa-msg-orig">"<em>${escapeHtml(m.deliveredText)}</em>"</div>
+          </div>
+        ` : ''}
+
         <div class="wa-msg-meta">
           ${formatTime(m.timestamp)}
           ${m.fromMe ? `<svg viewBox="0 0 16 15" width="14" height="14" fill="#34B7F1"><path d="M15.01 3.316l-.478-.372a.365.365 0 0 0-.51.063L8.666 9.879a.32.32 0 0 1-.484.033l-.358-.325a.319.319 0 0 0-.484.032l-.378.483a.418.418 0 0 0 .036.541l1.32 1.266c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.064-.512zm-4.1 0l-.478-.372a.365.365 0 0 0-.51.063L4.566 9.879a.32.32 0 0 1-.484.033L1.891 7.769a.366.366 0 0 0-.515.006l-.423.433a.364.364 0 0 0 .006.514l3.258 3.185c.143.14.361.125.484-.033l6.272-8.048a.366.366 0 0 0-.063-.51z"/></svg>` : ''}
@@ -389,47 +489,60 @@
     chatBody.scrollTop = chatBody.scrollHeight;
   }
 
-  // Admin Send Reply Handler
+  // Admin Send Reply Handler (with Auto-Translation)
   async function sendAdminReply() {
     const input = document.getElementById('waAdminReplyInput');
     const btn = document.getElementById('waAdminReplySend');
     const typingBanner = document.getElementById('waAdminTypingBanner');
+    const previewChip = document.getElementById('waLivePreviewChip');
+    const translateCheckbox = document.getElementById('waAutoTranslateCheckbox');
     const message = input.value.trim();
 
     if (!message || !activeChatPhone) return;
 
+    const base = getGatewayBase();
+    const shouldTranslate = translateCheckbox ? translateCheckbox.checked : true;
+
     input.value = '';
     btn.disabled = true;
-    typingBanner.style.display = 'block';
-
-    const base = getGatewayBase();
-
-    // Optimistically add bubble to UI
-    const tempMsg = {
-      fromMe: true,
-      text: message,
-      timestamp: Date.now()
-    };
-    activeChatMessages.push(tempMsg);
-    renderThreadMessages();
+    if (previewChip) previewChip.style.display = 'none';
+    if (typingBanner) {
+      typingBanner.style.display = 'block';
+      typingBanner.textContent = shouldTranslate && activeChatCustomerLang !== 'en'
+        ? `🌐 Auto-translating to ${getLangLabel(activeChatCustomerLang)} & dispatching...`
+        : '⏳ Dispatching reply to WhatsApp...';
+    }
 
     try {
       const res = await fetch(`${base}/api/chats/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: activeChatPhone, message })
+        body: JSON.stringify({
+          phone: activeChatPhone,
+          message: message,
+          autoTranslate: shouldTranslate
+        })
       });
 
       const data = await res.json();
-      if (!data.success) {
-        alert('Failed to send reply: ' + (data.error || 'Unknown error'));
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to send reply');
       }
+
+      activeChatMessages.push({
+        fromMe: true,
+        text: message,
+        deliveredText: data.translated ? data.message : undefined,
+        targetLang: data.translated ? data.customerLang : undefined,
+        timestamp: Date.now()
+      });
+      renderThreadMessages();
     } catch (err) {
       alert('Error sending reply: ' + err.message);
+      input.value = message;
     } finally {
       btn.disabled = false;
-      typingBanner.style.display = 'none';
-      renderThreadMessages();
+      if (typingBanner) typingBanner.style.display = 'none';
     }
   }
 
