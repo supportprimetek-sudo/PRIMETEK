@@ -188,7 +188,7 @@
     var btn = document.getElementById('checkoutSubmitBtn');
     var status = document.getElementById('checkoutStatus');
 
-    form.addEventListener('submit', function(e){
+    form.addEventListener('submit', async function(e){
       e.preventDefault();
       if(form.querySelector('[name="_honey"]').value) return;
 
@@ -197,17 +197,29 @@
       status.textContent = 'Sending your order…';
       status.className = 'form-status';
 
-      // Record in Primetek database for Admin panel view
-      if(window.PrimetekDB){
-        window.PrimetekDB.recordOrder({
-          name: form.name.value,
-          email: form.email.value,
-          phone: form.phone.value,
-          company: form.company.value || '',
-          notes: form.notes.value || '',
-          items: cart,
-          total: total
-        });
+      const orderPayload = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        phone: form.phone.value.trim(),
+        company: form.company.value || '',
+        notes: form.notes.value || '',
+        items: cart,
+        total: total
+      };
+
+      // Record in Central Primetek database for Admin panel view
+      try {
+        if(window.PrimetekDB && typeof window.PrimetekDB.recordOrder === 'function'){
+          await window.PrimetekDB.recordOrder(orderPayload);
+        } else {
+          await fetch('https://wa-gateway-production-473f.up.railway.app/api/db/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderPayload)
+          });
+        }
+      } catch (dbErr) {
+        console.warn('Central DB order record error:', dbErr);
       }
 
       // Automated WhatsApp notification via Cluster Gateway

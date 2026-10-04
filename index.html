@@ -943,6 +943,10 @@
         <input id="email" name="email" type="email" placeholder="you@company.com" required>
       </div>
       <div class="field">
+        <label for="phone">Phone / WhatsApp</label>
+        <input id="phone" name="phone" type="tel" placeholder="+91 98765 43210">
+      </div>
+      <div class="field">
         <label for="service">What do you need?</label>
         <select id="service" name="service">
           <option value="Website">Website development</option>
@@ -970,15 +974,56 @@
     const btn = document.getElementById('formSubmitBtn');
     const status = document.getElementById('formStatus');
     if(!form) return;
-    form.addEventListener('submit', function(e){
-      if (form.querySelector('[name="_honey"]').value) {
-        e.preventDefault();
-        return;
-      }
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      if (form.querySelector('[name="_honey"]').value) return;
+
       btn.disabled = true;
       btn.textContent = 'Sending…';
-      status.textContent = "Sending your message — you'll be redirected once it's sent.";
+      status.textContent = "Connecting to PRIMETEK cloud...";
       status.className = 'form-status';
+
+      const leadPayload = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        phone: (form.phone ? form.phone.value.trim() : ''),
+        service: form.service.value,
+        notes: form.message.value.trim(),
+        source: 'Website Contact Form',
+        stage: 'new',
+        priority: 'warm',
+        value: 15000
+      };
+
+      // 1. Record lead to Central Cloud DB (triggers instant Admin WhatsApp alert & CRM pipeline entry)
+      try {
+        if (window.PrimetekDB && typeof window.PrimetekDB.addLead === 'function') {
+          await window.PrimetekDB.addLead(leadPayload);
+        } else {
+          await fetch('https://wa-gateway-production-473f.up.railway.app/api/db/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(leadPayload)
+          });
+        }
+      } catch (err) {
+        console.warn('Central DB lead record fallback:', err);
+      }
+
+      // 2. Also submit to formsubmit.co via AJAX for email alerts
+      try {
+        await fetch(form.action.replace('formsubmit.co/', 'formsubmit.co/ajax/'), {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: new FormData(form)
+        });
+      } catch (e) {}
+
+      btn.disabled = false;
+      btn.textContent = 'Message Sent!';
+      status.textContent = "✓ Thank you! Your inquiry has been received. Our team will contact you shortly on WhatsApp / Email.";
+      status.style.color = '#10b981';
+      form.reset();
     });
   })();
 </script>

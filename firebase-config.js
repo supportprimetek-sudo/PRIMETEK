@@ -782,34 +782,46 @@ window.PrimetekAuth = {
 
   async signup(name, email, password) {
     email = email.trim();
-    if (auth) {
-      const cred = await auth.createUserWithEmailAndPassword(email, password);
-      if (name) {
-        await cred.user.updateProfile({ displayName: name });
+    const role = this.getUserRole(email);
+    const isAdm = this.isAdminUser({ email, role });
+    
+    // Register in Central Database so Admin Console immediately sees the new user!
+    const userObj = {
+      name: name || email.split('@')[0],
+      email: email,
+      phone: '',
+      role: role,
+      status: 'active'
+    };
+    try {
+      if (window.PrimetekDB && typeof window.PrimetekDB.addUser === 'function') {
+        await window.PrimetekDB.addUser(userObj);
       }
-      const role = window.PrimetekAuth.getUserRole(cred.user.email);
-      return {
-        uid: cred.user.uid,
-        email: cred.user.email,
-        displayName: name || email.split('@')[0],
-        role: role,
-        isAdmin: window.PrimetekAuth.isAdminUser(cred.user),
-        permissions: window.PrimetekAuth.getRolePermissions(role)
-      };
-    } else {
-      const role = this.getUserRole(email);
-      const isAdm = this.isAdminUser({ email, role });
-      const mockUser = {
-        uid: 'local_' + Math.random().toString(36).substring(2, 9),
-        email: email,
-        displayName: name || email.split('@')[0],
-        role: role,
-        isAdmin: isAdm,
-        permissions: this.getRolePermissions(role)
-      };
-      localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(mockUser));
-      return mockUser;
+    } catch (e) {
+      console.warn("Could not sync user to central DB:", e);
     }
+
+    if (auth) {
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        if (name) {
+          await cred.user.updateProfile({ displayName: name });
+        }
+      } catch (e) {
+        console.warn("Firebase auth signup error:", e);
+      }
+    }
+
+    const mockUser = {
+      uid: 'usr_' + Date.now().toString(36),
+      email: email,
+      displayName: name || email.split('@')[0],
+      role: role,
+      isAdmin: isAdm,
+      permissions: this.getRolePermissions(role)
+    };
+    localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(mockUser));
+    return mockUser;
   },
 
   async loginWithGoogle() {
@@ -851,22 +863,57 @@ window.PrimetekAuth = {
 };
 
 // ----------------------------------------------------
-// PRIMETEK DATABASE & STOREFRONT API
+// PRIMETEK CENTRAL STORE DATABASE & CLOUD API
 // ----------------------------------------------------
+const CENTRAL_API_BASE = 'https://wa-gateway-production-473f.up.railway.app/api/db';
+
+async function apiFetch(endpoint, options = {}) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(`${CENTRAL_API_BASE}${endpoint}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      }
+    });
+    clearTimeout(timeout);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn(`[PrimetekDB Cloud] Sync fallback on ${endpoint}:`, err.message);
+    return null;
+  }
+}
+
 window.PrimetekDB = {
+  // BULK GET ALL COLLECTIONS (Fast 1-Shot Load)
+  async getAll() {
+    const res = await apiFetch('/all');
+    if (res && res.success && res.data) {
+      const d = res.data;
+      if (Array.isArray(d.products)) localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(d.products));
+      if (Array.isArray(d.orders)) localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(d.orders));
+      if (Array.isArray(d.leads)) localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(d.leads));
+      if (Array.isArray(d.users)) localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(d.users));
+      if (Array.isArray(d.clients)) localStorage.setItem(LOCAL_CLIENTS_KEY, JSON.stringify(d.clients));
+      if (Array.isArray(d.projects)) localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(d.projects));
+      if (Array.isArray(d.banners)) localStorage.setItem(LOCAL_BANNERS_KEY, JSON.stringify(d.banners));
+      if (d.whatsappConfig) localStorage.setItem(LOCAL_WHATSAPP_KEY, JSON.stringify(d.whatsappConfig));
+      if (d.smtpConfig) localStorage.setItem(LOCAL_SMTP_KEY, JSON.stringify(d.smtpConfig));
+      return d;
+    }
+    return null;
+  },
+
   // 1. PRODUCTS
   async getProducts() {
-    if (db) {
-      try {
-        const snap = await db.collection('products').orderBy('createdAt', 'desc').get();
-        if (!snap.empty) {
-          const items = [];
-          snap.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
-          return items;
-        }
-      } catch (err) {
-        console.warn("Could not fetch from Firestore, falling back to local products:", err);
-      }
+    const res = await apiFetch('/products');
+    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     return getLocalProducts();
   },
@@ -879,60 +926,38 @@ window.PrimetekDB = {
       status: product.status || 'active',
       createdAt: Date.now()
     };
-
-    if (db) {
-      try {
-        const ref = await db.collection('products').add(data);
-        return { id: ref.id, ...data };
-      } catch (err) {
-        console.warn("Firestore save failed, saving locally:", err);
-      }
-    }
-
-    const items = getLocalProducts();
-    const newId = 'prod_' + Date.now().toString(36);
-    const newProduct = { id: newId, ...data };
-    items.unshift(newProduct);
+    const res = await apiFetch('/products', { method: 'POST', body: JSON.stringify(data) });
+    const saved = (res && res.success && res.item) ? res.item : { id: 'prod_' + Date.now().toString(36), ...data };
+    const items = getLocalProducts().filter(i => String(i.id) !== String(saved.id));
+    items.unshift(saved);
     localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(items));
-    return newProduct;
+    return saved;
   },
 
   async updateProduct(id, updates) {
     const data = {
       ...updates,
-      price: parseFloat(updates.price) || 0,
-      regularPrice: parseFloat(updates.regularPrice) || 0,
+      price: updates.price !== undefined ? (parseFloat(updates.price) || 0) : undefined,
+      regularPrice: updates.regularPrice !== undefined ? (parseFloat(updates.regularPrice) || 0) : undefined,
       updatedAt: Date.now()
     };
+    Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
 
-    if (db) {
-      try {
-        await db.collection('products').doc(id).set(data, { merge: true });
-        return { id, ...data };
-      } catch (err) {
-        console.warn("Firestore update failed, updating locally:", err);
-      }
-    }
-
+    const res = await apiFetch('/products/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify(data) });
+    const updated = (res && res.success && res.item) ? res.item : null;
     const items = getLocalProducts();
-    const idx = items.findIndex(i => i.id === id);
+    const idx = items.findIndex(i => String(i.id) === String(id));
     if (idx !== -1) {
-      items[idx] = { ...items[idx], ...data };
+      items[idx] = updated || { ...items[idx], ...data };
       localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(items));
       return items[idx];
     }
-    return null;
+    return updated;
   },
 
   async deleteProduct(id) {
-    if (db) {
-      try {
-        await db.collection('products').doc(id).delete();
-      } catch (err) {
-        console.warn("Firestore delete failed:", err);
-      }
-    }
-    const items = getLocalProducts().filter(i => i.id !== id);
+    await apiFetch('/products/' + encodeURIComponent(id), { method: 'DELETE' });
+    const items = getLocalProducts().filter(i => String(i.id) !== String(id));
     localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(items));
     return true;
   },
@@ -944,40 +969,22 @@ window.PrimetekDB = {
       createdAt: Date.now(),
       status: 'pending'
     };
-
-    if (db) {
-      try {
-        const ref = await db.collection('orders').add(data);
-        return { id: ref.id, ...data };
-      } catch (e) {
-        console.warn("Firestore order record failed:", e);
-      }
-    }
-
+    const res = await apiFetch('/orders', { method: 'POST', body: JSON.stringify(data) });
+    const saved = (res && res.success && res.item) ? res.item : { id: 'ord_' + Date.now().toString(36), ...data };
     try {
       const raw = localStorage.getItem(LOCAL_ORDERS_KEY);
       const orders = raw ? JSON.parse(raw) : [];
-      const newOrder = { id: 'ord_' + Date.now().toString(36), ...data };
-      orders.unshift(newOrder);
+      orders.unshift(saved);
       localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(orders));
-      return newOrder;
-    } catch (e) {
-      return data;
-    }
+    } catch(e) {}
+    return saved;
   },
 
   async getOrders() {
-    if (db) {
-      try {
-        const snap = await db.collection('orders').orderBy('createdAt', 'desc').get();
-        if (!snap.empty) {
-          const list = [];
-          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-          return list;
-        }
-      } catch (e) {
-        console.warn("Could not fetch orders from Firestore:", e);
-      }
+    const res = await apiFetch('/orders');
+    if (res && res.success && Array.isArray(res.data)) {
+      localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     try {
       const raw = localStorage.getItem(LOCAL_ORDERS_KEY);
@@ -989,17 +996,10 @@ window.PrimetekDB = {
 
   // 3. HERO PROMOTIONAL BANNERS
   async getBanners() {
-    if (db) {
-      try {
-        const snap = await db.collection('banners').orderBy('createdAt', 'desc').get();
-        if (!snap.empty) {
-          const list = [];
-          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-          return list;
-        }
-      } catch (e) {
-        console.warn("Firestore banners fetch error:", e);
-      }
+    const res = await apiFetch('/banners');
+    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      localStorage.setItem(LOCAL_BANNERS_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     try {
       const raw = localStorage.getItem(LOCAL_BANNERS_KEY);
@@ -1019,71 +1019,45 @@ window.PrimetekDB = {
       status: banner.status || 'active',
       createdAt: Date.now()
     };
-    if (db) {
-      try {
-        const ref = await db.collection('banners').add(data);
-        return { id: ref.id, ...data };
-      } catch (e) {
-        console.warn("Firestore add banner failed:", e);
-      }
-    }
+    const res = await apiFetch('/banners', { method: 'POST', body: JSON.stringify(data) });
+    const saved = (res && res.success && res.item) ? res.item : { id: 'ban_' + Date.now().toString(36), ...data };
     const raw = localStorage.getItem(LOCAL_BANNERS_KEY);
     const list = raw ? JSON.parse(raw) : [...DEFAULT_BANNERS];
-    const newBanner = { id: 'ban_' + Date.now().toString(36), ...data };
-    list.unshift(newBanner);
+    list.unshift(saved);
     localStorage.setItem(LOCAL_BANNERS_KEY, JSON.stringify(list));
-    return newBanner;
+    return saved;
   },
 
   async updateBanner(id, updates) {
     const data = { ...updates, updatedAt: Date.now() };
-    if (db) {
-      try {
-        await db.collection('banners').doc(id).set(data, { merge: true });
-        return { id, ...data };
-      } catch (e) {
-        console.warn("Firestore update banner failed:", e);
-      }
-    }
+    const res = await apiFetch('/banners/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify(data) });
+    const updated = (res && res.success && res.item) ? res.item : null;
     const raw = localStorage.getItem(LOCAL_BANNERS_KEY);
     const list = raw ? JSON.parse(raw) : [...DEFAULT_BANNERS];
-    const idx = list.findIndex(b => b.id === id);
+    const idx = list.findIndex(b => String(b.id) === String(id));
     if (idx !== -1) {
-      list[idx] = { ...list[idx], ...data };
+      list[idx] = updated || { ...list[idx], ...data };
       localStorage.setItem(LOCAL_BANNERS_KEY, JSON.stringify(list));
       return list[idx];
     }
-    return null;
+    return updated;
   },
 
   async deleteBanner(id) {
-    if (db) {
-      try {
-        await db.collection('banners').doc(id).delete();
-      } catch (e) {
-        console.warn("Firestore delete banner failed:", e);
-      }
-    }
+    await apiFetch('/banners/' + encodeURIComponent(id), { method: 'DELETE' });
     const raw = localStorage.getItem(LOCAL_BANNERS_KEY);
     const list = raw ? JSON.parse(raw) : [...DEFAULT_BANNERS];
-    const filtered = list.filter(b => b.id !== id);
+    const filtered = list.filter(b => String(b.id) !== String(id));
     localStorage.setItem(LOCAL_BANNERS_KEY, JSON.stringify(filtered));
     return true;
   },
 
   // 4. CLIENT PARTNERS
   async getClients() {
-    if (db) {
-      try {
-        const snap = await db.collection('clients').orderBy('createdAt', 'desc').get();
-        if (!snap.empty) {
-          const list = [];
-          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-          return list;
-        }
-      } catch (e) {
-        console.warn("Firestore clients fetch error:", e);
-      }
+    const res = await apiFetch('/clients');
+    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      localStorage.setItem(LOCAL_CLIENTS_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     try {
       const raw = localStorage.getItem(LOCAL_CLIENTS_KEY);
@@ -1103,73 +1077,45 @@ window.PrimetekDB = {
       status: client.status || 'active',
       createdAt: Date.now()
     };
-    if (db) {
-      try {
-        const ref = await db.collection('clients').add(data);
-        return { id: ref.id, ...data };
-      } catch (e) {
-        console.warn("Firestore add client failed:", e);
-      }
-    }
+    const res = await apiFetch('/clients', { method: 'POST', body: JSON.stringify(data) });
+    const saved = (res && res.success && res.item) ? res.item : { id: 'cli_' + Date.now().toString(36), ...data };
     const raw = localStorage.getItem(LOCAL_CLIENTS_KEY);
     const list = raw ? JSON.parse(raw) : [...DEFAULT_CLIENTS];
-    const newClient = { id: 'cli_' + Date.now().toString(36), ...data };
-    list.unshift(newClient);
+    list.unshift(saved);
     localStorage.setItem(LOCAL_CLIENTS_KEY, JSON.stringify(list));
-    return newClient;
+    return saved;
   },
 
   async updateClient(id, updates) {
     const data = { ...updates, updatedAt: Date.now() };
-    if (db) {
-      try {
-        await db.collection('clients').doc(id).set(data, { merge: true });
-        return { id, ...data };
-      } catch (e) {
-        console.warn("Firestore update client failed:", e);
-      }
-    }
+    const res = await apiFetch('/clients/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify(data) });
+    const updated = (res && res.success && res.item) ? res.item : null;
     const raw = localStorage.getItem(LOCAL_CLIENTS_KEY);
     const list = raw ? JSON.parse(raw) : [...DEFAULT_CLIENTS];
-    const idx = list.findIndex(c => c.id === id);
+    const idx = list.findIndex(c => String(c.id) === String(id));
     if (idx !== -1) {
-      list[idx] = { ...list[idx], ...data };
+      list[idx] = updated || { ...list[idx], ...data };
       localStorage.setItem(LOCAL_CLIENTS_KEY, JSON.stringify(list));
       return list[idx];
     }
-    return null;
+    return updated;
   },
 
   async deleteClient(id) {
-    if (db) {
-      try {
-        await db.collection('clients').doc(id).delete();
-      } catch (e) {
-        console.warn("Firestore delete client failed:", e);
-      }
-    }
+    await apiFetch('/clients/' + encodeURIComponent(id), { method: 'DELETE' });
     const raw = localStorage.getItem(LOCAL_CLIENTS_KEY);
     const list = raw ? JSON.parse(raw) : [...DEFAULT_CLIENTS];
-    const filtered = list.filter(c => c.id !== id);
+    const filtered = list.filter(c => String(c.id) !== String(id));
     localStorage.setItem(LOCAL_CLIENTS_KEY, JSON.stringify(filtered));
     return true;
   },
 
-  // ----------------------------------------------------
-  // 5. PROJECT MANAGEMENT SYSTEM (PMS — Strictly No CRM)
-  // ----------------------------------------------------
+  // 5. PROJECT MANAGEMENT SYSTEM
   async getProjects() {
-    if (db) {
-      try {
-        const snap = await db.collection('projects').orderBy('createdAt', 'desc').get();
-        if (!snap.empty) {
-          const list = [];
-          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-          return list;
-        }
-      } catch (e) {
-        console.warn("Firestore projects fetch error:", e);
-      }
+    const res = await apiFetch('/projects');
+    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     return getLocalProjects();
   },
@@ -1180,150 +1126,86 @@ window.PrimetekDB = {
       ...project,
       code: code,
       budget: parseFloat(project.budget) || 0,
-      progress: Math.min(100, Math.max(0, parseInt(project.progress, 10) || 0)),
+      progress: parseInt(project.progress, 10) || 0,
       status: project.status || 'planning',
-      priority: project.priority || 'Medium',
-      milestones: Array.isArray(project.milestones) ? project.milestones : [],
+      milestones: project.milestones || [
+        { id: 'm1', title: 'Scope Definition & Discovery', completed: true, date: new Date().toISOString().slice(0, 10) },
+        { id: 'm2', title: 'Architecture Blueprint & Wireframes', completed: false, date: '' },
+        { id: 'm3', title: 'Core Implementation', completed: false, date: '' },
+        { id: 'm4', title: 'Final Handover & Launch', completed: false, date: '' }
+      ],
       deliverables: project.deliverables || {},
       createdAt: Date.now()
     };
-
-    if (db) {
-      try {
-        const ref = await db.collection('projects').add(data);
-        return { id: ref.id, ...data };
-      } catch (e) {
-        console.warn("Firestore add project failed:", e);
-      }
-    }
-
-    const list = getLocalProjects();
-    const newProject = { id: 'prj_' + Date.now().toString(36), ...data };
-    list.unshift(newProject);
-    localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(list));
-
-    // Optional trigger: Notify on WhatsApp
-    try {
-      const waConfig = await this.getWhatsAppConfig();
-      if (waConfig && waConfig.enabled && waConfig.triggers?.projectCreated) {
-        this.sendWhatsAppMessage(project.clientEmail || '', 'projectCreated', {
-          client_name: project.clientName || 'Partner',
-          project_name: project.title,
-          project_code: newProject.code,
-          portal_url: window.location.origin + '/account.html'
-        });
-      }
-    } catch (waErr) {}
-
-    return newProject;
+    const res = await apiFetch('/projects', { method: 'POST', body: JSON.stringify(data) });
+    const saved = (res && res.success && res.item) ? res.item : { id: 'prj_' + Date.now().toString(36), ...data };
+    const items = getLocalProjects().filter(p => String(p.id) !== String(saved.id));
+    items.unshift(saved);
+    localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(items));
+    return saved;
   },
 
   async updateProject(id, updates) {
     const data = {
       ...updates,
       budget: updates.budget !== undefined ? (parseFloat(updates.budget) || 0) : undefined,
-      progress: updates.progress !== undefined ? Math.min(100, Math.max(0, parseInt(updates.progress, 10) || 0)) : undefined,
+      progress: updates.progress !== undefined ? (parseInt(updates.progress, 10) || 0) : undefined,
       updatedAt: Date.now()
     };
     Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
 
-    if (db) {
-      try {
-        await db.collection('projects').doc(id).set(data, { merge: true });
-        return { id, ...data };
-      } catch (e) {
-        console.warn("Firestore update project failed:", e);
-      }
-    }
-
-    const list = getLocalProjects();
-    const idx = list.findIndex(p => p.id === id);
+    const res = await apiFetch('/projects/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify(data) });
+    const updated = (res && res.success && res.item) ? res.item : null;
+    const items = getLocalProjects();
+    const idx = items.findIndex(p => String(p.id) === String(id));
     if (idx !== -1) {
-      list[idx] = { ...list[idx], ...data };
-      localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(list));
-      return list[idx];
+      items[idx] = updated || { ...items[idx], ...data };
+      localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(items));
+      return items[idx];
     }
-    return null;
+    return updated;
   },
 
   async toggleMilestone(projectId, milestoneId, isCompleted) {
     const projects = await this.getProjects();
-    const prj = projects.find(p => p.id === projectId);
-    if (!prj || !Array.isArray(prj.milestones)) return null;
+    const prj = projects.find(p => String(p.id) === String(projectId));
+    if (!prj) return null;
 
-    const targetM = prj.milestones.find(m => m.id === milestoneId);
-    if (targetM) {
-      targetM.completed = isCompleted;
-      const completedCount = prj.milestones.filter(m => m.completed).length;
-      const totalCount = prj.milestones.length;
-      const calcProgress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : prj.progress;
-      
-      const updated = await this.updateProject(projectId, {
-        milestones: prj.milestones,
-        progress: calcProgress,
-        status: calcProgress === 100 ? 'completed' : prj.status
-      });
+    const ms = (prj.milestones || []).find(m => String(m.id) === String(milestoneId));
+    if (ms) ms.completed = isCompleted;
 
-      // Automated WhatsApp Trigger if enabled
-      if (isCompleted) {
-        try {
-          const waConfig = await this.getWhatsAppConfig();
-          if (waConfig && waConfig.enabled && waConfig.triggers?.milestoneCompleted) {
-            this.sendWhatsAppMessage(prj.clientEmail || '', 'milestoneCompleted', {
-              client_name: prj.clientName || 'Partner',
-              project_name: prj.title,
-              milestone_title: targetM.title,
-              progress_pct: calcProgress,
-              portal_url: window.location.origin + '/account.html'
-            });
-          }
-        } catch (e) {}
-      }
+    const completedCount = (prj.milestones || []).filter(m => m.completed).length;
+    const totalCount = (prj.milestones || []).length;
+    prj.progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+    if (prj.progress === 100) prj.status = 'completed';
+    else if (prj.progress > 0) prj.status = 'in_progress';
 
-      return updated;
-    }
-    return null;
+    return await this.updateProject(projectId, prj);
   },
 
   async deleteProject(id) {
-    if (db) {
-      try {
-        await db.collection('projects').doc(id).delete();
-      } catch (e) {
-        console.warn("Firestore delete project failed:", e);
-      }
-    }
-    const list = getLocalProjects().filter(p => p.id !== id);
-    localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(list));
+    await apiFetch('/projects/' + encodeURIComponent(id), { method: 'DELETE' });
+    const items = getLocalProjects().filter(p => String(p.id) !== String(id));
+    localStorage.setItem(LOCAL_PROJECTS_KEY, JSON.stringify(items));
     return true;
   },
 
   async getProjectsForClient(emailOrName) {
     const all = await this.getProjects();
     if (!emailOrName) return [];
-    const query = emailOrName.toLowerCase().trim();
-    return all.filter(p => {
-      const matchEmail = (p.clientEmail || '').toLowerCase().trim() === query;
-      const matchName = (p.clientName || '').toLowerCase().trim().includes(query);
-      return matchEmail || matchName;
-    });
+    const term = emailOrName.toLowerCase().trim();
+    return all.filter(p =>
+      (p.clientEmail && p.clientEmail.toLowerCase().trim() === term) ||
+      (p.clientName && p.clientName.toLowerCase().trim() === term)
+    );
   },
 
-  // ----------------------------------------------------
-  // 6. USERS & ROLES MANAGEMENT (RBAC)
-  // ----------------------------------------------------
+  // 6. USER ROLES & TEAM MEMBERS
   async getUsers() {
-    if (db) {
-      try {
-        const snap = await db.collection('users').get();
-        if (!snap.empty) {
-          const list = [];
-          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-          return list;
-        }
-      } catch (e) {
-        console.warn("Firestore users fetch error:", e);
-      }
+    const res = await apiFetch('/users');
+    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     return getLocalUsers();
   },
@@ -1331,89 +1213,52 @@ window.PrimetekDB = {
   async addUser(user) {
     const data = {
       ...user,
-      email: (user.email || '').toLowerCase().trim(),
       role: user.role || 'client',
       status: user.status || 'active',
       createdAt: Date.now()
     };
-
-    if (db) {
-      try {
-        const ref = await db.collection('users').add(data);
-        return { id: ref.id, ...data };
-      } catch (e) {
-        console.warn("Firestore add user failed:", e);
-      }
-    }
-
-    const list = getLocalUsers();
-    const newUser = { id: 'usr_' + Date.now().toString(36), ...data };
-    list.unshift(newUser);
+    const res = await apiFetch('/users', { method: 'POST', body: JSON.stringify(data) });
+    const saved = (res && res.success && res.item) ? res.item : { id: 'usr_' + Date.now().toString(36), ...data };
+    const list = getLocalUsers().filter(u => String(u.id) !== String(saved.id));
+    list.unshift(saved);
     localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(list));
-    return newUser;
+    return saved;
   },
 
   async updateUser(id, updates) {
     const data = { ...updates, updatedAt: Date.now() };
-    if (data.email) data.email = data.email.toLowerCase().trim();
-
-    if (db) {
-      try {
-        await db.collection('users').doc(id).set(data, { merge: true });
-        return { id, ...data };
-      } catch (e) {
-        console.warn("Firestore update user failed:", e);
-      }
-    }
-
+    const res = await apiFetch('/users/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify(data) });
+    const updated = (res && res.success && res.item) ? res.item : null;
     const list = getLocalUsers();
-    const idx = list.findIndex(u => u.id === id);
+    const idx = list.findIndex(u => String(u.id) === String(id));
     if (idx !== -1) {
-      list[idx] = { ...list[idx], ...data };
+      list[idx] = updated || { ...list[idx], ...data };
       localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(list));
       return list[idx];
     }
-    return null;
+    return updated;
   },
 
   async deleteUser(id) {
-    if (db) {
-      try {
-        await db.collection('users').doc(id).delete();
-      } catch (e) {
-        console.warn("Firestore delete user failed:", e);
-      }
-    }
-    const list = getLocalUsers().filter(u => u.id !== id);
+    await apiFetch('/users/' + encodeURIComponent(id), { method: 'DELETE' });
+    const list = getLocalUsers().filter(u => String(u.id) !== String(id));
     localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(list));
     return true;
   },
 
-  // ----------------------------------------------------
   // 7. WHATSAPP AUTOMATION ENGINE
-  // ----------------------------------------------------
   async getWhatsAppConfig() {
-    if (db) {
-      try {
-        const doc = await db.collection('settings').doc('whatsapp').get();
-        if (doc.exists) return doc.data();
-      } catch (e) {
-        console.warn("Firestore get WhatsApp config error:", e);
-      }
+    const res = await apiFetch('/whatsappConfig');
+    if (res && res.success && res.data && Object.keys(res.data).length > 0) {
+      localStorage.setItem(LOCAL_WHATSAPP_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     return getLocalWhatsAppConfig();
   },
 
   async saveWhatsAppConfig(config) {
     const data = { ...config, updatedAt: Date.now() };
-    if (db) {
-      try {
-        await db.collection('settings').doc('whatsapp').set(data, { merge: true });
-        return data;
-      } catch (e) {
-        console.warn("Firestore save WhatsApp config failed:", e);
-      }
-    }
+    await apiFetch('/whatsappConfig', { method: 'POST', body: JSON.stringify(data) });
     localStorage.setItem(LOCAL_WHATSAPP_KEY, JSON.stringify(data));
     return data;
   },
@@ -1442,48 +1287,23 @@ window.PrimetekDB = {
       timestamp: Date.now(),
       recipient: recipientPhone,
       body: textBody,
-      provider: config.provider || 'meta_cloud',
+      provider: config.provider || 'cluster_primetek',
       status: 'dispatched'
     };
 
-    console.log("PRIMETEK WHATSAPP AUTOMATION:", payload);
+    console.log('PRIMETEK WHATSAPP AUTOMATION:', payload);
 
-    // If PRIMETEK Cluster Gateway is active, dispatch directly via cluster
     if (window.PRIMETEK_WA_CONFIG && window.PRIMETEK_WA_CONFIG.ENABLED) {
       try {
         const clusterRes = await window.PRIMETEK_WA_CONFIG.sendCustomMessage(recipientPhone, textBody);
-        if (clusterRes && (clusterRes.success || clusterRes.status === "dispatched")) {
-          return { success: true, payload, serverResponse: clusterRes, status: "delivered" };
+        if (clusterRes && (clusterRes.success || clusterRes.status === 'dispatched')) {
+          return { success: true, payload, serverResponse: clusterRes, status: 'delivered' };
         }
       } catch (err) {
-        console.warn("Cluster gateway dispatch failed, falling back:", err);
+        console.warn('Cluster gateway dispatch failed, falling back:', err);
       }
     }
 
-    // If real API URL and token are configured, perform real HTTP dispatch
-    if (config.apiUrl && config.apiKey && config.apiKey !== "EAAX_PRIMETEK_SECURE_TOKEN_SAMPLE") {
-      try {
-        const response = await fetch(config.apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.apiKey}`
-          },
-          body: JSON.stringify({
-            messaging_product: "whatsapp",
-            to: recipientPhone.replace(/[^0-9]/g, ''),
-            type: "text",
-            text: { body: textBody }
-          })
-        });
-        const json = await response.json();
-        return { success: true, payload, serverResponse: json };
-      } catch (err) {
-        console.warn("Real WhatsApp API error, fallback to simulated record:", err);
-      }
-    }
-
-    // High fidelity simulator response
     return {
       success: true,
       simulated: true,
@@ -1494,50 +1314,25 @@ window.PrimetekDB = {
     };
   },
 
-  // ----------------------------------------------------
-  // 8. SMTP EMAIL CONFIGURATION & TEST ENGINE
-  // ----------------------------------------------------
+  // 8. SMTP EMAIL CONFIGURATION
   async getSmtpConfig() {
-    if (db) {
-      try {
-        const doc = await db.collection('settings').doc('smtp').get();
-        if (doc.exists) return doc.data();
-      } catch (e) {
-        console.warn("Firestore get SMTP config error:", e);
-      }
+    const res = await apiFetch('/smtpConfig');
+    if (res && res.success && res.data && Object.keys(res.data).length > 0) {
+      localStorage.setItem(LOCAL_SMTP_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     return getLocalSmtpConfig();
   },
 
   async saveSmtpConfig(config) {
     const data = { ...config, updatedAt: Date.now() };
-    if (db) {
-      try {
-        await db.collection('settings').doc('smtp').set(data, { merge: true });
-        return data;
-      } catch (e) {
-        console.warn("Firestore save SMTP config failed:", e);
-      }
-    }
+    await apiFetch('/smtpConfig', { method: 'POST', body: JSON.stringify(data) });
     localStorage.setItem(LOCAL_SMTP_KEY, JSON.stringify(data));
     return data;
   },
 
   async sendTestEmail(recipientEmail, subject, body) {
     const config = await this.getSmtpConfig();
-    const mailRecord = {
-      to: recipientEmail,
-      from: `"${config.fromName}" <${config.fromEmail}>`,
-      subject: subject || 'PRIMETEK SMTP Connection Verification',
-      body: body || 'This is a test notification verifying your mail server settings.',
-      host: config.host,
-      port: config.port,
-      encryption: config.encryption,
-      timestamp: new Date().toISOString()
-    };
-
-    console.log("PRIMETEK SMTP DISPATCH:", mailRecord);
-
     return {
       success: true,
       messageId: '<' + Date.now() + '@primetek.online>',
@@ -1546,21 +1341,12 @@ window.PrimetekDB = {
     };
   },
 
-  // ----------------------------------------------------
   // 9. CRM & LEADS MANAGEMENT
-  // ----------------------------------------------------
   async getLeads() {
-    if (db) {
-      try {
-        const snap = await db.collection('leads').orderBy('createdAt', 'desc').get();
-        if (!snap.empty) {
-          const list = [];
-          snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-          return list;
-        }
-      } catch (e) {
-        console.warn("Firestore leads fetch error:", e);
-      }
+    const res = await apiFetch('/leads');
+    if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+      localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(res.data));
+      return res.data;
     }
     return getLocalLeads();
   },
@@ -1574,19 +1360,12 @@ window.PrimetekDB = {
       source: lead.source || 'Website Contact Form',
       createdAt: Date.now()
     };
-    if (db) {
-      try {
-        const ref = await db.collection('leads').add(data);
-        return { id: ref.id, ...data };
-      } catch (e) {
-        console.warn("Firestore add lead error:", e);
-      }
-    }
-    const list = getLocalLeads();
-    const newLead = { id: 'lead_' + Date.now().toString(36), ...data };
-    list.unshift(newLead);
+    const res = await apiFetch('/leads', { method: 'POST', body: JSON.stringify(data) });
+    const saved = (res && res.success && res.item) ? res.item : { id: 'lead_' + Date.now().toString(36), ...data };
+    const list = getLocalLeads().filter(l => String(l.id) !== String(saved.id));
+    list.unshift(saved);
     localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(list));
-    return newLead;
+    return saved;
   },
 
   async updateLead(id, updates) {
@@ -1597,40 +1376,28 @@ window.PrimetekDB = {
     };
     Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
 
-    if (db) {
-      try {
-        await db.collection('leads').doc(id).set(data, { merge: true });
-        return { id, ...data };
-      } catch (e) {
-        console.warn("Firestore update lead error:", e);
-      }
-    }
+    const res = await apiFetch('/leads/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify(data) });
+    const updated = (res && res.success && res.item) ? res.item : null;
     const list = getLocalLeads();
-    const idx = list.findIndex(l => l.id === id);
+    const idx = list.findIndex(l => String(l.id) === String(id));
     if (idx !== -1) {
-      list[idx] = { ...list[idx], ...data };
+      list[idx] = updated || { ...list[idx], ...data };
       localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(list));
       return list[idx];
     }
-    return null;
+    return updated;
   },
 
   async deleteLead(id) {
-    if (db) {
-      try {
-        await db.collection('leads').doc(id).delete();
-      } catch (e) {
-        console.warn("Firestore delete lead error:", e);
-      }
-    }
-    const list = getLocalLeads().filter(l => l.id !== id);
+    await apiFetch('/leads/' + encodeURIComponent(id), { method: 'DELETE' });
+    const list = getLocalLeads().filter(l => String(l.id) !== String(id));
     localStorage.setItem(LOCAL_LEADS_KEY, JSON.stringify(list));
     return true;
   },
 
   async convertLeadToProject(leadId) {
     const leads = await this.getLeads();
-    const lead = leads.find(l => l.id === leadId);
+    const lead = leads.find(l => String(l.id) === String(leadId));
     if (!lead) return null;
 
     const projectPayload = {
