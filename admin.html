@@ -56,30 +56,78 @@
 </div>
 
 <!-- ================= MAIN ADMIN DASHBOARD ================= -->
-<div id="adminDashboard" style="display:none;">
+<div id="adminDashboard" style="display:none;" class="admin-app-shell">
 
-  <!-- Admin Header -->
+  <!-- ================= TOP APP HEADER ================= -->
   <header class="admin-header">
-    <div class="admin-brand">
-      <span class="admin-brand-title">
-        PRIMETEK
-        <span class="admin-tag" id="adminRoleHeaderBadge">Super Admin</span>
-      </span>
+    <div class="admin-header-left">
+      <!-- Mobile Sidebar Toggle -->
+      <button id="btnMobileSidebarToggle" class="btn-icon-toggle mobile-only" aria-label="Toggle Navigation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <div class="admin-brand">
+        <span class="admin-brand-title">
+          PRIMETEK
+          <span class="admin-tag" id="adminRoleHeaderBadge">Super Admin</span>
+        </span>
+      </div>
+
+      <!-- Quick Command Palette Trigger -->
+      <button id="btnOpenCommandPalette" class="cmd-palette-trigger" title="Press Ctrl+K to search everything">
+        <svg class="cmd-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="cmd-placeholder">Search projects, leads, orders...</span>
+        <kbd class="cmd-kbd">Ctrl K</kbd>
+      </button>
     </div>
 
     <div class="admin-nav-actions">
       <!-- Live Cloud Sync Pill -->
-      <div id="cloudSyncIndicator" style="display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--admin-sub); background:rgba(255,255,255,0.04); padding:6px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.08);">
-        <span id="syncPulseDot" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 8px #10b981;"></span>
+      <div id="cloudSyncIndicator" class="sync-indicator-pill">
+        <span id="syncPulseDot" class="sync-pulse-dot"></span>
         <span id="syncStatusText" style="font-weight:500;">PostgreSQL Live</span>
-        <button id="btnManualSync" title="Sync from Cloud Database" style="background:none; border:none; color:var(--admin-text); cursor:pointer; padding:2px; display:inline-flex; align-items:center; margin-left:4px; opacity:0.8;">
+        <button id="btnManualSync" title="Sync from Cloud Database" class="btn-sync-action">
           <svg style="width:14px; height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         </button>
       </div>
 
+      <!-- Dark / Light Theme Toggle -->
+      <button id="btnThemeToggle" class="btn-theme-toggle" title="Toggle Dark/Light Mode">
+        <span class="theme-icon-sun">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </span>
+        <span class="theme-icon-moon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </span>
+      </button>
+
+      <!-- Live Activity Bell -->
+      <button id="btnActivityBell" class="btn-activity-bell" title="Live System Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="activity-pulse-dot" id="activityPulseDot"></span>
+      </button>
+
+      <!-- Activity Popover Dropdown -->
+      <div id="activityPopover" class="activity-popover" style="display:none;">
+        <div class="activity-popover-header">
+          <h4>Live Activity &amp; Cloud Sync</h4>
+          <span class="badge-live-pulse">LIVE</span>
+        </div>
+        <div class="activity-popover-list" id="activityPopoverList">
+          <div class="activity-item">
+            <span class="pulse-dot-green" style="margin-top:4px;"></span>
+            <div><strong>PostgreSQL Cloud DB</strong> synchronized live via Railway. Latency &lt;35ms.</div>
+          </div>
+          <div class="activity-item">
+            <span class="pulse-dot-green" style="margin-top:4px;"></span>
+            <div><strong>Multi-Device WhatsApp Gateway</strong> connected on port 3000.</div>
+          </div>
+        </div>
+      </div>
+
       <a href="index.html" target="_blank" class="btn-view-store">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        <span>View Website</span>
+        <span>Storefront</span>
       </a>
 
       <div class="admin-profile-pill">
@@ -93,104 +141,174 @@
     </div>
   </header>
 
-  <main class="admin-container">
-    
-    <!-- Title & Action Bar -->
-    <div class="admin-page-head">
-      <div>
-        <h1 id="panelMainHeading">Project Management &amp; Operations</h1>
-        <p id="panelSubHeading">Manage client projects, sales CRM pipeline, turnkey software, team permissions, and automations.</p>
-      </div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <button id="btnExportCsv" class="btn-view-store" title="Download catalog / data in CSV format">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export CSV
-        </button>
-        <button id="btnOpenAddModal" class="btn-add-product">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span id="btnAddButtonText">Add New Project</span>
-        </button>
-      </div>
-    </div>
+  <!-- ================= APP BODY LAYOUT (SIDEBAR + MAIN) ================= -->
+  <div class="admin-body-layout">
 
-    <!-- Quick Stats -->
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <span class="metric-label">Client Projects</span>
-        <span class="metric-val" id="metricProjects" style="color:var(--admin-accent);">0</span>
-        <span class="metric-sub" id="metricProjectsSub">0 In Progress</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">CRM Leads &amp; Pipeline</span>
-        <span class="metric-val" id="metricLeads" style="color:var(--admin-amber);">0</span>
-        <span class="metric-sub" id="metricPipelineSub">₹0 Pipeline Value</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Ready-made Software</span>
-        <span class="metric-val" id="metricTotal">0</span>
-        <span class="metric-sub" id="metricActiveSub">0 Live on Storefront</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Team &amp; Users</span>
-        <span class="metric-val" id="metricUsers" style="color:var(--admin-green);">0</span>
-        <span class="metric-sub">Roles &amp; Access Control</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Client Partners</span>
-        <span class="metric-val" id="metricClients">0</span>
-        <span class="metric-sub">Verified enterprise clients</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Orders &amp; Inquiries</span>
-        <span class="metric-val" id="metricOrders">0</span>
-        <span class="metric-sub">Customer checkout inquiries</span>
-      </div>
-    </div>
+    <!-- Mobile Overlay Backdrop -->
+    <div id="sidebarOverlayBackdrop" class="sidebar-overlay-backdrop"></div>
 
-    <!-- Tabs Navigation -->
-    <div class="admin-tabs">
-      <button class="admin-tab-btn active" id="tabBtnProjects">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-        Projects (PMS)
-        <span class="tab-count" id="projectCountBadge">0</span>
-      </button>
-      <button class="admin-tab-btn" id="tabBtnCrm">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-        Leads &amp; CRM
-        <span class="tab-count" id="leadCountBadge">0</span>
-      </button>
-      <button class="admin-tab-btn" id="tabBtnProducts">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-        Ready-made Software
-        <span class="tab-count" id="productCountBadge">0</span>
-      </button>
-      <button class="admin-tab-btn" id="tabBtnBanners">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        Hero Banner Slider
-        <span class="tab-count" id="bannerCountBadge">0</span>
-      </button>
-      <button class="admin-tab-btn" id="tabBtnClients">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Client Partners
-        <span class="tab-count" id="clientCountBadge">0</span>
-      </button>
-      <button class="admin-tab-btn" id="tabBtnRoles">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        User Roles &amp; Permissions
-        <span class="tab-count" id="userCountBadge">0</span>
-      </button>
-      <button class="admin-tab-btn" id="tabBtnAutomations">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        WhatsApp &amp; SMTP
-      </button>
-      <button class="admin-tab-btn" id="tabBtnOrders">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        Inquiries &amp; Orders
-        <span class="tab-count" id="orderCountBadge">0</span>
-      </button>
-    </div>
+    <!-- Collapsible Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-inner">
 
-    <!-- ================= SECTION 1: PROJECT MANAGEMENT (PMS) ================= -->
+        <!-- Navigation Group: Operations -->
+        <div class="sidebar-nav-group">
+          <div class="sidebar-group-title">Operations</div>
+          <button class="sidebar-tab-btn admin-tab-btn active" id="tabBtnProjects" data-tab="projects">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+            <span class="tab-label">Projects (PMS)</span>
+            <span class="tab-count" id="projectCountBadge">0</span>
+          </button>
+          <button class="sidebar-tab-btn admin-tab-btn" id="tabBtnOrders" data-tab="orders">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span class="tab-label">Inquiries &amp; Orders</span>
+            <span class="tab-count" id="orderCountBadge">0</span>
+          </button>
+        </div>
+
+        <!-- Navigation Group: Sales & CRM -->
+        <div class="sidebar-nav-group">
+          <div class="sidebar-group-title">Sales &amp; Growth</div>
+          <button class="sidebar-tab-btn admin-tab-btn" id="tabBtnCrm" data-tab="crm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            <span class="tab-label">Leads &amp; CRM</span>
+            <span class="tab-count" id="leadCountBadge">0</span>
+          </button>
+          <button class="sidebar-tab-btn admin-tab-btn" id="tabBtnClients" data-tab="clients">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="tab-label">Client Partners</span>
+            <span class="tab-count" id="clientCountBadge">0</span>
+          </button>
+        </div>
+
+        <!-- Navigation Group: Storefront -->
+        <div class="sidebar-nav-group">
+          <div class="sidebar-group-title">Storefront</div>
+          <button class="sidebar-tab-btn admin-tab-btn" id="tabBtnProducts" data-tab="products">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span class="tab-label">Turnkey Software</span>
+            <span class="tab-count" id="productCountBadge">0</span>
+          </button>
+          <button class="sidebar-tab-btn admin-tab-btn" id="tabBtnBanners" data-tab="banners">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span class="tab-label">Hero Banners</span>
+            <span class="tab-count" id="bannerCountBadge">0</span>
+          </button>
+        </div>
+
+        <!-- Navigation Group: Administration -->
+        <div class="sidebar-nav-group">
+          <div class="sidebar-group-title">System &amp; Settings</div>
+          <button class="sidebar-tab-btn admin-tab-btn" id="tabBtnRoles" data-tab="roles">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span class="tab-label">Roles &amp; Permissions</span>
+            <span class="tab-count" id="userCountBadge">0</span>
+          </button>
+          <button class="sidebar-tab-btn admin-tab-btn" id="tabBtnAutomations" data-tab="automations">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span class="tab-label">WhatsApp &amp; SMTP</span>
+          </button>
+        </div>
+
+        <!-- Sidebar Footer Status Box -->
+        <div class="sidebar-footer">
+          <div class="sidebar-status-card">
+            <div class="status-indicator-row">
+              <span class="pulse-dot-green"></span>
+              <span class="status-title">PostgreSQL Cloud</span>
+            </div>
+            <div class="status-desc">Railway database connected. Live real-time stream enabled.</div>
+          </div>
+          <button id="btnSidebarCollapse" class="btn-sidebar-collapse" title="Toggle Sidebar Width">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="11 19 4 12 11 5"/><polyline points="18 19 11 12 18 5"/></svg>
+            <span>Collapse Menu</span>
+          </button>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Main Viewport Content -->
+    <main class="admin-main-viewport">
+      
+      <!-- Breadcrumb Bar -->
+      <div class="admin-breadcrumb-bar">
+        <a href="#" id="breadcrumbHome">Dashboard</a>
+        <span class="admin-breadcrumb-sep">/</span>
+        <span class="admin-breadcrumb-current" id="breadcrumbActiveTab">Projects (PMS)</span>
+      </div>
+
+      <!-- Title & Action Bar -->
+      <div class="admin-page-head">
+        <div>
+          <h1 id="panelMainHeading">Project Management &amp; Operations</h1>
+          <p id="panelSubHeading">Manage client projects, sales CRM pipeline, turnkey software, team permissions, and automations.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <button id="btnExportCsv" class="btn-view-store" title="Download catalog / data in CSV format">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+          <button id="btnOpenAddModal" class="btn-add-product">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span id="btnAddButtonText">Add New Project</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Stats / Metrics Grid -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-card-head">
+            <span class="metric-label">Client Projects</span>
+            <span class="metric-trend-pill">↗ Active</span>
+          </div>
+          <span class="metric-val" id="metricProjects" style="color:var(--admin-accent);">0</span>
+          <span class="metric-sub" id="metricProjectsSub">0 In Progress</span>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-head">
+            <span class="metric-label">CRM Leads &amp; Pipeline</span>
+            <span class="metric-trend-pill">⚡ High Value</span>
+          </div>
+          <span class="metric-val" id="metricLeads" style="color:var(--admin-amber);">0</span>
+          <span class="metric-sub" id="metricPipelineSub">₹0 Pipeline Value</span>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-head">
+            <span class="metric-label">Ready-made Software</span>
+            <span class="metric-trend-pill">● Storefront</span>
+          </div>
+          <span class="metric-val" id="metricTotal">0</span>
+          <span class="metric-sub" id="metricActiveSub">0 Live on Storefront</span>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-head">
+            <span class="metric-label">Team &amp; Users</span>
+            <span class="metric-trend-pill">🔒 RBAC</span>
+          </div>
+          <span class="metric-val" id="metricUsers" style="color:var(--admin-green);">0</span>
+          <span class="metric-sub">Roles &amp; Access Control</span>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-head">
+            <span class="metric-label">Client Partners</span>
+            <span class="metric-trend-pill">🏢 Verified</span>
+          </div>
+          <span class="metric-val" id="metricClients">0</span>
+          <span class="metric-sub">Verified enterprise clients</span>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-head">
+            <span class="metric-label">Orders &amp; Inquiries</span>
+            <span class="metric-trend-pill">🛒 Real-time</span>
+          </div>
+          <span class="metric-val" id="metricOrders">0</span>
+          <span class="metric-sub">Customer checkout inquiries</span>
+        </div>
+      </div>
+
+<!-- ================= SECTION 1: PROJECT MANAGEMENT (PMS) ================= -->
     <div id="sectionProjects" class="panel-card">
       <div class="panel-filter-bar">
         <div class="search-box">
@@ -3438,6 +3556,420 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
       handleAdminGateLogin('support.primetek@gmail.com', 'Primetek@2026');
     };
   }
+
+    
+  // ==========================================
+  // NEXT-GEN UI OPTIMIZATION ENGINE
+  // ==========================================
+
+  // 1. Theme Management (Dark / Light Mode)
+  const btnThemeToggle = document.getElementById('btnThemeToggle');
+  function initAdminTheme() {
+    const savedTheme = localStorage.getItem('primetek_admin_theme') || 'dark';
+    applyAdminTheme(savedTheme);
+  }
+  function applyAdminTheme(theme) {
+    if (theme === 'light') {
+      document.body.classList.add('theme-light');
+      document.body.classList.remove('theme-dark');
+    } else {
+      document.body.classList.add('theme-dark');
+      document.body.classList.remove('theme-light');
+    }
+    localStorage.setItem('primetek_admin_theme', theme);
+  }
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener('click', () => {
+      const isLight = document.body.classList.contains('theme-light');
+      applyAdminTheme(isLight ? 'dark' : 'light');
+    });
+  }
+  initAdminTheme();
+
+  // 2. Collapsible Sidebar (Desktop & Mobile)
+  const adminDashboardEl = document.getElementById('adminDashboard');
+  const btnSidebarCollapse = document.getElementById('btnSidebarCollapse');
+  const btnMobileSidebarToggle = document.getElementById('btnMobileSidebarToggle');
+  const sidebarOverlayBackdrop = document.getElementById('sidebarOverlayBackdrop');
+
+  if (btnSidebarCollapse) {
+    btnSidebarCollapse.addEventListener('click', () => {
+      adminDashboardEl.classList.toggle('sidebar-collapsed');
+      const isCollapsed = adminDashboardEl.classList.contains('sidebar-collapsed');
+      localStorage.setItem('primetek_sidebar_collapsed', isCollapsed ? '1' : '0');
+    });
+    if (localStorage.getItem('primetek_sidebar_collapsed') === '1') {
+      adminDashboardEl.classList.add('sidebar-collapsed');
+    }
+  }
+
+  function openMobileSidebar() {
+    adminDashboardEl.classList.add('sidebar-mobile-open');
+  }
+  function closeMobileSidebar() {
+    adminDashboardEl.classList.remove('sidebar-mobile-open');
+  }
+
+  if (btnMobileSidebarToggle) {
+    btnMobileSidebarToggle.addEventListener('click', openMobileSidebar);
+  }
+  if (sidebarOverlayBackdrop) {
+    sidebarOverlayBackdrop.addEventListener('click', closeMobileSidebar);
+  }
+
+  // Auto update breadcrumb & close mobile sidebar on tab change
+  const breadcrumbActiveTab = document.getElementById('breadcrumbActiveTab');
+  const originalSwitchTab = switchTab;
+  switchTab = function(tab) {
+    originalSwitchTab(tab);
+    const names = {
+      projects: 'Projects (PMS)',
+      crm: 'Leads & CRM Pipeline',
+      products: 'Ready-made Software',
+      banners: 'Hero Banner Slider',
+      clients: 'Client Partners',
+      roles: 'Roles & Permissions',
+      automations: 'WhatsApp & SMTP Automations',
+      orders: 'Customer Orders & Inquiries'
+    };
+    if (breadcrumbActiveTab && names[tab]) {
+      breadcrumbActiveTab.textContent = names[tab];
+    }
+    if (window.innerWidth <= 992) {
+      closeMobileSidebar();
+    }
+  };
+
+  // 3. Activity Feed Popover
+  const btnActivityBell = document.getElementById('btnActivityBell');
+  const activityPopover = document.getElementById('activityPopover');
+
+  if (btnActivityBell && activityPopover) {
+    btnActivityBell.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activityPopover.style.display = activityPopover.style.display === 'none' ? 'block' : 'none';
+      renderLiveActivityFeed();
+    });
+    document.addEventListener('click', (e) => {
+      if (!activityPopover.contains(e.target) && e.target !== btnActivityBell) {
+        activityPopover.style.display = 'none';
+      }
+    });
+  }
+
+  function renderLiveActivityFeed() {
+    const list = document.getElementById('activityPopoverList');
+    if (!list) return;
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    let itemsHtml = `
+      <div class="activity-item">
+        <span class="pulse-dot-green" style="margin-top:4px;"></span>
+        <div><strong>PostgreSQL Cloud DB</strong> synchronized live via Railway. Latency &lt;35ms. <span style="font-size:11px;color:var(--admin-muted);">(${timeStr})</span></div>
+      </div>
+      <div class="activity-item">
+        <span class="pulse-dot-green" style="margin-top:4px;"></span>
+        <div><strong>Anti-Ban WhatsApp Gateway</strong> operational with human typing delay simulation.</div>
+      </div>
+    `;
+
+    if (Array.isArray(allProjects) && allProjects.length > 0) {
+      const p = allProjects[0];
+      itemsHtml += `
+        <div class="activity-item">
+          <span style="font-size:14px;color:var(--admin-accent);">📁</span>
+          <div>Project <strong>${p.title || p.code}</strong> updated for client <strong>${p.clientName || 'Partner'}</strong>.</div>
+        </div>
+      `;
+    }
+    if (Array.isArray(allLeads) && allLeads.length > 0) {
+      const l = allLeads[0];
+      itemsHtml += `
+        <div class="activity-item">
+          <span style="font-size:14px;color:var(--admin-amber);">⚡</span>
+          <div>CRM Deal <strong>${l.client_name || l.company}</strong> in pipeline (₹${(l.deal_value || 0).toLocaleString('en-IN')}).</div>
+        </div>
+      `;
+    }
+    list.innerHTML = itemsHtml;
+  }
+
+  // 4. Universal Command Palette (Ctrl + K / Cmd + K)
+  const cmdModal = document.getElementById('commandPaletteModal');
+  const cmdInput = document.getElementById('cmdPaletteInput');
+  const cmdResults = document.getElementById('cmdPaletteResults');
+  const btnOpenCmd = document.getElementById('btnOpenCommandPalette');
+
+  function openCommandPalette() {
+    if (!cmdModal) return;
+    cmdModal.style.display = 'flex';
+    cmdInput.value = '';
+    renderCommandResults('');
+    setTimeout(() => cmdInput.focus(), 50);
+  }
+  function closeCommandPalette() {
+    if (!cmdModal) return;
+    cmdModal.style.display = 'none';
+  }
+
+  if (btnOpenCmd) {
+    btnOpenCmd.addEventListener('click', openCommandPalette);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+      e.preventDefault();
+      if (cmdModal.style.display === 'flex') closeCommandPalette();
+      else openCommandPalette();
+    }
+    if (e.key === 'Escape' && cmdModal.style.display === 'flex') {
+      closeCommandPalette();
+    }
+  });
+
+  if (cmdModal) {
+    cmdModal.addEventListener('click', (e) => {
+      if (e.target === cmdModal) closeCommandPalette();
+    });
+  }
+
+  if (cmdInput) {
+    cmdInput.addEventListener('input', (e) => {
+      renderCommandResults(e.target.value.trim().toLowerCase());
+    });
+  }
+
+  function renderCommandResults(query) {
+    if (!cmdResults) return;
+
+    const navActions = [
+      { id: 'projects', group: 'Navigation', title: 'Go to Projects (PMS)', shortcut: 'Tab 1', run: () => switchTab('projects') },
+      { id: 'crm', group: 'Navigation', title: 'Go to Leads & CRM Pipeline', shortcut: 'Tab 2', run: () => switchTab('crm') },
+      { id: 'products', group: 'Navigation', title: 'Go to Ready-made Software', shortcut: 'Tab 3', run: () => switchTab('products') },
+      { id: 'orders', group: 'Navigation', title: 'Go to Orders & Inquiries', shortcut: 'Tab 8', run: () => switchTab('orders') },
+      { id: 'automations', group: 'Navigation', title: 'Go to WhatsApp & Automations', shortcut: 'Tab 7', run: () => switchTab('automations') },
+      { id: 'new_prj', group: 'Actions', title: '⚡ Create New Client Project', shortcut: 'Modal', run: () => { switchTab('projects'); btnOpenAddModal.click(); } },
+      { id: 'new_lead', group: 'Actions', title: '⚡ Add New CRM Lead', shortcut: 'Modal', run: () => { switchTab('crm'); btnOpenAddModal.click(); } },
+      { id: 'export', group: 'Actions', title: '📥 Export Current View to CSV', shortcut: 'Export', run: () => btnExportCsv.click() },
+      { id: 'theme', group: 'Preferences', title: '🌓 Toggle Dark / Light Theme', shortcut: 'Theme', run: () => btnThemeToggle.click() },
+      { id: 'sync', group: 'System', title: '🔄 Sync PostgreSQL Database', shortcut: 'DB', run: () => btnManualSync.click() }
+    ];
+
+    let results = [];
+
+    // Filter Navigation & Actions
+    navActions.forEach(act => {
+      if (!query || act.title.toLowerCase().includes(query) || act.group.toLowerCase().includes(query)) {
+        results.push({ type: 'action', item: act });
+      }
+    });
+
+    // Search Projects
+    if (Array.isArray(allProjects)) {
+      allProjects.forEach(p => {
+        const title = (p.title || '').toLowerCase();
+        const client = (p.clientName || '').toLowerCase();
+        const code = (p.code || '').toLowerCase();
+        if (query && (title.includes(query) || client.includes(query) || code.includes(query))) {
+          results.push({
+            type: 'project',
+            item: {
+              group: 'Projects',
+              title: `[${p.code || 'PRJ'}] ${p.title}`,
+              sub: `Client: ${p.clientName} | ${p.status} (${p.progress || 0}%)`,
+              run: () => {
+                switchTab('projects');
+                window.openItemDrawer('project', p.id);
+              }
+            }
+          });
+        }
+      });
+    }
+
+    // Search Leads
+    if (Array.isArray(allLeads)) {
+      allLeads.forEach(l => {
+        const name = (l.client_name || l.company || '').toLowerCase();
+        const service = (l.service_interested || '').toLowerCase();
+        if (query && (name.includes(query) || service.includes(query))) {
+          results.push({
+            type: 'lead',
+            item: {
+              group: 'CRM Deals',
+              title: `⚡ ${l.client_name || l.company}`,
+              sub: `₹${(l.deal_value || 0).toLocaleString('en-IN')} | ${l.stage} | ${l.service_interested || ''}`,
+              run: () => {
+                switchTab('crm');
+                window.openItemDrawer('lead', l.id);
+              }
+            }
+          });
+        }
+      });
+    }
+
+    if (results.length === 0) {
+      cmdResults.innerHTML = '<div style="padding:24px;text-align:center;color:var(--admin-sub);font-size:13px;">No matching commands, projects, or leads found.</div>';
+      return;
+    }
+
+    // Render grouped results
+    let htmlStr = '';
+    let currentGroup = '';
+
+    results.slice(0, 12).forEach((res, idx) => {
+      if (res.item.group !== currentGroup) {
+        currentGroup = res.item.group;
+        htmlStr += `<div class="cmd-group-label">${currentGroup}</div>`;
+      }
+      htmlStr += `
+        <div class="cmd-item" data-idx="${idx}">
+          <div class="cmd-item-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+            <div>
+              <span class="cmd-item-title">${res.item.title}</span>
+              ${res.item.sub ? `<div class="cmd-item-sub">${res.item.sub}</div>` : ''}
+            </div>
+          </div>
+          ${res.item.shortcut ? `<span class="cmd-item-shortcut">${res.item.shortcut}</span>` : ''}
+        </div>
+      `;
+    });
+
+    cmdResults.innerHTML = htmlStr;
+
+    // Attach click listeners
+    const items = cmdResults.querySelectorAll('.cmd-item');
+    items.forEach((el, idx) => {
+      el.addEventListener('click', () => {
+        closeCommandPalette();
+        results[idx].item.run();
+      });
+    });
+  }
+
+  // 5. Slide-Over Inspection Drawer (Right Sheet)
+  const slideDrawer = document.getElementById('adminSlideDrawer');
+  const slideDrawerBackdrop = document.getElementById('slideDrawerBackdrop');
+  const btnDrawerClose = document.getElementById('btnDrawerClose');
+  const btnDrawerSec = document.getElementById('btnDrawerSecondaryAction');
+  const btnDrawerPrim = document.getElementById('btnDrawerPrimaryAction');
+
+  function closeSlideDrawer() {
+    if (!slideDrawer) return;
+    slideDrawer.classList.remove('drawer-open');
+    if (slideDrawerBackdrop) slideDrawerBackdrop.style.display = 'none';
+  }
+  if (btnDrawerClose) btnDrawerClose.addEventListener('click', closeSlideDrawer);
+  if (btnDrawerSec) btnDrawerSec.addEventListener('click', closeSlideDrawer);
+  if (slideDrawerBackdrop) slideDrawerBackdrop.addEventListener('click', closeSlideDrawer);
+
+  window.openItemDrawer = function(type, id) {
+    if (!slideDrawer) return;
+    const typeTag = document.getElementById('drawerTypeTag');
+    const titleEl = document.getElementById('drawerTitle');
+    const bodyEl = document.getElementById('drawerBody');
+
+    if (type === 'project') {
+      const p = (allProjects || []).find(item => item.id == id);
+      if (!p) return;
+
+      typeTag.textContent = `PROJECT ${p.code || ''}`;
+      titleEl.textContent = p.title;
+
+      bodyEl.innerHTML = `
+        <div>
+          <div class="drawer-section-title">Client Information</div>
+          <div style="background:var(--admin-surface);padding:14px;border-radius:10px;border:1px solid var(--admin-line);font-size:13.5px;line-height:1.6;">
+            <div><strong>Client Name:</strong> ${p.clientName || '—'}</div>
+            <div><strong>Client Email:</strong> ${p.clientEmail || '—'}</div>
+            <div><strong>Manager / Lead:</strong> ${p.manager || 'Unassigned'}</div>
+            <div><strong>Budget Value:</strong> ₹${(p.budget || 0).toLocaleString('en-IN')}</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="drawer-section-title">Progress & Status</div>
+          <div style="background:var(--admin-surface);padding:14px;border-radius:10px;border:1px solid var(--admin-line);">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+              <span>Status: <strong style="color:var(--admin-accent);">${(p.status || 'planning').toUpperCase()}</strong></span>
+              <span><strong>${p.progress || 0}% Complete</strong></span>
+            </div>
+            <div class="project-progress-bar">
+              <div class="project-progress-fill" style="width:${p.progress || 0}%;"></div>
+            </div>
+          </div>
+        </div>
+
+        ${p.notes ? `
+        <div>
+          <div class="drawer-section-title">Scope & Notes</div>
+          <div style="background:var(--admin-surface);padding:14px;border-radius:10px;border:1px solid var(--admin-line);font-size:13px;line-height:1.5;color:var(--admin-sub);">
+            ${p.notes}
+          </div>
+        </div>
+        ` : ''}
+      `;
+
+      btnDrawerPrim.textContent = 'Edit Project Details';
+      btnDrawerPrim.onclick = () => {
+        closeSlideDrawer();
+        window.adminEditProject(p.id);
+      };
+    } else if (type === 'lead') {
+      const l = (allLeads || []).find(item => item.id == id);
+      if (!l) return;
+
+      typeTag.textContent = 'CRM LEAD INSPECTION';
+      titleEl.textContent = l.client_name || l.company;
+
+      bodyEl.innerHTML = `
+        <div>
+          <div class="drawer-section-title">Contact & Deal Info</div>
+          <div style="background:var(--admin-surface);padding:14px;border-radius:10px;border:1px solid var(--admin-line);font-size:13.5px;line-height:1.6;">
+            <div><strong>Company:</strong> ${l.company || '—'}</div>
+            <div><strong>Email:</strong> ${l.email || '—'}</div>
+            <div><strong>Phone / WA:</strong> ${l.phone || '—'}</div>
+            <div><strong>Deal Pipeline:</strong> ₹${(l.deal_value || 0).toLocaleString('en-IN')}</div>
+            <div><strong>Current Stage:</strong> ${l.stage}</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="drawer-section-title">Direct Client Actions</div>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <button class="btn-primary" style="flex:1;background:var(--admin-green);font-size:13px;" onclick="window.adminNotifyWhatsAppLead('${l.id}')">
+              📱 Send WhatsApp Message
+            </button>
+          </div>
+        </div>
+      `;
+
+      btnDrawerPrim.textContent = 'Edit Lead';
+      btnDrawerPrim.onclick = () => {
+        closeSlideDrawer();
+        window.adminEditLead(l.id);
+      };
+    }
+
+    if (slideDrawerBackdrop) slideDrawerBackdrop.style.display = 'block';
+    slideDrawer.classList.add('drawer-open');
+  };
+
+  // Click project card to open inspection drawer
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.project-card');
+    if (card && !e.target.closest('button') && !e.target.closest('input') && !e.target.closest('a')) {
+      const codeEl = card.querySelector('.project-code');
+      if (codeEl) {
+        const found = (allProjects || []).find(p => p.code === codeEl.textContent.trim());
+        if (found) window.openItemDrawer('project', found.id);
+      }
+    }
+  });
+
 
     window.PrimetekAuth.onAuthStateChanged(checkAuth);
   });
