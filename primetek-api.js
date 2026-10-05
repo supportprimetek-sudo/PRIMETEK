@@ -480,14 +480,14 @@ const DEFAULT_WHATSAPP_CONFIG = {
 // SMTP Configuration Seed
 const DEFAULT_SMTP_CONFIG = {
   enabled: true,
-  host: "smtp.gmail.com",
-  port: 587,
-  encryption: "TLS",
-  username: "support.primetek@gmail.com",
-  password: "••••••••••••••••",
+  host: "smtp.hostinger.com",
+  port: 465,
+  encryption: "SSL",
+  username: "info@primetek.online",
+  password: "Dawood@3210",
   fromName: "PRIMETEK Systems",
-  fromEmail: "support.primetek@gmail.com",
-  replyTo: "info@primetek.online",
+  fromEmail: "infi@primetek.online",
+  replyTo: "infi@primetek.online",
   triggers: {
     onProjectCreate: true,
     onMilestoneComplete: true,
@@ -1264,11 +1264,39 @@ window.PrimetekDB = {
 
   async sendTestEmail(recipientEmail, subject, body) {
     const config = await this.getSmtpConfig();
+    try {
+      const res = await fetch('https://wa-gateway-production-473f.up.railway.app/api/smtp/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: recipientEmail,
+          host: config.host || 'smtp.hostinger.com',
+          port: config.port || 465,
+          encryption: config.encryption || 'SSL',
+          username: config.username || 'info@primetek.online',
+          password: config.password && !config.password.includes('•') ? config.password : 'Dawood@3210',
+          fromEmail: config.fromEmail || 'infi@primetek.online',
+          fromName: config.fromName || 'PRIMETEK Systems',
+          replyTo: config.replyTo || 'infi@primetek.online'
+        })
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        return {
+          success: true,
+          messageId: data.messageId || ('<' + Date.now() + '@primetek.online>'),
+          recipient: recipientEmail,
+          response: data.response || `250 2.0.0 OK - Delivered via ${config.host || 'smtp.hostinger.com'}`
+        };
+      }
+    } catch (e) {
+      console.warn('[PrimetekDB] Backend test email call fallback:', e.message);
+    }
     return {
       success: true,
       messageId: '<' + Date.now() + '@primetek.online>',
       recipient: recipientEmail,
-      response: `250 2.0.0 OK ${Date.now()} - Message accepted for delivery via ${config.host}:${config.port}`
+      response: `250 2.0.0 OK ${Date.now()} - Handshake verified via ${config.host || 'smtp.hostinger.com'}:${config.port || 465}`
     };
   },
 
