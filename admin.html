@@ -151,10 +151,19 @@
     <aside class="admin-sidebar" id="adminSidebar">
       <div class="sidebar-inner">
 
+        <!-- Navigation Group: Executive Overview -->
+        <div class="sidebar-nav-group">
+          <div class="sidebar-group-title">Executive</div>
+          <button class="sidebar-tab-btn admin-tab-btn active" id="tabBtnDashboard" data-tab="dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span class="tab-label">Dashboard Overview</span>
+          </button>
+        </div>
+
         <!-- Navigation Group: Operations -->
         <div class="sidebar-nav-group">
           <div class="sidebar-group-title">Operations</div>
-          <button class="sidebar-tab-btn admin-tab-btn active" id="tabBtnProjects" data-tab="projects">
+          <button class="sidebar-tab-btn admin-tab-btn" id="tabBtnProjects" data-tab="projects">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
             <span class="tab-label">Projects (PMS)</span>
             <span class="tab-count" id="projectCountBadge">0</span>
@@ -235,81 +244,175 @@
       <div class="admin-breadcrumb-bar">
         <a href="#" id="breadcrumbHome">Dashboard</a>
         <span class="admin-breadcrumb-sep">/</span>
-        <span class="admin-breadcrumb-current" id="breadcrumbActiveTab">Projects (PMS)</span>
+        <span class="admin-breadcrumb-current" id="breadcrumbActiveTab">Dashboard Overview</span>
       </div>
 
       <!-- Title & Action Bar -->
       <div class="admin-page-head">
         <div>
-          <h1 id="panelMainHeading">Project Management &amp; Operations</h1>
-          <p id="panelSubHeading">Manage client projects, sales CRM pipeline, turnkey software, team permissions, and automations.</p>
+          <h1 id="panelMainHeading">Executive Dashboard Overview</h1>
+          <p id="panelSubHeading">High-level snapshot of client projects, sales CRM pipeline, orders, and system health.</p>
         </div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
           <button id="btnExportCsv" class="btn-view-store" title="Download catalog / data in CSV format">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export CSV
           </button>
-          <button id="btnOpenAddModal" class="btn-add-product">
+          <button id="btnOpenAddModal" class="btn-add-product" style="display:none;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span id="btnAddButtonText">Add New Project</span>
           </button>
         </div>
       </div>
 
-      <!-- Quick Stats / Metrics Grid -->
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-card-head">
-            <span class="metric-label">Client Projects</span>
-            <span class="metric-trend-pill">↗ Active</span>
+      <!-- ================= SECTION 0: EXECUTIVE DASHBOARD OVERVIEW ================= -->
+      <div id="sectionDashboard" class="admin-tab-section active">
+        <!-- Quick Stats / Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card" onclick="switchTab('projects')" style="cursor:pointer;" title="Click to view Projects (PMS)">
+            <div class="metric-card-head">
+              <span class="metric-label">Client Projects</span>
+              <span class="metric-trend-pill">↗ Active</span>
+            </div>
+            <span class="metric-val" id="metricProjects" style="color:var(--admin-accent);">0</span>
+            <span class="metric-sub" id="metricProjectsSub">0 In Progress</span>
           </div>
-          <span class="metric-val" id="metricProjects" style="color:var(--admin-accent);">0</span>
-          <span class="metric-sub" id="metricProjectsSub">0 In Progress</span>
+          <div class="metric-card" onclick="switchTab('crm')" style="cursor:pointer;" title="Click to view CRM Leads">
+            <div class="metric-card-head">
+              <span class="metric-label">CRM Leads &amp; Pipeline</span>
+              <span class="metric-trend-pill">⚡ High Value</span>
+            </div>
+            <span class="metric-val" id="metricLeads" style="color:var(--admin-amber);">0</span>
+            <span class="metric-sub" id="metricPipelineSub">₹0 Pipeline Value</span>
+          </div>
+          <div class="metric-card" onclick="switchTab('products')" style="cursor:pointer;" title="Click to view Storefront Software">
+            <div class="metric-card-head">
+              <span class="metric-label">Ready-made Software</span>
+              <span class="metric-trend-pill">● Storefront</span>
+            </div>
+            <span class="metric-val" id="metricTotal">0</span>
+            <span class="metric-sub" id="metricActiveSub">0 Live on Storefront</span>
+          </div>
+          <div class="metric-card" onclick="switchTab('roles')" style="cursor:pointer;" title="Click to view Team & Roles">
+            <div class="metric-card-head">
+              <span class="metric-label">Team &amp; Users</span>
+              <span class="metric-trend-pill">🔒 RBAC</span>
+            </div>
+            <span class="metric-val" id="metricUsers" style="color:var(--admin-green);">0</span>
+            <span class="metric-sub">Roles &amp; Access Control</span>
+          </div>
+          <div class="metric-card" onclick="switchTab('clients')" style="cursor:pointer;" title="Click to view Client Partners">
+            <div class="metric-card-head">
+              <span class="metric-label">Client Partners</span>
+              <span class="metric-trend-pill">🏢 Verified</span>
+            </div>
+            <span class="metric-val" id="metricClients">0</span>
+            <span class="metric-sub">Verified enterprise clients</span>
+          </div>
+          <div class="metric-card" onclick="switchTab('orders')" style="cursor:pointer;" title="Click to view Customer Orders">
+            <div class="metric-card-head">
+              <span class="metric-label">Orders &amp; Inquiries</span>
+              <span class="metric-trend-pill">🛒 Real-time</span>
+            </div>
+            <span class="metric-val" id="metricOrders">0</span>
+            <span class="metric-sub">Customer checkout inquiries</span>
+          </div>
         </div>
-        <div class="metric-card">
-          <div class="metric-card-head">
-            <span class="metric-label">CRM Leads &amp; Pipeline</span>
-            <span class="metric-trend-pill">⚡ High Value</span>
+
+        <!-- Dashboard Widgets Grid -->
+        <div class="dash-overview-grid">
+          <!-- Widget 1: PMS Lifecycle Phase Pipeline -->
+          <div class="dash-widget-card">
+            <div class="dash-widget-head">
+              <div>
+                <h3 class="dash-widget-title">PMS Engineering Phases</h3>
+                <p class="dash-widget-sub">Live distribution across project development lifecycle</p>
+              </div>
+              <button class="btn-dash-jump" onclick="switchTab('projects')">View PMS →</button>
+            </div>
+            <div class="dash-phase-bars" id="dashPhaseBars">
+              <!-- Dynamically populated via JS -->
+            </div>
           </div>
-          <span class="metric-val" id="metricLeads" style="color:var(--admin-amber);">0</span>
-          <span class="metric-sub" id="metricPipelineSub">₹0 Pipeline Value</span>
+
+          <!-- Widget 2: Sales CRM Pipeline Funnel -->
+          <div class="dash-widget-card">
+            <div class="dash-widget-head">
+              <div>
+                <h3 class="dash-widget-title">Sales &amp; Deals Pipeline</h3>
+                <p class="dash-widget-sub">Conversion stages from inquiry to won client projects</p>
+              </div>
+              <button class="btn-dash-jump" onclick="switchTab('crm')">View CRM →</button>
+            </div>
+            <div class="dash-crm-funnel" id="dashCrmFunnel">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </div>
         </div>
-        <div class="metric-card">
-          <div class="metric-card-head">
-            <span class="metric-label">Ready-made Software</span>
-            <span class="metric-trend-pill">● Storefront</span>
+
+        <!-- Recent Storefront Inquiries & Orders -->
+        <div class="dash-recent-orders-card">
+          <div class="dash-widget-head">
+            <div>
+              <h3 class="dash-widget-title">Recent Customer Orders &amp; Storefront Inquiries</h3>
+              <p class="dash-widget-sub">Real-time checkout requests synchronized with CRM &amp; PMS delivery</p>
+            </div>
+            <button class="btn-dash-jump" onclick="switchTab('orders')">All Orders →</button>
           </div>
-          <span class="metric-val" id="metricTotal">0</span>
-          <span class="metric-sub" id="metricActiveSub">0 Live on Storefront</span>
+          <div class="dash-orders-table-wrap">
+            <table class="dash-orders-table" id="dashRecentOrdersTable">
+              <thead>
+                <tr>
+                  <th>Order Ref</th>
+                  <th>Customer</th>
+                  <th>Items &amp; Details</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="dashRecentOrdersBody">
+                <!-- Dynamically populated via JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="metric-card">
-          <div class="metric-card-head">
-            <span class="metric-label">Team &amp; Users</span>
-            <span class="metric-trend-pill">🔒 RBAC</span>
+
+        <!-- Quick Launch Action Cards -->
+        <div class="dash-quick-actions-row">
+          <div class="dash-action-card" onclick="window.adminOpenAddModalFor('project')">
+            <div class="action-icon action-blue">📁</div>
+            <div class="action-meta">
+              <h4>Create Engineering Project</h4>
+              <p>Assign phase, department &amp; individual lead</p>
+            </div>
           </div>
-          <span class="metric-val" id="metricUsers" style="color:var(--admin-green);">0</span>
-          <span class="metric-sub">Roles &amp; Access Control</span>
-        </div>
-        <div class="metric-card">
-          <div class="metric-card-head">
-            <span class="metric-label">Client Partners</span>
-            <span class="metric-trend-pill">🏢 Verified</span>
+          <div class="dash-action-card" onclick="window.adminOpenAddModalFor('lead')">
+            <div class="action-icon action-amber">⚡</div>
+            <div class="action-meta">
+              <h4>Add Sales Lead</h4>
+              <p>Record enterprise client inquiry in CRM</p>
+            </div>
           </div>
-          <span class="metric-val" id="metricClients">0</span>
-          <span class="metric-sub">Verified enterprise clients</span>
-        </div>
-        <div class="metric-card">
-          <div class="metric-card-head">
-            <span class="metric-label">Orders &amp; Inquiries</span>
-            <span class="metric-trend-pill">🛒 Real-time</span>
+          <div class="dash-action-card" onclick="window.adminOpenAddModalFor('product')">
+            <div class="action-icon action-purple">🚀</div>
+            <div class="action-meta">
+              <h4>Publish Software Product</h4>
+              <p>Add turnkey app to online storefront</p>
+            </div>
           </div>
-          <span class="metric-val" id="metricOrders">0</span>
-          <span class="metric-sub">Customer checkout inquiries</span>
+          <div class="dash-action-card" onclick="switchTab('automations')">
+            <div class="action-icon action-green">💬</div>
+            <div class="action-meta">
+              <h4>WhatsApp Gateway</h4>
+              <p>Configure automated order &amp; lead alerts</p>
+            </div>
+          </div>
         </div>
       </div>
 
 <!-- ================= SECTION 1: PROJECT MANAGEMENT (PMS) ================= -->
-    <div id="sectionProjects" class="panel-card">
+    <div id="sectionProjects" class="panel-card" style="display:none;">
       <div class="panel-filter-bar">
         <div class="search-box">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -329,6 +432,25 @@
           <option value="High">High Priority</option>
           <option value="Medium">Medium Priority</option>
           <option value="Low">Low Priority</option>
+        </select>
+        <select id="projectPhaseFilter" class="filter-select">
+          <option value="ALL">All Lifecycle Phases</option>
+          <option value="discovery">Phase 1: Discovery &amp; Requirements</option>
+          <option value="design">Phase 2: UI/UX &amp; Architecture</option>
+          <option value="development">Phase 3: Core Engineering</option>
+          <option value="testing">Phase 4: QA Testing &amp; Security</option>
+          <option value="review">Phase 5: Client UAT &amp; Review</option>
+          <option value="deployment">Phase 6: Deployment &amp; Handover</option>
+          <option value="maintenance">Phase 7: Maintenance &amp; SLA</option>
+        </select>
+        <select id="projectTeamFilter" class="filter-select">
+          <option value="ALL">All Assigned Teams</option>
+          <option value="Full-Stack Engineering">Full-Stack Engineering</option>
+          <option value="Frontend & UI/UX">Frontend &amp; UI/UX Team</option>
+          <option value="Backend & Cloud API">Backend &amp; Cloud API</option>
+          <option value="Mobile App Development">Mobile App Development</option>
+          <option value="DevOps & Infrastructure">DevOps &amp; Infrastructure</option>
+          <option value="QA & Automation">QA &amp; Automation Testing</option>
         </select>
       </div>
 
@@ -911,6 +1033,30 @@
     </div>
 
   </main>
+
+    <!-- ================= FIXED MOBILE BOTTOM NAVIGATION ================= -->
+    <nav class="admin-mobile-nav" id="adminMobileNav">
+      <button class="mobile-nav-btn active" data-tab="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Overview</span>
+      </button>
+      <button class="mobile-nav-btn" data-tab="projects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        <span>PMS</span>
+      </button>
+      <button class="mobile-nav-btn" data-tab="crm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        <span>CRM</span>
+      </button>
+      <button class="mobile-nav-btn" data-tab="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Orders</span>
+      </button>
+      <button class="mobile-nav-btn" id="btnMobileMoreDrawer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span>Menu</span>
+      </button>
+    </nav>
 </div>
 
 <!-- ================= MODAL 1: ADD / EDIT PROJECT (PMS) ================= -->
@@ -964,6 +1110,43 @@
               <option value="Cloud Platform">Cloud Platform &amp; Infrastructure</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div class="form-field">
+            <label for="prjPhase">Lifecycle Phase *</label>
+            <select id="prjPhase">
+              <option value="discovery">Phase 1: Discovery &amp; Specs</option>
+              <option value="design">Phase 2: UI/UX &amp; Architecture</option>
+              <option value="development" selected>Phase 3: Core Engineering</option>
+              <option value="testing">Phase 4: QA &amp; Security</option>
+              <option value="review">Phase 5: Client UAT &amp; Review</option>
+              <option value="deployment">Phase 6: Deployment &amp; Handover</option>
+              <option value="maintenance">Phase 7: Maintenance &amp; SLA</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="prjAssignedTeam">Assigned Team / Department</label>
+            <select id="prjAssignedTeam">
+              <option value="Full-Stack Engineering" selected>Full-Stack Engineering</option>
+              <option value="Frontend & UI/UX">Frontend &amp; UI/UX Team</option>
+              <option value="Backend & Cloud API">Backend &amp; Cloud API</option>
+              <option value="Mobile App Development">Mobile App Development</option>
+              <option value="DevOps & Infrastructure">DevOps &amp; Infrastructure</option>
+              <option value="QA & Automation">QA &amp; Automation Testing</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="prjAssignedMember">Individual Assignee</label>
+            <select id="prjAssignedMember">
+              <option value="">Unassigned (Lead will assign)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="prjJobNotes">Delivery &amp; Job Notes</label>
+          <input type="text" id="prjJobNotes" placeholder="e.g. Needs Hostinger SMTP webhook, PostgreSQL sync &amp; Flutter build.">
         </div>
 
         <div class="form-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
@@ -1042,6 +1225,71 @@
       <div class="modal-footer">
         <button type="button" class="btn-cancel" id="btnCancelProjectModal">Cancel</button>
         <button type="submit" class="btn-save" id="btnSaveProject">Save Project</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL: QUICK REASSIGN / JOB ALLOCATION (PMS) ================= -->
+<div id="reassignModal" class="modal-overlay">
+  <div class="modal-content" style="max-width:540px;">
+    <div class="modal-header">
+      <h2 id="reassignModalTitle">Assign Project Job &amp; Phase</h2>
+      <button class="btn-modal-close" id="btnCloseReassignModal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="reassignForm">
+      <div class="modal-body">
+        <input type="hidden" id="reassignProjectId">
+        
+        <div style="background:var(--admin-surface);padding:12px 16px;border-radius:10px;border:1px solid var(--admin-line);margin-bottom:18px;">
+          <span style="font-size:11px;font-weight:700;color:var(--admin-sub);text-transform:uppercase;">Selected Project:</span>
+          <div style="font-size:15px;font-weight:600;color:var(--admin-ink);margin-top:2px;">
+            <strong id="reassignProjectCode" style="color:var(--admin-accent);">PRJ-101</strong>: <span id="reassignProjectTitle">Enterprise App</span>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="reassignPhase">Engineering Lifecycle Phase *</label>
+          <select id="reassignPhase" required>
+            <option value="discovery">Phase 1: Discovery &amp; Requirements</option>
+            <option value="design">Phase 2: UI/UX &amp; Architecture</option>
+            <option value="development">Phase 3: Core Engineering</option>
+            <option value="testing">Phase 4: QA Testing &amp; Security</option>
+            <option value="review">Phase 5: Client UAT &amp; Review</option>
+            <option value="deployment">Phase 6: Cloud Deployment &amp; Handover</option>
+            <option value="maintenance">Phase 7: Maintenance &amp; SLA Support</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="reassignTeam">Assigned Team / Department *</label>
+          <select id="reassignTeam" required>
+            <option value="Full-Stack Engineering">Full-Stack Engineering</option>
+            <option value="Frontend & UI/UX">Frontend &amp; UI/UX Team</option>
+            <option value="Backend & Cloud API">Backend &amp; Cloud API</option>
+            <option value="Mobile App Development">Mobile App (Flutter/React Native)</option>
+            <option value="DevOps & Infrastructure">DevOps &amp; Infrastructure</option>
+            <option value="QA & Automation">QA &amp; Automation Testing</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="reassignMember">Individual Member Assignment</label>
+          <select id="reassignMember">
+            <!-- Dynamically populated from allUsers -->
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="reassignNotes">Delivery Instructions &amp; Job Notes</label>
+          <textarea id="reassignNotes" rows="3" placeholder="Add specific sprint deliverables, handover instructions, or client requirements..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="btnCancelReassignModal">Cancel</button>
+        <button type="submit" class="btn-save" id="btnSaveReassign">Save Assignment</button>
       </div>
     </form>
   </div>
@@ -1548,6 +1796,7 @@
   const metricOrders = document.getElementById('metricOrders');
 
   // Tab Buttons
+  const tabBtnDashboard = document.getElementById('tabBtnDashboard');
   const tabBtnProjects = document.getElementById('tabBtnProjects');
   const tabBtnCrm = document.getElementById('tabBtnCrm');
   const tabBtnProducts = document.getElementById('tabBtnProducts');
@@ -1567,6 +1816,7 @@
   const orderCountBadge = document.getElementById('orderCountBadge');
 
   // Section Containers
+  const sectionDashboard = document.getElementById('sectionDashboard');
   const sectionProjects = document.getElementById('sectionProjects');
   const sectionCrm = document.getElementById('sectionCrm');
   const sectionProducts = document.getElementById('sectionProducts');
@@ -1600,6 +1850,8 @@
   const projectSearchInput = document.getElementById('projectSearchInput');
   const projectStatusFilter = document.getElementById('projectStatusFilter');
   const projectPriorityFilter = document.getElementById('projectPriorityFilter');
+  const projectPhaseFilter = document.getElementById('projectPhaseFilter');
+  const projectTeamFilter = document.getElementById('projectTeamFilter');
   const leadSearchInput = document.getElementById('leadSearchInput');
   const leadPriorityFilter = document.getElementById('leadPriorityFilter');
   const leadSourceFilter = document.getElementById('leadSourceFilter');
@@ -1608,6 +1860,7 @@
 
   // Modals
   const projectModal = document.getElementById('projectModal');
+  const reassignModal = document.getElementById('reassignModal');
   const leadModal = document.getElementById('leadModal');
   const productModal = document.getElementById('productModal');
   const bannerModal = document.getElementById('bannerModal');
@@ -1616,6 +1869,7 @@
 
   // Forms
   const projectForm = document.getElementById('projectForm');
+  const reassignForm = document.getElementById('reassignForm');
   const leadForm = document.getElementById('leadForm');
   const productForm = document.getElementById('productForm');
   const bannerForm = document.getElementById('bannerForm');
@@ -1625,7 +1879,7 @@
   const smtpConfigForm = document.getElementById('smtpConfigForm');
 
   // State
-  let currentTab = 'projects';
+  let currentTab = 'dashboard';
   let allProjects = [];
   let allLeads = [];
   let allProducts = [];
@@ -1739,39 +1993,151 @@
     }, 8000);
   }, 1000);
 
-  // Metrics
+  // Metrics & Dashboard Overview
   function renderAllMetrics(){
-    metricProjects.textContent = allProjects.length;
+    if(metricProjects) metricProjects.textContent = allProjects.length;
     const inProgProjects = allProjects.filter(p => p.status === 'in_progress').length;
-    metricProjectsSub.textContent = `${inProgProjects} In Progress`;
+    if(metricProjectsSub) metricProjectsSub.textContent = `${inProgProjects} In Progress`;
 
-    metricLeads.textContent = allLeads.length;
+    if(metricLeads) metricLeads.textContent = allLeads.length;
     const pipelineVal = allLeads
       .filter(l => l.stage !== 'lost')
       .reduce((sum, l) => sum + (parseFloat(l.value) || 0), 0);
-    metricPipelineSub.textContent = `₹${(pipelineVal).toLocaleString('en-IN')} in pipeline`;
+    if(metricPipelineSub) metricPipelineSub.textContent = `₹${(pipelineVal).toLocaleString('en-IN')} in pipeline`;
 
-    metricTotal.textContent = allProducts.length;
+    if(metricTotal) metricTotal.textContent = allProducts.length;
     const activeProducts = allProducts.filter(p => p.status === 'active').length;
-    metricActiveSub.textContent = `${activeProducts} Live on Storefront`;
+    if(metricActiveSub) metricActiveSub.textContent = `${activeProducts} Live on Storefront`;
 
     const activeBanners = allBanners.filter(b => b.status === 'active').length;
-    metricBanners.textContent = `${activeBanners} / ${allBanners.length}`;
+    if(metricBanners) metricBanners.textContent = `${activeBanners} / ${allBanners.length}`;
 
-    metricUsers.textContent = allUsers.length;
+    if(metricUsers) metricUsers.textContent = allUsers.length;
 
     const activeClients = allClients.filter(c => c.status === 'active').length;
-    metricClients.textContent = `${activeClients} / ${allClients.length}`;
+    if(metricClients) metricClients.textContent = `${activeClients} / ${allClients.length}`;
 
-    metricOrders.textContent = allOrders.length;
+    if(metricOrders) metricOrders.textContent = allOrders.length;
 
-    projectCountBadge.textContent = allProjects.length;
-    leadCountBadge.textContent = allLeads.length;
-    productCountBadge.textContent = allProducts.length;
-    bannerCountBadge.textContent = allBanners.length;
-    clientCountBadge.textContent = allClients.length;
-    userCountBadge.textContent = allUsers.length;
-    orderCountBadge.textContent = allOrders.length;
+    if(projectCountBadge) projectCountBadge.textContent = allProjects.length;
+    if(leadCountBadge) leadCountBadge.textContent = allLeads.length;
+    if(productCountBadge) productCountBadge.textContent = allProducts.length;
+    if(bannerCountBadge) bannerCountBadge.textContent = allBanners.length;
+    if(clientCountBadge) clientCountBadge.textContent = allClients.length;
+    if(userCountBadge) userCountBadge.textContent = allUsers.length;
+    if(orderCountBadge) orderCountBadge.textContent = allOrders.length;
+
+    try { renderDashboardOverview(); } catch(e){ console.error("renderDashboardOverview error:", e); }
+  }
+
+  // Populate dynamic assignee options from allUsers
+  function populateAssigneeDropdowns(){
+    const memberSelect = document.getElementById('prjAssignedMember');
+    const reassignSelect = document.getElementById('reassignMember');
+    if(!memberSelect && !reassignSelect) return;
+
+    let options = `<option value="">Unassigned (Lead will assign)</option>`;
+    if(Array.isArray(allUsers) && allUsers.length > 0){
+      options += allUsers.map(u => `<option value="${u.id || u.name}" data-name="${u.name}">${u.name} (${(u.role || 'Member').replace('_', ' ')})</option>`).join('');
+    } else {
+      options += `<option value="lead" data-name="Rahul Dev (Lead Architect)">Rahul Dev (Lead Architect)</option>`;
+      options += `<option value="dev1" data-name="Priya Sharma (UI/UX)">Priya Sharma (UI/UX)</option>`;
+      options += `<option value="dev2" data-name="Amit Verma (Backend)">Amit Verma (Backend)</option>`;
+    }
+
+    if(memberSelect) memberSelect.innerHTML = options;
+    if(reassignSelect) reassignSelect.innerHTML = options;
+  }
+
+  // Render Executive Dashboard Widgets
+  function renderDashboardOverview(){
+    const dashPhaseBars = document.getElementById('dashPhaseBars');
+    const dashCrmFunnel = document.getElementById('dashCrmFunnel');
+    const dashRecentOrdersBody = document.getElementById('dashRecentOrdersBody');
+
+    // 1. PMS Lifecycle Phase Distribution
+    if(dashPhaseBars){
+      const phases = [
+        { key: 'discovery', label: '1. Discovery & Specs', color: '#6366F1' },
+        { key: 'design', label: '2. UI/UX & Architecture', color: '#8B5CF6' },
+        { key: 'development', label: '3. Core Engineering', color: '#3B82F6' },
+        { key: 'testing', label: '4. QA & Security Audit', color: '#EC4899' },
+        { key: 'review', label: '5. Client UAT & Review', color: '#F59E0B' },
+        { key: 'deployment', label: '6. Deployment & Handover', color: '#10B981' },
+        { key: 'maintenance', label: '7. Maintenance & SLA', color: '#14B8A6' }
+      ];
+      const totalPrj = allProjects.length || 1;
+      dashPhaseBars.innerHTML = phases.map(ph => {
+        const count = allProjects.filter(p => (p.phase || 'discovery') === ph.key).length;
+        const pct = Math.round((count / totalPrj) * 100);
+        return `
+          <div class="phase-bar-item">
+            <div class="phase-bar-head">
+              <span class="phase-bar-label"><span class="phase-dot" style="background:${ph.color};"></span>${ph.label}</span>
+              <span class="phase-bar-count"><strong>${count}</strong> projects (${pct}%)</span>
+            </div>
+            <div class="phase-track">
+              <div class="phase-fill" style="width:${pct}%;background:${ph.color};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 2. CRM Funnel Breakdown
+    if(dashCrmFunnel){
+      const stages = [
+        { key: 'new', label: 'New Inquiries', color: '#3B82F6' },
+        { key: 'contacted', label: 'Discovery Call', color: '#8B5CF6' },
+        { key: 'proposal', label: 'Proposal Sent', color: '#F59E0B' },
+        { key: 'won', label: 'Won / Delivery', color: '#10B981' }
+      ];
+      dashCrmFunnel.innerHTML = stages.map(st => {
+        const matching = allLeads.filter(l => l.stage === st.key);
+        const count = matching.length;
+        const totalVal = matching.reduce((sum, l) => sum + (parseFloat(l.value) || 0), 0);
+        return `
+          <div class="crm-funnel-card">
+            <div class="crm-funnel-title" style="color:${st.color};">${st.label}</div>
+            <div class="crm-funnel-val">${count}</div>
+            <div class="crm-funnel-sub">₹${totalVal.toLocaleString('en-IN')} deal volume</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 3. Recent Orders & Storefront Inquiries Table
+    if(dashRecentOrdersBody){
+      if(!allOrders || allOrders.length === 0){
+        dashRecentOrdersBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--admin-sub);">No storefront orders recorded yet.</td></tr>`;
+      } else {
+        const recents = allOrders.slice(0, 5);
+        dashRecentOrdersBody.innerHTML = recents.map(o => {
+          const itemsSummary = (o.items || []).map(i => `${i.qty || 1}x ${i.name}`).join(', ') || 'Custom Project';
+          const orderDate = o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN') : 'Recent';
+          const status = o.status || 'pending';
+          const badgeClass = status === 'completed' ? 'status-completed' : (status === 'confirmed' ? 'status-in_progress' : 'status-planning');
+          return `
+            <tr>
+              <td><strong style="color:var(--admin-accent);">${o.id ? o.id.slice(0,8).toUpperCase() : 'ORD'}</strong></td>
+              <td>
+                <div style="font-weight:600;color:var(--admin-ink);">${o.name || 'Anonymous Client'}</div>
+                <div style="font-size:12px;color:var(--admin-sub);">${o.phone || o.email || '—'}</div>
+              </td>
+              <td style="max-width:240px;font-size:12.5px;color:var(--admin-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${itemsSummary}">${itemsSummary}</td>
+              <td><strong style="color:var(--admin-ink);">₹${(o.total || 0).toLocaleString('en-IN')}</strong></td>
+              <td><span class="badge-proj-status ${badgeClass}">${status.toUpperCase()}</span></td>
+              <td>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn-table-action" onclick="switchTab('orders')" title="View in Orders">View</button>
+                  <button class="btn-table-action" onclick="switchTab('projects')" title="View PMS Delivery Job">PMS</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
   }
 
   // ==========================================================
@@ -1781,16 +2147,22 @@
     const query = (projectSearchInput.value || '').toLowerCase().trim();
     const statusVal = projectStatusFilter.value;
     const priorityVal = projectPriorityFilter.value;
+    const phaseVal = projectPhaseFilter ? projectPhaseFilter.value : 'ALL';
+    const teamVal = projectTeamFilter ? projectTeamFilter.value : 'ALL';
 
     const filtered = allProjects.filter(p => {
       const matchQuery = !query || 
         (p.title || '').toLowerCase().includes(query) ||
         (p.clientName || '').toLowerCase().includes(query) ||
         (p.code || '').toLowerCase().includes(query) ||
-        (p.manager || '').toLowerCase().includes(query);
+        (p.manager || '').toLowerCase().includes(query) ||
+        (p.assignedMemberName || '').toLowerCase().includes(query) ||
+        (p.assignedTeam || '').toLowerCase().includes(query);
       const matchStatus = statusVal === 'ALL' || p.status === statusVal;
       const matchPriority = priorityVal === 'ALL' || p.priority === priorityVal;
-      return matchQuery && matchStatus && matchPriority;
+      const matchPhase = phaseVal === 'ALL' || (p.phase || 'discovery') === phaseVal;
+      const matchTeam = teamVal === 'ALL' || (p.assignedTeam || '') === teamVal;
+      return matchQuery && matchStatus && matchPriority && matchPhase && matchTeam;
     });
 
     if(filtered.length === 0){
@@ -1805,6 +2177,20 @@
       const statusLabel = (p.status || 'planning').replace('_', ' ').toUpperCase();
       const milestones = Array.isArray(p.milestones) ? p.milestones : [];
       const completedM = milestones.filter(m => m.completed).length;
+
+      const phaseNames = {
+        discovery: '1. Discovery & Specs',
+        design: '2. UI/UX Design',
+        development: '3. Core Engineering',
+        testing: '4. QA & Security',
+        review: '5. Client Review',
+        deployment: '6. Deployment',
+        maintenance: '7. Maintenance & SLA'
+      };
+      const curPhase = p.phase || 'discovery';
+      const curPhaseLabel = phaseNames[curPhase] || curPhase;
+      const teamName = p.assignedTeam || 'Full-Stack Engineering';
+      const memberName = p.assignedMemberName || p.manager || 'Unassigned';
 
       const milestonesHtml = milestones.length > 0 ? `
         <div class="milestones-box">
@@ -1839,12 +2225,20 @@
               <div class="project-client">Client: <strong>${p.clientName}</strong> (${p.clientEmail || '—'})</div>
             </div>
             <div class="project-badges">
+              <span class="badge-phase badge-phase-${curPhase}">${curPhaseLabel}</span>
               <span class="badge-priority ${priorityClass}">${p.priority || 'Medium'}</span>
               <span class="badge-proj-status ${statusClass}">${statusLabel}</span>
             </div>
           </div>
 
-          <div style="font-size:12.5px;color:var(--admin-sub);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div class="project-team-allocation-row">
+            <span class="badge-team" title="Assigned Department / Team">👥 ${teamName}</span>
+            <span class="badge-assignee" title="Assigned Member">👤 ${memberName}</span>
+          </div>
+
+          ${p.jobNotes ? `<div class="project-job-notes">📝 <strong>Job Notes:</strong> ${p.jobNotes}</div>` : ''}
+
+          <div style="font-size:12.5px;color:var(--admin-sub);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:4px;">
             <span>Lead: <strong style="color:var(--admin-ink);">${p.manager || 'Unassigned'}</strong></span>
             <span>Fee / Budget: <strong style="color:var(--admin-ink);">₹${(p.budget || 0).toLocaleString('en-IN')}</strong></span>
             ${p.deadline ? `<span>Due: <strong style="color:var(--admin-ink);">${p.deadline}</strong></span>` : ''}
@@ -1862,6 +2256,25 @@
 
           ${milestonesHtml}
           ${delivLinksHtml}
+
+          <!-- Quick Phase & Job Allocation Bar -->
+          <div class="quick-phase-inline">
+            <div style="display:flex;align-items:center;gap:6px;flex:1;">
+              <label style="font-size:11.5px;font-weight:700;color:var(--admin-sub);text-transform:uppercase;">Phase:</label>
+              <select class="quick-phase-select" title="Quick change project lifecycle phase" onchange="window.adminQuickSetPhase('${p.id}', this.value)">
+                <option value="discovery" ${curPhase==='discovery'?'selected':''}>1. Discovery</option>
+                <option value="design" ${curPhase==='design'?'selected':''}>2. UI/UX Design</option>
+                <option value="development" ${curPhase==='development'?'selected':''}>3. Core Dev</option>
+                <option value="testing" ${curPhase==='testing'?'selected':''}>4. QA Testing</option>
+                <option value="review" ${curPhase==='review'?'selected':''}>5. Client Review</option>
+                <option value="deployment" ${curPhase==='deployment'?'selected':''}>6. Deployment</option>
+                <option value="maintenance" ${curPhase==='maintenance'?'selected':''}>7. SLA Support</option>
+              </select>
+            </div>
+            <button class="btn-job-assign" title="Assign Department or Individual Team Member" onclick="window.adminOpenReassignModal('${p.id}')">
+              👥 Assign Job
+            </button>
+          </div>
 
           <div class="project-actions-row">
             <button class="btn-icon" style="color:var(--admin-green);" title="Send WhatsApp Update to Client" onclick="window.adminNotifyWhatsAppProject('${p.id}')">
@@ -1896,6 +2309,7 @@
   window.adminEditProject = function(id){
     const p = allProjects.find(item => item.id === id);
     if(!p) return;
+    populateAssigneeDropdowns();
     document.getElementById('projectModalTitle').textContent = 'Edit Client Project';
     document.getElementById('editProjectId').value = p.id;
     document.getElementById('prjTitle').value = p.title || '';
@@ -1904,6 +2318,10 @@
     document.getElementById('prjClientEmail').value = p.clientEmail || '';
     document.getElementById('prjManager').value = p.manager || '';
     document.getElementById('prjCategory').value = p.category || 'ERP Software';
+    document.getElementById('prjPhase').value = p.phase || 'development';
+    document.getElementById('prjAssignedTeam').value = p.assignedTeam || 'Full-Stack Engineering';
+    document.getElementById('prjAssignedMember').value = p.assignedMemberId || '';
+    document.getElementById('prjJobNotes').value = p.jobNotes || '';
     document.getElementById('prjPriority').value = p.priority || 'Medium';
     document.getElementById('prjStatus').value = p.status || 'in_progress';
     document.getElementById('prjProgress').value = p.progress || 0;
@@ -1987,6 +2405,9 @@
       }
     });
 
+    const memSel = document.getElementById('prjAssignedMember');
+    const memName = memSel.selectedIndex > 0 ? (memSel.options[memSel.selectedIndex].getAttribute('data-name') || memSel.options[memSel.selectedIndex].text) : '';
+
     const payload = {
       title: document.getElementById('prjTitle').value.trim(),
       code: document.getElementById('prjCode').value.trim() || undefined,
@@ -1994,6 +2415,11 @@
       clientEmail: document.getElementById('prjClientEmail').value.trim(),
       manager: document.getElementById('prjManager').value.trim(),
       category: document.getElementById('prjCategory').value,
+      phase: document.getElementById('prjPhase').value,
+      assignedTeam: document.getElementById('prjAssignedTeam').value,
+      assignedMemberId: memSel.value || '',
+      assignedMemberName: memName,
+      jobNotes: document.getElementById('prjJobNotes').value.trim(),
       priority: document.getElementById('prjPriority').value,
       status: document.getElementById('prjStatus').value,
       progress: parseInt(document.getElementById('prjProgress').value, 10) || 0,
@@ -2025,6 +2451,94 @@
 
   document.getElementById('btnCloseProjectModal').onclick = () => projectModal.classList.remove('active');
   document.getElementById('btnCancelProjectModal').onclick = () => projectModal.classList.remove('active');
+
+  // Quick Phase Selector Handler
+  window.adminQuickSetPhase = async function(projectId, phase){
+    try {
+      const idx = allProjects.findIndex(p => p.id === projectId);
+      if(idx !== -1){
+        allProjects[idx].phase = phase;
+      }
+      await window.PrimetekDB.updateProject(projectId, { phase: phase });
+      renderProjects();
+      renderAllMetrics();
+    } catch(err){
+      console.error("Failed to update project phase:", err);
+      alert("Error updating project phase: " + err.message);
+    }
+  };
+
+  // Open Reassign Modal for fast Job Assignment
+  window.adminOpenReassignModal = function(projectId){
+    const p = allProjects.find(item => item.id === projectId);
+    if(!p) return;
+    populateAssigneeDropdowns();
+
+    document.getElementById('reassignProjectId').value = p.id;
+    document.getElementById('reassignProjectCode').textContent = p.code || 'PRJ';
+    document.getElementById('reassignProjectTitle').textContent = p.title || '';
+    document.getElementById('reassignPhase').value = p.phase || 'development';
+    document.getElementById('reassignTeam').value = p.assignedTeam || 'Full-Stack Engineering';
+    if(p.assignedMemberId){
+      document.getElementById('reassignMember').value = p.assignedMemberId;
+    }
+    document.getElementById('reassignNotes').value = p.jobNotes || '';
+
+    const modal = document.getElementById('reassignModal');
+    if(modal) modal.classList.add('active');
+  };
+
+  // Reassign Form Submit
+  if(reassignForm){
+    reassignForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('reassignProjectId').value;
+      const memSelect = document.getElementById('reassignMember');
+      const selectedMemName = memSelect.selectedIndex > 0 ? (memSelect.options[memSelect.selectedIndex].getAttribute('data-name') || memSelect.options[memSelect.selectedIndex].text) : '';
+      
+      const payload = {
+        phase: document.getElementById('reassignPhase').value,
+        assignedTeam: document.getElementById('reassignTeam').value,
+        assignedMemberId: memSelect.value || '',
+        assignedMemberName: selectedMemName,
+        jobNotes: document.getElementById('reassignNotes').value.trim()
+      };
+
+      try {
+        await window.PrimetekDB.updateProject(id, payload);
+        const idx = allProjects.findIndex(p => p.id === id);
+        if(idx !== -1){
+          allProjects[idx] = { ...allProjects[idx], ...payload };
+        }
+        const modal = document.getElementById('reassignModal');
+        if(modal) modal.classList.remove('active');
+        renderProjects();
+        renderAllMetrics();
+      } catch(err){
+        console.error("Failed to reassign project job:", err);
+        alert("Error saving job assignment: " + err.message);
+      }
+    });
+  }
+
+  const btnCloseReassignModal = document.getElementById('btnCloseReassignModal');
+  const btnCancelReassignModal = document.getElementById('btnCancelReassignModal');
+  if(btnCloseReassignModal) btnCloseReassignModal.onclick = () => document.getElementById('reassignModal')?.classList.remove('active');
+  if(btnCancelReassignModal) btnCancelReassignModal.onclick = () => document.getElementById('reassignModal')?.classList.remove('active');
+
+  // Quick Open Add Modal for dashboard cards
+  window.adminOpenAddModalFor = function(type){
+    if(type === 'project'){
+      switchTab('projects');
+      if(btnOpenAddModal) btnOpenAddModal.click();
+    } else if(type === 'lead'){
+      switchTab('crm');
+      if(btnOpenAddModal) btnOpenAddModal.click();
+    } else if(type === 'product'){
+      switchTab('products');
+      if(btnOpenAddModal) btnOpenAddModal.click();
+    }
+  };
 
   // ==========================================================
   // 2. RENDER CRM (LEADS & PIPELINE KANBAN BOARD)
@@ -3303,6 +3817,11 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
       document.getElementById('projectModalTitle').textContent = 'Add Client Project';
       document.getElementById('editProjectId').value = '';
       projectForm.reset();
+      populateAssigneeDropdowns();
+      document.getElementById('prjPhase').value = 'discovery';
+      document.getElementById('prjAssignedTeam').value = 'Full-Stack Engineering';
+      document.getElementById('prjAssignedMember').value = '';
+      document.getElementById('prjJobNotes').value = '';
       document.getElementById('prjCode').value = 'PRJ-' + Math.floor(100 + Math.random() * 900);
       document.getElementById('prjProgress').value = '0';
       document.getElementById('prjStatus').value = 'in_progress';
@@ -3353,26 +3872,40 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
   });
 
   // Search & Filter Listeners
-  projectSearchInput.addEventListener('input', renderProjects);
-  projectStatusFilter.addEventListener('change', renderProjects);
-  projectPriorityFilter.addEventListener('change', renderProjects);
+  if(projectSearchInput) projectSearchInput.addEventListener('input', renderProjects);
+  if(projectStatusFilter) projectStatusFilter.addEventListener('change', renderProjects);
+  if(projectPriorityFilter) projectPriorityFilter.addEventListener('change', renderProjects);
+  if(projectPhaseFilter) projectPhaseFilter.addEventListener('change', renderProjects);
+  if(projectTeamFilter) projectTeamFilter.addEventListener('change', renderProjects);
 
-  productSearchInput.addEventListener('input', renderProducts);
-  categoryFilterSelect.addEventListener('change', renderProducts);
+  if(productSearchInput) productSearchInput.addEventListener('input', renderProducts);
+  if(categoryFilterSelect) categoryFilterSelect.addEventListener('change', renderProducts);
 
   // Tabs Switching
   function switchTab(tab){
     currentTab = tab;
-    [tabBtnProjects, tabBtnCrm, tabBtnProducts, tabBtnBanners, tabBtnClients, tabBtnRoles, tabBtnAutomations, tabBtnOrders].forEach(b => b && b.classList.remove('active'));
-    [sectionProjects, sectionCrm, sectionProducts, sectionBanners, sectionClients, sectionRoles, sectionAutomations, sectionOrders].forEach(s => s && (s.style.display = 'none'));
+    [tabBtnDashboard, tabBtnProjects, tabBtnCrm, tabBtnProducts, tabBtnBanners, tabBtnClients, tabBtnRoles, tabBtnAutomations, tabBtnOrders].forEach(b => b && b.classList.remove('active'));
+    [sectionDashboard, sectionProjects, sectionCrm, sectionProducts, sectionBanners, sectionClients, sectionRoles, sectionAutomations, sectionOrders].forEach(s => s && (s.style.display = 'none'));
 
-    if(tab === 'projects'){
+    // Update Mobile Bottom Nav
+    document.querySelectorAll('.admin-mobile-nav .mobile-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+    });
+
+    if(tab === 'dashboard'){
+      if(tabBtnDashboard) tabBtnDashboard.classList.add('active');
+      if(sectionDashboard) sectionDashboard.style.display = 'block';
+      if(btnOpenAddModal) btnOpenAddModal.style.display = 'none';
+      panelMainHeading.textContent = 'Executive Dashboard Overview';
+      panelSubHeading.textContent = 'High-level snapshot of client projects, sales CRM pipeline, orders, and system health.';
+      try { renderDashboardOverview(); } catch(e){}
+    } else if(tab === 'projects'){
       if(tabBtnProjects) tabBtnProjects.classList.add('active');
       if(sectionProjects) sectionProjects.style.display = 'block';
       if(btnOpenAddModal) btnOpenAddModal.style.display = 'inline-flex';
       if(btnAddButtonText) btnAddButtonText.textContent = 'Add New Project';
-      panelMainHeading.textContent = 'Project Management System';
-      panelSubHeading.textContent = 'Track client projects, milestone checklists, deliverables, and lead assignments.';
+      panelMainHeading.textContent = 'Project Management System (PMS)';
+      panelSubHeading.textContent = 'Track client projects, lifecycle phases, team job assignments, and deliverables.';
       try { renderProjects(); } catch(e){}
     } else if(tab === 'crm'){
       if(tabBtnCrm) tabBtnCrm.classList.add('active');
@@ -3431,6 +3964,7 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
     }
   }
 
+  if (tabBtnDashboard) tabBtnDashboard.onclick = () => switchTab('dashboard');
   if (tabBtnProjects) tabBtnProjects.onclick = () => switchTab('projects');
   if (tabBtnCrm) tabBtnCrm.onclick = () => switchTab('crm');
   if (tabBtnProducts) tabBtnProducts.onclick = () => switchTab('products');
@@ -3439,6 +3973,18 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
   if (tabBtnRoles) tabBtnRoles.onclick = () => switchTab('roles');
   if (tabBtnAutomations) tabBtnAutomations.onclick = () => switchTab('automations');
   if (tabBtnOrders) tabBtnOrders.onclick = () => switchTab('orders');
+
+  // Mobile Bottom Nav Event Listeners
+  document.querySelectorAll('.admin-mobile-nav .mobile-nav-btn[data-tab]').forEach(btn => {
+    btn.onclick = () => switchTab(btn.getAttribute('data-tab'));
+  });
+  const btnMobileMoreDrawer = document.getElementById('btnMobileMoreDrawer');
+  if(btnMobileMoreDrawer){
+    btnMobileMoreDrawer.onclick = () => {
+      const shell = document.querySelector('.admin-app-shell');
+      if(shell) shell.classList.toggle('sidebar-mobile-open');
+    };
+  }
 
   // Export CSV
   btnExportCsv.addEventListener('click', () => {
@@ -3623,6 +4169,7 @@ ${arEscapeHtml(data.translatedReply || data.replyText)}`;
   switchTab = function(tab) {
     originalSwitchTab(tab);
     const names = {
+      dashboard: 'Dashboard Overview',
       projects: 'Projects (PMS)',
       crm: 'Leads & CRM Pipeline',
       products: 'Ready-made Software',

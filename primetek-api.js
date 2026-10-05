@@ -218,6 +218,11 @@ const DEFAULT_PROJECTS = [
     category: "ERP Software",
     priority: "High",
     status: "in_progress",
+    phase: "development",
+    assignedTeam: "Full-Stack Engineering Team",
+    assignedMemberId: "usr_pm_1",
+    assignedMemberName: "Rahul Dev",
+    jobNotes: "Oversee ERP schema migration & billing POS pipeline.",
     progress: 75,
     budget: 145000,
     startDate: "2026-08-10",
@@ -246,6 +251,11 @@ const DEFAULT_PROJECTS = [
     category: "Mobile App",
     priority: "Critical",
     status: "in_progress",
+    phase: "testing",
+    assignedTeam: "Mobile Apps Team (Flutter / React Native)",
+    assignedMemberId: "usr_dev_1",
+    assignedMemberName: "Aakash Singh",
+    jobNotes: "Flutter multi-outlet cart & push notification QA.",
     progress: 60,
     budget: 85000,
     startDate: "2026-09-01",
@@ -884,7 +894,7 @@ window.PrimetekDB = {
     return true;
   },
 
-  // 2. ORDERS / INQUIRIES
+  // 2. ORDERS / INQUIRIES (Unified Auto-Workflow: Order -> CRM Lead -> PMS Project Job)
   async recordOrder(order) {
     const data = {
       ...order,
@@ -893,12 +903,79 @@ window.PrimetekDB = {
     };
     const res = await apiFetch('/orders', { method: 'POST', body: JSON.stringify(data) });
     const saved = (res && res.success && res.item) ? res.item : { id: 'ord_' + Date.now().toString(36), ...data };
+    
+    // Save to local orders
     try {
       const raw = localStorage.getItem(LOCAL_ORDERS_KEY);
       const orders = raw ? JSON.parse(raw) : [];
       orders.unshift(saved);
       localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(orders));
     } catch(e) {}
+
+    const itemsSummary = (order.items || []).map(i => `${i.qty || 1}x ${i.name}`).join(', ') || 'Turnkey Software / Custom Solution';
+    const cleanId = String(saved.id || Date.now().toString(36)).replace(/[^0-9a-zA-Z_]/g, '');
+    const cleanCode = cleanId.slice(-4).toUpperCase() || Math.floor(100 + Math.random() * 900);
+
+    // Auto Workflow 1: Instantly create CRM Lead in Sales Pipeline
+    try {
+      const leadPayload = {
+        id: 'lead_' + cleanId,
+        name: order.name,
+        company: order.company || 'Direct Checkout Customer',
+        email: order.email,
+        phone: order.phone,
+        service: `Order #${saved.id}: ${itemsSummary}`,
+        value: parseFloat(order.total) || 0,
+        stage: 'qualified',
+        priority: 'hot',
+        source: 'Storefront Checkout',
+        assignedTo: 'Rahul Dev (Lead PM)',
+        nextFollowUp: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+        notes: `Auto-generated from Checkout Order #${saved.id}. Total: ₹${order.total}. Items: ${itemsSummary}. Notes: ${order.notes || 'None'}`
+      };
+      await this.addLead(leadPayload).catch(e => console.warn('Auto CRM lead sync:', e.message));
+    } catch(err) {
+      console.warn('Auto CRM lead error:', err);
+    }
+
+    // Auto Workflow 2: Instantly spawn Project Job in Project Management System (PMS)
+    try {
+      const prjPayload = {
+        id: 'prj_' + cleanId,
+        code: `PRJ-ORD-${cleanCode}`,
+        title: `[Order #${saved.id}] ${itemsSummary}`,
+        clientName: order.name,
+        clientEmail: order.email,
+        manager: 'Rahul Dev (Lead PM)',
+        category: 'Ready-made Software',
+        priority: 'High',
+        status: 'in_progress',
+        phase: 'discovery',
+        assignedTeam: 'Full-Stack Engineering Team',
+        assignedMemberName: 'Rahul Dev',
+        assignedMemberId: 'usr_pm_1',
+        progress: 15,
+        budget: parseFloat(order.total) || 0,
+        startDate: new Date().toISOString().slice(0, 10),
+        deadline: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
+        description: `Auto-spawned engineering job from Customer Checkout Order #${saved.id}. Customer: ${order.name} (${order.phone} / ${order.email}). Items: ${itemsSummary}. Notes: ${order.notes || 'None'}`,
+        milestones: [
+          { id: 'm1_' + Date.now(), title: 'Order Intake & Customer Verification', date: new Date().toISOString().slice(0, 10), completed: true },
+          { id: 'm2_' + Date.now(), title: 'Payment Receipt & License Key Provisioning', date: '', completed: false },
+          { id: 'm3_' + Date.now(), title: 'Source Code Packaging & Cloud Setup', date: '', completed: false },
+          { id: 'm4_' + Date.now(), title: 'Production Handover & Walkthrough', date: '', completed: false }
+        ],
+        deliverables: {
+          demoUrl: '',
+          repoUrl: '',
+          docsUrl: ''
+        }
+      };
+      await this.addProject(prjPayload).catch(e => console.warn('Auto PMS project sync:', e.message));
+    } catch(err) {
+      console.warn('Auto PMS project error:', err);
+    }
+
     return saved;
   },
 
@@ -1052,9 +1129,14 @@ window.PrimetekDB = {
     const data = {
       ...project,
       code: code,
+      phase: project.phase || 'discovery',
+      assignedTeam: project.assignedTeam || 'Full-Stack Engineering Team',
+      assignedMemberName: project.assignedMemberName || project.manager || 'Rahul Dev (Lead PM)',
+      assignedMemberId: project.assignedMemberId || 'usr_pm_1',
+      jobNotes: project.jobNotes || '',
       budget: parseFloat(project.budget) || 0,
       progress: parseInt(project.progress, 10) || 0,
-      status: project.status || 'planning',
+      status: project.status || 'in_progress',
       milestones: project.milestones || [
         { id: 'm1', title: 'Scope Definition & Discovery', completed: true, date: new Date().toISOString().slice(0, 10) },
         { id: 'm2', title: 'Architecture Blueprint & Wireframes', completed: false, date: '' },
